@@ -15,9 +15,8 @@ import os
 import subprocess
 import urllib.request
 
-# TODO: no double quotes
-
-# NB: this script assumes that ~/.config/spaceoddity/ exists, as well as
+# NB: this script assumes that
+# ~/.config/spaceoddity/ exists, as well as
 # ~/.config/spaceoddity/spaceoddity.log and
 # ~/.config/spaceoddity/spaceoddity.conf
 
@@ -47,7 +46,7 @@ def main():
     # print('home_dir:', home_dir)
     # print('conf_dir:', conf_dir)
     # print('conf_file:', conf_file)
-    # # print('cap_path:', cap_path)
+    # print('cap_path:', cap_path)
     # print('log_file:', log_file)
     # exit(0)
 
@@ -56,7 +55,7 @@ def main():
 #-------------------------------------------------------------------------------
 
     # get lock file (write-only, create if necessary)
-    # lock_file = os.open(f"/tmp/" + prog_name + ".lock",
+    # lock_file = os.open(f'/tmp/' + prog_name + '.lock',
     #         os.O_WRONLY | os.O_CREAT)
 
     # # check for existance of lock file
@@ -68,7 +67,7 @@ def main():
 
     # # another instance is running, log and exit normally
     # if already_running:
-    #     logging.debug("Already running")
+    #     logging.debug('Already running')
     #     sys.exit(0)
 
 #-------------------------------------------------------------------------------
@@ -90,26 +89,37 @@ def main():
 
     config = configparser.ConfigParser()
     config.read(conf_file)
+    config_section = f'{prog_name}'
 
-    for section in config.sections():
-        # print('section:', section)
+    # for section in config.sections():
+    #     print('section:', section)
 
-        for key in config[section]:
-            val = config[section][key]
-            # print('key:', key, ', val:', val)
+    #     for key in config[section]:
+    #         print('key:', key, ', val:', config[section][key])
 
-            if key.lower() == 'enabled':
-                enabled = int(val)
-                # print('enabled:', bool(enabled))
+    enabled = config[config_section]['enabled']
+    enabled = bool(int(enabled))
 
-                if not enabled:
-                    logging.debug("Not enabled")
-                    exit(0)
+            # print()
+
+        # for key in config[section]:
+
+    #     if section == f'{prog_name}':
+    #         for key in config[section]:
+    #             val = config[section][key]
+
+    #             if key.lower() == 'enabled':
+    #                 enabled = int(val)
+    #                 print('enabled:', bool(enabled))
+
+    #                 if not enabled:
+    #                     logging.debug('Not enabled')
+    #                     exit(0)
 
     # try:
 
     #     if os.path.exists(conf_file):
-    #         with open(conf_file, "r") as f:
+    #         with open(conf_file, 'r') as f:
     #             lines = f.readlines()
 
     #             # read key/value pairs from conf file
@@ -117,32 +127,32 @@ def main():
     #                 line_clean = line.strip().upper()
 
     #                 # ignore comment lines or blanks or lines with no values
-    #                 if line_clean.startswith("#") or line_clean == "":
+    #                 if line_clean.startswith('#') or line_clean == '':
     #                     continue
 
     #                 # split key off at equals
-    #                 key_val = line_clean.split("=")
+    #                 key_val = line_clean.split('=')
     #                 key = key_val[0].strip()
 
     #                 # split val off ignoring trailing comments
-    #                 val = ""
+    #                 val = ''
     #                 if (len(key_val) > 1):
-    #                     val_array = key_val[1].split("#")
+    #                     val_array = key_val[1].split('#')
     #                     val = val_array[0].strip()
 
     #                 # check if we are enabled
-    #                 if key == "ENABLED":
-    #                     if val != "":
+    #                 if key == 'ENABLED':
+    #                     if val != '':
     #                         enabled = int(val)
 
     #                 # get delay
-    #                 if key == "DELAY":
-    #                     if val != "":
+    #                 if key == 'DELAY':
+    #                     if val != '':
     #                         delay = int(val)
 
     #                 # get caption
-    #                 if key == "CAPTION":
-    #                     if val != "":
+    #                 if key == 'CAPTION':
+    #                     if val != '':
     #                         caption = int(val)
 
     # except Exception as e:
@@ -152,9 +162,9 @@ def main():
 # Bail if not enabled
 #-------------------------------------------------------------------------------
 
-    # if not enabled:
-    #     logging.debug("Not enabled")
-    #     exit(0)
+    if not enabled:
+        logging.debug('Not enabled')
+        exit(0)
 
     # # wait for internet to come up
     # # NB: the scripts apod_linux_login.sh and apod_linux_unlock.sh fork this
@@ -231,7 +241,7 @@ def main():
     #     try:
 
     #         # get text to send
-    #         cap_text = apod_data["explanation"]
+    #         cap_text = apod_data['explanation']
 
     #         # call the caption script with text and pic path
     #         subprocess.call([cap_path, pic_path, cap_text])
@@ -245,13 +255,13 @@ def main():
     #     try:
 
     #         # first check for env varible
-    #         a_dir = os.getenv("XDG_GREETER_DATA_DIR")
+    #         a_dir = os.getenv('XDG_GREETER_DATA_DIR')
     #         if a_dir is not None:
-    #             logging.debug("No greeter dir, bailing")
+    #             logging.debug('No greeter dir, bailing')
     #             sys.exit(1)
 
     #         # get location of script
-    #         cmd = "/usr/lib/x86_64-linux-gnu/io.elementary.contract.set-wallpaper"
+    #         cmd = '/usr/lib/x86_64-linux-gnu/io.elementary.contract.set-wallpaper'
 
     #         # call the script with pic path
     #         subprocess.call([cmd, pic_path])
