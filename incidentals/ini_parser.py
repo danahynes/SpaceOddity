@@ -1,16 +1,21 @@
 
+import os
+
 class ConfParser:
+
+    file = ''
 
     def __init__(self):
         pass
-    def parse(str):
+    def parse(self, file):
+        file = file
         pass
 
 
 try:
 
-    if os.path.exists(conf_file):
-        with open(conf_file, "r") as f:
+    if os.path.exists(file):
+        with open(file, "r") as f:
             lines = f.readlines()
 
             # read key/value pairs from conf file

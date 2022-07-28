@@ -35,9 +35,9 @@ def main():
     # get locations
     home_dir = os.path.expanduser('~')
     conf_dir = os.path.join(home_dir, '.config', prog_name)
+    log_file = os.path.join(conf_dir, f'{prog_name}.log')
     conf_file = os.path.join(conf_dir, f'{prog_name}.conf')
     # cap_path = f'/usr/bin/{prog_name}_caption.sh'
-    log_file = os.path.join(conf_dir, f'{prog_name}.log')
 
     # set up logging
     logging.basicConfig(filename = log_file, level = logging.DEBUG,
@@ -45,30 +45,10 @@ def main():
 
     # print('home_dir:', home_dir)
     # print('conf_dir:', conf_dir)
+    # print('log_file:', log_file)
     # print('conf_file:', conf_file)
     # print('cap_path:', cap_path)
-    # print('log_file:', log_file)
     # exit(0)
-
-#-------------------------------------------------------------------------------
-# Prevent more than one instance running at a time (to avoid file collisions)
-#-------------------------------------------------------------------------------
-
-    # get lock file (write-only, create if necessary)
-    # lock_file = os.open(f'/tmp/' + prog_name + '.lock',
-    #         os.O_WRONLY | os.O_CREAT)
-
-    # # check for existance of lock file
-    # try:
-    #     fcntl.lockf(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    #     already_running = False
-    # except IOError:
-    #     already_running = True
-
-    # # another instance is running, log and exit normally
-    # if already_running:
-    #     logging.debug('Already running')
-    #     sys.exit(0)
 
 #-------------------------------------------------------------------------------
 # Start script and set default config values
@@ -80,83 +60,21 @@ def main():
 
     # defaults
     enabled = True
-    # delay = 30
-    # caption = True
+    caption = False
 
 #-------------------------------------------------------------------------------
 # Get config values from config file
 #-------------------------------------------------------------------------------
 
-    config = configparser.ConfigParser()
-    config.read(conf_file)
-    config_section = f'{prog_name}'
+    config_parser = configparser.ConfigParser()
+    config_parser.read(conf_file)
+    config = config_parser[f'{prog_name}']
 
-    # for section in config.sections():
-    #     print('section:', section)
-
-    #     for key in config[section]:
-    #         print('key:', key, ', val:', config[section][key])
-
-    enabled = config[config_section]['enabled']
+    enabled = config['enabled']
     enabled = bool(int(enabled))
 
-            # print()
-
-        # for key in config[section]:
-
-    #     if section == f'{prog_name}':
-    #         for key in config[section]:
-    #             val = config[section][key]
-
-    #             if key.lower() == 'enabled':
-    #                 enabled = int(val)
-    #                 print('enabled:', bool(enabled))
-
-    #                 if not enabled:
-    #                     logging.debug('Not enabled')
-    #                     exit(0)
-
-    # try:
-
-    #     if os.path.exists(conf_file):
-    #         with open(conf_file, 'r') as f:
-    #             lines = f.readlines()
-
-    #             # read key/value pairs from conf file
-    #             for line in lines:
-    #                 line_clean = line.strip().upper()
-
-    #                 # ignore comment lines or blanks or lines with no values
-    #                 if line_clean.startswith('#') or line_clean == '':
-    #                     continue
-
-    #                 # split key off at equals
-    #                 key_val = line_clean.split('=')
-    #                 key = key_val[0].strip()
-
-    #                 # split val off ignoring trailing comments
-    #                 val = ''
-    #                 if (len(key_val) > 1):
-    #                     val_array = key_val[1].split('#')
-    #                     val = val_array[0].strip()
-
-    #                 # check if we are enabled
-    #                 if key == 'ENABLED':
-    #                     if val != '':
-    #                         enabled = int(val)
-
-    #                 # get delay
-    #                 if key == 'DELAY':
-    #                     if val != '':
-    #                         delay = int(val)
-
-    #                 # get caption
-    #                 if key == 'CAPTION':
-    #                     if val != '':
-    #                         caption = int(val)
-
-    # except Exception as e:
-    #     logging.debug(str(e))
+    caption = config['caption']
+    caption = bool(int(caption))
 
 #-------------------------------------------------------------------------------
 # Bail if not enabled
@@ -165,11 +83,6 @@ def main():
     if not enabled:
         logging.debug('Not enabled')
         exit(0)
-
-    # # wait for internet to come up
-    # # NB: the scripts apod_linux_login.sh and apod_linux_unlock.sh fork this
-    # # script, so a sleep here does not hang the login/unlock process
-    # time.sleep(delay)
 
 #-------------------------------------------------------------------------------
 # Get JSON from api.nasa.gov
@@ -183,8 +96,8 @@ def main():
 
         # get json from url
         response = urllib.request.urlopen(apod_url)
-        byte_data = response.read()
-        apod_data = json.loads(byte_data)
+        json_data = response.read()
+        apod_data = json.loads(json_data)
         logging.debug('Got JSON from server')
     except urllib.error.URLError as err:
         logging.debug('Could not get JSON')
@@ -203,7 +116,6 @@ def main():
         pic_url = apod_data['hdurl']
 
         # create a download file path
-        # pic_path is conf_dir + pic_name
         file_ext = pic_url.split('.')[-1]
         pic_name = f'{prog_name}_wallpaper.{file_ext}'
         pic_path = os.path.join(conf_dir, pic_name)
@@ -235,6 +147,14 @@ def main():
 #-------------------------------------------------------------------------------
 # Run caption script
 #-------------------------------------------------------------------------------
+    if not caption:
+        logging.debug('No caption')
+    else:
+        title = apod_data['title']
+        text = apod_data['explanation']
+
+        print('title:', title)
+        print('text:', text)
 
     # if we have a valid pic_path
     # if pic_path is not None and caption:
@@ -250,29 +170,7 @@ def main():
     #         logging.debug(str(e))
     #         sys.exit(1)
 
-    # if we have a valid pic_path
-    # if pic_path is not None:
-    #     try:
 
-    #         # first check for env varible
-    #         a_dir = os.getenv('XDG_GREETER_DATA_DIR')
-    #         if a_dir is not None:
-    #             logging.debug('No greeter dir, bailing')
-    #             sys.exit(1)
-
-    #         # get location of script
-    #         cmd = '/usr/lib/x86_64-linux-gnu/io.elementary.contract.set-wallpaper'
-
-    #         # call the script with pic path
-    #         subprocess.call([cmd, pic_path])
-
-    #         # remove file since its been copied everywhere
-    #         # NB: this is kept with eOS specific code since we know that's how
-    #         # set-wallpaper works. other os's may need to keep the file in place
-    #         os.remove(pic_path)
-    #     except OSError as e:
-    #         logging.debug(str(e))
-    #         sys.exit(1)
 
 #-------------------------------------------------------------------------------
 # Set wallpaper using final pic
