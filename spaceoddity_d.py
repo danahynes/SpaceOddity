@@ -131,7 +131,6 @@ def main():
             exit(1)
     else:
         logging.debug('Not an image, doing nothing')
-        exit(0)
 
         # NB: this is for testing on days when the APOD is not an image
         # pic_path = os.path.join(home_dir,
@@ -143,6 +142,8 @@ def main():
         # irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
         # fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,
         # sunt in culpa qui officia deserunt mollit anim id est laborum.'
+
+        exit(0)
 
 #-------------------------------------------------------------------------------
 # Run caption script

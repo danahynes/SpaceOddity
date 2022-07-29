@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #------------------------------------------------------------------------------#
-# Filename: spaceoddityc.sh                                      /          \  #
+# Filename: spaceoddity_c.sh                                     /          \  #
 # Project : SpaceOddity                                         |     ()     | #
 # Date    : 07/22/2022                                          |            | #
 # Author  : Dana Hynes                                          |   \____/   | #
