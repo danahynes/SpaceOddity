@@ -10,15 +10,14 @@
 # TODO: defaults
 # NB: requires imagemagick
 # NB: this script assumes that
-# ~/.config/spaceoddity/spaceoddity.conf exists
+# ~/.config/spaceoddity/spaceoddity.json exists
 
 # imports
-import configparser
 import json
 import logging
 import os
-import subprocess
-import tkinter
+# import subprocess
+# import tkinter
 
 #-------------------------------------------------------------------------------
 # Define the main function
@@ -37,11 +36,15 @@ def main():
     conf_dir = os.path.join(home_dir, '.config', prog_name)
     data_file = os.path.join(conf_dir, f'{prog_name}.dat')
     log_file = os.path.join(conf_dir, f'{prog_name}.log')
-    conf_file = os.path.join(conf_dir, f'{prog_name}.conf')
+    conf_file = os.path.join(conf_dir, f'{prog_name}.json')
 
     # set up logging
     logging.basicConfig(filename = log_file, level = logging.DEBUG,
         format = '%(asctime)s - %(message)s')
+
+#-------------------------------------------------------------------------------
+# Get data file (the apod data downloaded by main script)
+#-------------------------------------------------------------------------------
 
     # open data file
     with open(data_file, encoding = 'UTF-8') as file:
@@ -53,131 +56,105 @@ def main():
     pic_name = f'{prog_name}_wallpaper.{file_ext}'
     pic_path = os.path.join(conf_dir, pic_name)
 
-    print('-------------------------------------------------------------------')
-    print('pic_path:', pic_path)
-
+    # get data for caption
     title = apod_data['title']
     text = apod_data['explanation']
 
-    print('title:', title)
-    print('text:', text)
+    # print('pic_path:', pic_path)
+    # print('title:', title)
+    # print('text:', text)
+    # exit(0)
 
 #-------------------------------------------------------------------------------
 # Get config values from config file
 #-------------------------------------------------------------------------------
 
+    # set defaults
     config_defaults = {
-        'fg_r' : 255,
-        'fg_g' : 255,
-        'fg_b' : 255,
-        'fg_a' : 100,
-        'bg_r' : 0,
-        'bg_g' : 0,
-        'bg_b' : 0,
-        'bg_a' : 75,
-        'position' : 'BR',
-        'width' : 500,
-        'font_size' : 15,
-        'corner_radius' : 15,
-        'border' : 20,
-        'top_padding' : 50,
-        'bottom_padding' : 10,
-        'side_padding' : 10
+        'fg_r'              : 255,
+        'fg_g'              : 255,
+        'fg_b'              : 255,
+        'fg_a'              : 100,
+        'bg_r'              : 0,
+        'bg_g'              : 0,
+        'bg_b'              : 0,
+        'bg_a'              : 75,
+        'position'          : 'BR',
+        'width'             : 500,
+        'font_size'         : 15,
+        'corner_radius'     : 15,
+        'border'            : 20,
+        'top_padding'       : 50,
+        'bottom_padding'    : 10,
+        'side_padding'      : 10
     }
 
-    config_parser = configparser.ConfigParser(config_defaults)
-    config_parser.read(conf_file)
-    config = config_parser[f'{prog_name}']
+    # read config file
+    with open(conf_file, encoding = 'UTF-8') as file:
+        config = json.load(file)
 
-    fg_r = config.get(['fg_r']
-    fg_g = config['fg_g']
-    fg_b = config['fg_b']
-    fg_a = config['fg_a']
-    bg_r = config['bg_r']
-    bg_g = config['bg_g']
-    bg_b = config['bg_b']
-    bg_a = config['bg_a']
-    position = config['position']
-    width = config['width']
-    font_size = config['font_size']
-    corner_radius = config['corner_radius']
-    border = config['border']
-    top_padding = config['top_padding']
-    bottom_padding = config['bottom_padding']
-    side_padding = config['side_padding']
+    # get values or defaults
+    for key in config_defaults:
+        if not (key in config.keys()):
+            config[key] = config_defaults.get(key)
+        
 
-    print('position:', position)
-    print('fg_r:', fg_r)
-    print('fg_g:', fg_g)
-    print('fg_b:', fg_b)
-    print('fg_a:', fg_a)
-    print('bg_r:', bg_r)
-    print('bg_g:', bg_g)
-    print('bg_b:', bg_b)
-    print('bg_a:', bg_a)
-    print('width:', width)
-    print('font_size:', font_size)
-    print('corner_radius:', corner_radius)
-    print('border:', border)
-    print('top_padding:', top_padding)
-    print('bottom_padding:', bottom_padding)
-    print('side_padding:', side_padding)
-
+    print(config)
     exit(0)
 
-    resz_img = os.path.join(conf_dir, f'{prog_name}.resz.{file_ext}')
-    text_img = os.path.join(conf_dir, f'{prog_name}.text.png')
-    back_img = os.path.join(conf_dir, f'{prog_name}.back.png')
-    comb_img = os.path.join(conf_dir, f'{prog_name}.comb.png')
-    mask_img = os.path.join(conf_dir, f'{prog_name}.mask.png')
-    capt_img = os.path.join(conf_dir, f'{prog_name}.capt.png')
+    # resz_img = os.path.join(conf_dir, f'{prog_name}.resz.{file_ext}')
+    # text_img = os.path.join(conf_dir, f'{prog_name}.text.png')
+    # back_img = os.path.join(conf_dir, f'{prog_name}.back.png')
+    # comb_img = os.path.join(conf_dir, f'{prog_name}.comb.png')
+    # mask_img = os.path.join(conf_dir, f'{prog_name}.mask.png')
+    # capt_img = os.path.join(conf_dir, f'{prog_name}.capt.png')
 
-    print('text_img:', text_img)
-    print('back_img:', back_img)
-    print('comb_img:', comb_img)
-    print('mask_img:', mask_img)
-    print('capt_img:', capt_img)
+    # print('text_img:', text_img)
+    # print('back_img:', back_img)
+    # print('comb_img:', comb_img)
+    # print('mask_img:', mask_img)
+    # print('capt_img:', capt_img)
 
-    cmd = \
-        'identify -format %[fx:w] ' + \
-        pic_path
-    cmd_array = cmd.split()
-    res = subprocess.check_output(cmd_array)
-    pic_w = int(res.decode('utf-8'))
+    # cmd = \
+    #     'identify -format %[fx:w] ' + \
+    #     pic_path
+    # cmd_array = cmd.split()
+    # res = subprocess.check_output(cmd_array)
+    # pic_w = int(res.decode('utf-8'))
 
-    cmd = \
-        'identify -format %[fx:h] ' + \
-        pic_path
-    cmd_array = cmd.split()
-    res = subprocess.check_output(cmd_array)
-    pic_h = int(res.decode('utf-8'))
+    # cmd = \
+    #     'identify -format %[fx:h] ' + \
+    #     pic_path
+    # cmd_array = cmd.split()
+    # res = subprocess.check_output(cmd_array)
+    # pic_h = int(res.decode('utf-8'))
 
-    print('pic_w:', pic_w)
-    print('pic_h:', pic_h)
+    # print('pic_w:', pic_w)
+    # print('pic_h:', pic_h)
 
-    root = tkinter.Tk()
-    screen_w = root.winfo_screenwidth()
-    screen_h = root.winfo_screenheight()
+    # root = tkinter.Tk()
+    # screen_w = root.winfo_screenwidth()
+    # screen_h = root.winfo_screenheight()
 
 
-    print('screen w:', screen_w)
-    print('screen h:', screen_h)
+    # print('screen w:', screen_w)
+    # print('screen h:', screen_h)
 
-    scale_w = pic_w/screen_w
-    scale_h = pic_h/screen_h
+    # scale_w = pic_w/screen_w
+    # scale_h = pic_h/screen_h
 
-    print('scale_w:', scale_w)
-    print('scale_h:', scale_h)
+    # print('scale_w:', scale_w)
+    # print('scale_h:', scale_h)
 
-    scale = scale_w
-    if scale_h < scale_w:
-        scale = scale_h
+    # scale = scale_w
+    # if scale_h < scale_w:
+    #     scale = scale_h
 
-    new_w = int(pic_w/scale)
-    new_h = int(pic_h/scale)
+    # new_w = int(pic_w/scale)
+    # new_h = int(pic_h/scale)
 
-    print('new_w:', new_w)
-    print('new_h:', new_h)
+    # print('new_w:', new_w)
+    # print('new_h:', new_h)
 
 
 
@@ -191,7 +168,7 @@ def main():
     #     {resz_img}'
     # cmd_array = cmd.split()
     # subprocess.call(cmd_array)
-    
+
 #-------------------------------------------------------------------------------
 # The wallpaper has now been resized to "zoom" (i.e. fill the screen at the
 # smallest possible size, and yes I realize that's not what most people think

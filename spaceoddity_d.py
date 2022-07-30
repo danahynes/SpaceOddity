@@ -63,23 +63,27 @@ def main():
 # Get config values from config file
 #-------------------------------------------------------------------------------
 
-    # defaults
-    enabled = True
-    caption = True
+    # set defaults
+    config_defaults = {
+        'enabled' : 1,
+        'caption' : 1,
+    }
 
-    try:
-        with open(conf_file, encoding = 'UTF-8') as file:
-            data = json.load(file)
+    # read config file
+    with open(conf_file, encoding = 'UTF-8') as file:
+        config = json.load(file)
 
-        enabled = bool(data['enabled'])
-        caption = bool(data['caption'])
-    except KeyError as err:
-        logging.debug('Key missing, using default')
-        logging.debug(err)
+    # get values or defaults
+    for key in config_defaults:
+        if not (key in config.keys()):
+            config[key] = config_defaults.get(key)
 
-    # print('enabled:', enabled)
-    # print('caption:', caption)
+    # print(config)
     # exit(0)
+
+    # the only keys we care about
+    enabled = bool(config['enabled'])
+    caption = bool(config['caption'])
 
 #-------------------------------------------------------------------------------
 # Bail if not enabled
