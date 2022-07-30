@@ -75,7 +75,7 @@ def main():
 
     # get values or defaults
     for key in config_defaults:
-        if not (key in config.keys()):
+        if not key in config.keys():
             config[key] = config_defaults.get(key)
 
     # print(config)
