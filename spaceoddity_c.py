@@ -128,6 +128,7 @@ def main():
     comb_img = os.path.join(conf_dir, f'{prog_name}.comb.png')
     mask_img = os.path.join(conf_dir, f'{prog_name}.mask.png')
     capt_img = os.path.join(conf_dir, f'{prog_name}.capt.png')
+    temp_img = os.path.join(conf_dir, f'{prog_name}.temp.png')
 
     # print('resz_img:', resz_img)
     # print('text_img:', text_img)
@@ -135,6 +136,7 @@ def main():
     # print('comb_img:', comb_img)
     # print('mask_img:', mask_img)
     # print('capt_img:', capt_img)
+    # print('temp_img:', temp_img)
     # exit(0)
 
 #-------------------------------------------------------------------------------
@@ -151,21 +153,21 @@ def main():
     res = subprocess.check_output(cmd_array)
     pic_h = int(res.decode('UTF-8'))
 
-    print('pic_w:', pic_w)
-    print('pic_h:', pic_h)
+    # print('pic_w:', pic_w)
+    # print('pic_h:', pic_h)
 
     root = tkinter.Tk()
     screen_w = root.winfo_screenwidth()
     screen_h = root.winfo_screenheight()
 
-    print('screen w:', screen_w)
-    print('screen h:', screen_h)
+    # print('screen w:', screen_w)
+    # print('screen h:', screen_h)
 
     scale_w = pic_w/screen_w
     scale_h = pic_h/screen_h
 
-    print('scale_w:', scale_w)
-    print('scale_h:', scale_h)
+    # print('scale_w:', scale_w)
+    # print('scale_h:', scale_h)
 
     scale = scale_w
     if scale_h < scale_w:
@@ -174,8 +176,8 @@ def main():
     new_w = int(pic_w/scale)
     new_h = int(pic_h/scale)
 
-    print('new_w:', new_w)
-    print('new_h:', new_h)
+    # print('new_w:', new_w)
+    # print('new_h:', new_h)
 
 #-------------------------------------------------------------------------------
 # resize the wallpaper to fill the screen
@@ -207,9 +209,10 @@ def main():
 
 # NB: putting spaces in rgba breaks formatting?
 
+    border_w = width - (border * 2)
     cmd = \
         f'convert \
-        -size {width} \
+        -size {border_w} \
         -pointsize {font_size} \
         -fill rgba({fg_r},{fg_g},{fg_b},({fg_a}/100)) \
         -background none \
@@ -319,43 +322,74 @@ def main():
 # get overhang after scaling the wallpaper
 #-------------------------------------------------------------------------------
 
-    x_over = (scale_w - screen_w) / 2
-    y_over = (scale_h - screen_h) / 2
+    x_over = (new_w - screen_w) / 2
+    y_over = (new_h - screen_h) / 2
+
+    # print('x_over:', x_over)
+    # print('y_over:', y_over)
 
 #-------------------------------------------------------------------------------
 # set the x and y position of the caption
 #-------------------------------------------------------------------------------
 
-    x_offset = 0
-    y_offset = 0
-    x_center = (scale_w - screen_w) / 2
-    y_center = (scale_h - screen_h) / 2
+    x_pos = 0
+    y_pos = 0
 
     if position == 'TL':
-        x_offset = (x_over + side_padding)
-        y_offset = (y_over + top_padding)
+        x_pos = x_over + side_padding
+        y_pos = y_over + top_padding
     elif position == 'TC' :
-        pass
+        x_pos = x_over + (screen_w / 2) - (text_w / 2)
+        y_pos = y_over + top_padding
     elif position == 'TR' :
-        x_offset = scale_w - x_over - text_w - side_padding
-        y_offset = y_over + top_padding
+        x_pos = new_w - x_over - text_w - side_padding
+        y_pos = y_over + top_padding
     elif position == 'CL' :
-        pass
+        x_pos = x_over + side_padding
+        y_pos = y_over + (screen_h / 2) - (text_h / 2)
     elif position == 'CC' :
-        pass
+        x_pos = x_over + (screen_w / 2) - (text_w / 2)
+        y_pos = y_over + (screen_h / 2) - (text_h / 2)
     elif position == 'CR' :
-        pass
+        x_pos = x_over - screen_w - text_w - side_padding
+        y_pos = y_over + (screen_h / 2) - (text_h / 2)
     elif position == 'BL' :
-        x_offset = x_over + side_padding
-        y_offset = scale_h - y_over - text_h - bottom_padding
+        x_pos = x_over + side_padding
+        y_pos = new_h - y_over - text_h - bottom_padding
     elif position == 'BC' :
-        pass
+        x_pos = x_over + (screen_w / 2) - (text_w / 2)
+        y_pos = y_over - screen_h - text_h - bottom_padding
     elif position == 'BR' :
-        x_offset = scale_w - x_over - text_w - side_padding
-        y_offset = scale_h - y_over - text_h - bottom_padding
+        x_pos = new_w - x_over - text_w - side_padding
+        y_pos = new_h - y_over - text_h - bottom_padding
 
-    print('x_offset:', x_offset)
-    print('y_offset:', y_offset)
+    x_pos = int(x_pos)
+    y_pos = int(y_pos)
+    # print('position:', position)
+    # print('x_pos:', x_pos)
+    # print('y_pos:', y_pos)
+
+    # exit(0)
+
+#-------------------------------------------------------------------------------
+# make the final image
+#-------------------------------------------------------------------------------
+
+    cmd = f'convert \
+        {resz_img} \
+        {capt_img} \
+        -geometry +{x_pos}+{y_pos} \
+        -compose over \
+        -composite \
+        {temp_img}'
+
+
+    cmd_array = cmd.split()
+    subprocess.call(cmd_array)
+
+    # exit(0)
+
+    # TODO: move file and delete temps
 
 #-------------------------------------------------------------------------------
 # Run the main function if we are not an import
