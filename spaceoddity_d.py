@@ -8,7 +8,6 @@
 #------------------------------------------------------------------------------#
 
 # imports
-import configparser
 import json
 import logging
 import os
@@ -18,7 +17,7 @@ import urllib.request
 # NB: this script assumes that
 # ~/.config/spaceoddity/ exists, as well as
 # ~/.config/spaceoddity/spaceoddity.log and
-# ~/.config/spaceoddity/spaceoddity.conf
+# ~/.config/spaceoddity/spaceoddity.json
 
 #-------------------------------------------------------------------------------
 # Define the main function
@@ -35,9 +34,11 @@ def main():
     # get locations
     home_dir = os.path.expanduser('~')
     conf_dir = os.path.join(home_dir, '.config', prog_name)
+    data_file = os.path.join(conf_dir, f'{prog_name}.dat')
     log_file = os.path.join(conf_dir, f'{prog_name}.log')
-    conf_file = os.path.join(conf_dir, f'{prog_name}.conf')
-    # cap_path = f'/usr/bin/{prog_name}_caption.sh'
+    conf_file = os.path.join(conf_dir, f'{prog_name}.json')
+    # TODO: cap_path = os.path.join('/usr/bin', f'{prog_name}_c.py')
+    cap_path = f'./{prog_name}_c.py'
 
     # set up logging
     logging.basicConfig(filename = log_file, level = logging.DEBUG,
@@ -55,26 +56,30 @@ def main():
 #-------------------------------------------------------------------------------
 
     # log start
-    logging.debug('-----------------------------------------------------------')
+    logging.debug('------------------------------------------------------')
     logging.debug('Starting script')
-
-    # defaults
-    enabled = True
-    caption = False
 
 #-------------------------------------------------------------------------------
 # Get config values from config file
 #-------------------------------------------------------------------------------
 
-    config_parser = configparser.ConfigParser()
-    config_parser.read(conf_file)
-    config = config_parser[f'{prog_name}']
+    # defaults
+    enabled = True
+    caption = True
 
-    enabled = config['enabled']
-    enabled = bool(int(enabled))
+    try:
+        with open(conf_file, encoding = 'UTF-8') as file:
+            data = json.load(file)
 
-    caption = config['caption']
-    caption = bool(int(caption))
+        enabled = bool(data['enabled'])
+        caption = bool(data['caption'])
+    except KeyError as err:
+        logging.debug('Key missing, using default')
+        logging.debug(err)
+
+    # print('enabled:', enabled)
+    # print('caption:', caption)
+    # exit(0)
 
 #-------------------------------------------------------------------------------
 # Bail if not enabled
@@ -98,6 +103,11 @@ def main():
         response = urllib.request.urlopen(apod_url)
         json_data = response.read()
         apod_data = json.loads(json_data)
+
+        # save json data to file (for use by caption script)
+        with open(data_file, 'w', encoding = 'UTF-8') as file:
+            json.dump(apod_data, file, ensure_ascii = False, indent = 4)
+
         logging.debug('Got JSON from server')
     except urllib.error.URLError as err:
         logging.debug('Could not get JSON')
@@ -131,6 +141,7 @@ def main():
             exit(1)
     else:
         logging.debug('Not an image, doing nothing')
+        exit(0)
 
         # NB: this is for testing on days when the APOD is not an image
         # pic_path = os.path.join(home_dir,
@@ -143,39 +154,20 @@ def main():
         # fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,
         # sunt in culpa qui officia deserunt mollit anim id est laborum.'
 
-        exit(0)
-
 #-------------------------------------------------------------------------------
 # Run caption script
 #-------------------------------------------------------------------------------
-    if not caption:
-        logging.debug('No caption')
+
+    if caption:
+        logging.debug('Running caption')
+
+        # set cmd for running caption
+        cmd = cap_path
+        cmd_array = cmd.split()
+        subprocess.call(cmd_array)
+
     else:
-        title = apod_data['title']
-        text = apod_data['explanation']
-
-        print('title:', title)
-        print('text:', text)
-
-    # if we have a valid pic_path
-    # if pic_path is not None and caption:
-    #     try:
-
-    #         # get text to send
-    #         cap_text = apod_data['explanation']
-
-    #         # call the caption script with text and pic path
-    #         subprocess.call([cap_path, pic_path, cap_text])
-
-    #     except OSError as e:
-    #         logging.debug(str(e))
-    #         sys.exit(1)
-
-
-
-#-------------------------------------------------------------------------------
-# Set wallpaper using final pic
-#-------------------------------------------------------------------------------
+        logging.debug('No caption')
 
     # set cmd for Gnome wallpaper and run
     cmd = 'gsettings set org.gnome.desktop.background picture-uri ' + \
