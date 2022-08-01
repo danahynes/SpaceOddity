@@ -7,17 +7,30 @@
 # License : WTFPLv2                                              \          /  #
 #------------------------------------------------------------------------------#
 
-# NB: requires imagemagick
+# NB: requires :
+# imagemagick (sudo apt install imagemagick)
+# wand (pip install wand)
+# TODO: convert imagemagick calls to wand
+# TODO: put mask/background/text into one operation?
+# TODO: fix alpha for foreground/background
+    # maybe convert original to png?
 # NB: this script assumes that
-# ~/.config/spaceoddity/spaceoddity.json exists
+# ~/.config/spaceoddity/ exists, as well as
+# ~/.config/spaceoddity/spaceoddity.dat
+# ~/.config/spaceoddity/spaceoddity_desk.???,
+# ~/.config/spaceoddity/spaceoddity.json,
+# ~/.config/spaceoddity/spaceoddity.log,
 
 # imports
 import json
 import logging
 import os
 import shlex
+import shutil
 import subprocess
 import tkinter
+
+DEBUG = 1
 
 #-------------------------------------------------------------------------------
 # Define the main function
@@ -53,17 +66,17 @@ def main():
     # create a download file path
     pic_url = apod_data['hdurl']
     file_ext = pic_url.split('.')[-1]
-    pic_name = f'{prog_name}_wallpaper.{file_ext}'
+    pic_name = f'{prog_name}_desk.{file_ext}'
     pic_path = os.path.join(conf_dir, pic_name)
 
     # get data for caption
     title = apod_data['title']
     text = apod_data['explanation']
 
-    # print('pic_path:', pic_path)
-    # print('title:', title)
-    # print('text:', text)
-    # exit(0)
+    if DEBUG:
+        print('pic_path:', pic_path)
+        print('title:', title)
+        print('text:', text)
 
 #-------------------------------------------------------------------------------
 # Get config values from config file
@@ -71,6 +84,7 @@ def main():
 
     # set defaults
     config_defaults = {
+        'position'          : 'BR',
         'fg_r'              : 255,
         'fg_g'              : 255,
         'fg_b'              : 255,
@@ -79,7 +93,6 @@ def main():
         'bg_g'              : 0,
         'bg_b'              : 0,
         'bg_a'              : 75,
-        'position'          : 'BR',
         'width'             : 500,
         'font_size'         : 15,
         'corner_radius'     : 15,
@@ -98,86 +111,147 @@ def main():
         if not key in config.keys():
             config[key] = config_defaults.get(key)
 
-    # print(config)
-    # exit(0)
+    if DEBUG:
+        print('config:', config)
 
-    fg_r = config['fg_r']
-    fg_g = config['fg_g']
-    fg_b = config['fg_b']
-    fg_a = config['fg_a']
-    bg_r = config['bg_r']
-    bg_g = config['bg_g']
-    bg_b = config['bg_b']
-    bg_a = config['bg_a']
-    width = config['width']
-    font_size = config['font_size']
-    corner_radius = config['corner_radius']
-    border = config['border']
-    position = config['position']
-    top_padding = config['top_padding']
-    bottom_padding = config['bottom_padding']
-    side_padding = config['side_padding']
+    # NB: the int casts here are to make sure someone doesn't manually enter a
+    # float into the config file (sanity check)
+    position        = config['position'] # position is a string
+    fg_r            = int(config['fg_r'])
+    fg_g            = int(config['fg_g'])
+    fg_b            = int(config['fg_b'])
+    fg_a            = int(config['fg_a']) # as a percent (0-100)
+    bg_r            = int(config['bg_r'])
+    bg_g            = int(config['bg_g'])
+    bg_b            = int(config['bg_b'])
+    bg_a            = int(config['bg_a']) # as a percent (0-100)
+    width           = int(config['width'])
+    font_size       = int(config['font_size'])
+    corner_radius   = int(config['corner_radius'])
+    border          = int(config['border'])
+    top_padding     = int(config['top_padding'])
+    bottom_padding  = int(config['bottom_padding'])
+    side_padding    = int(config['side_padding'])
 
 #-------------------------------------------------------------------------------
 # create some file names
 #-------------------------------------------------------------------------------
 
-    resz_img = os.path.join(conf_dir, f'{prog_name}.resz.{file_ext}')
-    text_img = os.path.join(conf_dir, f'{prog_name}.text.png')
-    back_img = os.path.join(conf_dir, f'{prog_name}.back.png')
-    comb_img = os.path.join(conf_dir, f'{prog_name}.comb.png')
-    mask_img = os.path.join(conf_dir, f'{prog_name}.mask.png')
-    capt_img = os.path.join(conf_dir, f'{prog_name}.capt.png')
-    temp_img = os.path.join(conf_dir, f'{prog_name}.temp.png')
+    orig_img = os.path.join(conf_dir, f'{prog_name}_orig.{file_ext}')
+    npng_img = os.path.join(conf_dir, f'{prog_name}_desk.png')
+    resz_img = os.path.join(conf_dir, f'{prog_name}_resz.png')
+    text_img = os.path.join(conf_dir, f'{prog_name}_text.png')
+    back_img = os.path.join(conf_dir, f'{prog_name}_back.png')
+    comb_img = os.path.join(conf_dir, f'{prog_name}_comb.png')
+    mask_img = os.path.join(conf_dir, f'{prog_name}_mask.png')
+    capt_img = os.path.join(conf_dir, f'{prog_name}_capt.png')
+    finl_img = os.path.join(conf_dir, f'{prog_name}_finl.png')
 
-    # print('resz_img:', resz_img)
-    # print('text_img:', text_img)
-    # print('back_img:', back_img)
-    # print('comb_img:', comb_img)
-    # print('mask_img:', mask_img)
-    # print('capt_img:', capt_img)
-    # print('temp_img:', temp_img)
-    # exit(0)
+    if DEBUG:
+        print('orig_img:', orig_img)
+        print('npng_img:', npng_img)
+        print('resz_img:', resz_img)
+        print('text_img:', text_img)
+        print('back_img:', back_img)
+        print('comb_img:', comb_img)
+        print('mask_img:', mask_img)
+        print('capt_img:', capt_img)
+        print('finl_img:', finl_img)
 
 #-------------------------------------------------------------------------------
-# get picture/screen sizes and scale
+# convert original image to backup and store it
 #-------------------------------------------------------------------------------
 
-    cmd = f'identify -format %[fx:w] {pic_path}'
+    # first back up original img
+    try:
+        shutil.copyfile(pic_path, orig_img)
+    except shutil.SameFileError:
+        pass
+
+    if DEBUG:
+        print(f'copying {pic_path} to {orig_img}')
+
+#-------------------------------------------------------------------------------
+# convert original image to png
+#-------------------------------------------------------------------------------
+
+    # convert it
+    cmd = f'convert \
+        {pic_path} \
+        {npng_img}'
+    cmd_array = cmd.split()
+    subprocess.call(cmd_array)
+
+    if DEBUG:
+        print(f'cconvert orig_img: {pic_path} to: {npng_img}')
+
+#-------------------------------------------------------------------------------
+# get picture size
+#-------------------------------------------------------------------------------
+
+    cmd = \
+        f'identify \
+        -format \
+        %[fx:w] \
+        {npng_img}'
     cmd_array = cmd.split()
     res = subprocess.check_output(cmd_array)
     pic_w = int(res.decode('UTF-8'))
 
-    cmd = f'identify -format %[fx:h] {pic_path}'
+    cmd = \
+        f'identify \
+        -format \
+        %[fx:h] \
+        {npng_img}'
     cmd_array = cmd.split()
     res = subprocess.check_output(cmd_array)
     pic_h = int(res.decode('UTF-8'))
 
-    # print('pic_w:', pic_w)
-    # print('pic_h:', pic_h)
+    if DEBUG:
+        print('pic_w:', pic_w)
+        print('pic_h:', pic_h)
+
+#-------------------------------------------------------------------------------
+# get screen size
+#-------------------------------------------------------------------------------
 
     root = tkinter.Tk()
     screen_w = root.winfo_screenwidth()
     screen_h = root.winfo_screenheight()
 
-    # print('screen w:', screen_w)
-    # print('screen h:', screen_h)
+    if DEBUG:
+        print('screen w:', screen_w)
+        print('screen h:', screen_h)
 
-    scale_w = pic_w/screen_w
-    scale_h = pic_h/screen_h
+#-------------------------------------------------------------------------------
+# get scale
+#-------------------------------------------------------------------------------
 
-    # print('scale_w:', scale_w)
-    # print('scale_h:', scale_h)
+    # get the scale factor for height and width
+    scale_w = pic_w / screen_w
+    scale_h = pic_h / screen_h
 
-    scale = scale_w
-    if scale_h < scale_w:
-        scale = scale_h
+    if DEBUG:
+        print('scale_w:', scale_w)
+        print('scale_h:', scale_h)
 
-    new_w = int(pic_w/scale)
-    new_h = int(pic_h/scale)
+    # use the smallest scale to get the biggest new dimension
+    scale = scale_w if scale_w < scale_h else scale_h
 
-    # print('new_w:', new_w)
-    # print('new_h:', new_h)
+#-------------------------------------------------------------------------------
+# get new icture size
+#-------------------------------------------------------------------------------
+
+    # get the scaled height/width and make sure it still fills the screen after
+    # rounding with an int cast
+    tmp_w = int(pic_w / scale)
+    new_w = screen_w if tmp_w < screen_w else tmp_w
+    tmp_h = int(pic_h / scale)
+    new_h = screen_h if tmp_h < screen_h else tmp_h
+
+    if DEBUG:
+        print('new_w:', new_w)
+        print('new_h:', new_h)
 
 #-------------------------------------------------------------------------------
 # resize the wallpaper to fill the screen
@@ -193,28 +267,31 @@ def main():
     cmd_array = cmd.split()
     subprocess.call(cmd_array)
 
-    # print(cmd_array)
-    # exit(0)
-
 #-------------------------------------------------------------------------------
 # The wallpaper has now been resized to "zoom" (i.e. fill the screen at the
 # smallest possible size, and yes I realize that's not what most people think
 # of when they hear the word "zoom", but in this context it means to scale the
 # original picture UP OR DOWN until there is no blank space around the picture.)
+# The reason we do this manually is we have to zoom the picture BEFORE we draw
+# the caption, otherwise the system will zoom the caption too, and that will
+# make it blurry.
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
 # make text png
 #-------------------------------------------------------------------------------
 
-# NB: putting spaces in rgba breaks formatting?
+    # NB: putting spaces in rgba breaks formatting?
 
-    border_w = width - (border * 2)
+    # remove border size for text-only png
+    tmp_w = width - (border * 2)
+
+    tmp_a = fg_a / 100
     cmd = \
         f'convert \
-        -size {border_w} \
+        -size {tmp_w} \
         -pointsize {font_size} \
-        -fill rgba({fg_r},{fg_g},{fg_b},({fg_a}/100)) \
+        -fill rgba({fg_r},{fg_g},{fg_b},{tmp_a}) \
         -background none \
         -gravity west \
         caption:\"{title}\n\n{text}\" \
@@ -222,47 +299,49 @@ def main():
     cmd_array = shlex.split(cmd)
     subprocess.call(cmd_array)
 
-    # print(cmd_array)
-    # exit(0)
-
 #-------------------------------------------------------------------------------
 # get text png size
 #-------------------------------------------------------------------------------
 
-    cmd = f'identify -format %[fx:w] {text_img}'
+    cmd = \
+        f'identify \
+        -format \
+        %[fx:w] \
+        {text_img}'
     cmd_array = cmd.split()
     res = subprocess.check_output(cmd_array)
     text_w = int(res.decode('UTF-8'))
 
-    cmd = f'identify -format %[fx:h] {text_img}'
+    cmd = \
+        f'identify \
+        -format \
+        %[fx:h] \
+        {text_img}'
     cmd_array = cmd.split()
     res = subprocess.check_output(cmd_array)
     text_h = int(res.decode('UTF-8'))
 
-    text_w = (text_w + (int(border) * 2))
-    text_h = (text_h + (int(border)* 2))
-
-    # print('text_w:', text_w)
-    # print('text_h:', text_h)
-    # exit(0)
+    if DEBUG:
+        print('text_w:', text_w)
+        print('text_h:', text_h)
 
 #-------------------------------------------------------------------------------
 # make an image that is text size plus border, using background color
 #-------------------------------------------------------------------------------
 
-        #xc:rgba({bg_r},{bg_g},{bg_b},({bg_a}/100)) \
+    # add the boder back in for the text background size
+    text_w = text_w + (border * 2)
+    text_h = text_h + (border * 2)
+
+    tmp_a = bg_a / 100
     cmd = \
         f'convert \
         -size {text_w}x{text_h} \
         -extent {text_w}x{text_h} \
-        xc:rgba({bg_r},{bg_g},0{bg_b},({bg_a}/100)) \
+        xc:\"rgba({bg_r},{bg_g},{bg_b},{tmp_a})\" \
         {back_img}'
-
-    cmd_array = cmd.split()
+    cmd_array = shlex.split(cmd)
     subprocess.call(cmd_array)
-
-    # print(cmd_array)
-    # exit(0)
 
 #-------------------------------------------------------------------------------
 # Combine text and background image
@@ -273,11 +352,8 @@ def main():
         {text_img} \
         {back_img} \
         {comb_img}'
-
     cmd_array = cmd.split()
     subprocess.call(cmd_array)
-
-    # exit(0)
 
 #-------------------------------------------------------------------------------
 # create a round rect mask
@@ -295,11 +371,8 @@ def main():
         {corner_radius}, \
         {corner_radius}\" \
         {mask_img}'
-
     cmd_array = shlex.split(cmd)
     subprocess.call(cmd_array)
-
-    # exit(0)
 
 #-------------------------------------------------------------------------------
 # merge combination image and mask
@@ -310,30 +383,24 @@ def main():
         -matte {mask_img} \
         -compose DstIn \
         -composite {capt_img}'
-
-
     cmd_array = cmd.split()
     subprocess.call(cmd_array)
-
-    # exit(0)
-
-
-#-------------------------------------------------------------------------------
-# get overhang after scaling the wallpaper
-#-------------------------------------------------------------------------------
-
-    x_over = (new_w - screen_w) / 2
-    y_over = (new_h - screen_h) / 2
-
-    # print('x_over:', x_over)
-    # print('y_over:', y_over)
 
 #-------------------------------------------------------------------------------
 # set the x and y position of the caption
 #-------------------------------------------------------------------------------
 
-    x_pos = 0
-    y_pos = 0
+    # get the overhang of the image (amount of picture not on screen)
+    x_over = (new_w - screen_w) / 2
+    y_over = (new_h - screen_h) / 2
+
+    if DEBUG:
+        print('x_over:', x_over)
+        print('y_over:', y_over)
+
+    # default position is bottom right
+    x_pos = new_w - x_over - text_w - side_padding
+    y_pos = new_h - y_over - text_h - bottom_padding
 
     if position == 'TL':
         x_pos = x_over + side_padding
@@ -363,13 +430,14 @@ def main():
         x_pos = new_w - x_over - text_w - side_padding
         y_pos = new_h - y_over - text_h - bottom_padding
 
+    # round off values if division goes wonky
     x_pos = int(x_pos)
     y_pos = int(y_pos)
-    # print('position:', position)
-    # print('x_pos:', x_pos)
-    # print('y_pos:', y_pos)
 
-    # exit(0)
+    if DEBUG:
+        print('position:', position)
+        print('x_pos:', x_pos)
+        print('y_pos:', y_pos)
 
 #-------------------------------------------------------------------------------
 # make the final image
@@ -381,15 +449,37 @@ def main():
         -geometry +{x_pos}+{y_pos} \
         -compose over \
         -composite \
-        {temp_img}'
-
-
+        {finl_img}'
     cmd_array = cmd.split()
     subprocess.call(cmd_array)
 
-    # exit(0)
+#-------------------------------------------------------------------------------
+# delete temps and move final file
+#-------------------------------------------------------------------------------
 
-    # TODO: move file and delete temps
+    if not DEBUG:
+        os.remove(orig_img)
+        os.remove(npng_img)
+        os.remove(resz_img)
+        os.remove(text_img)
+        os.remove(back_img)
+        os.remove(comb_img)
+        os.remove(mask_img)
+        os.remove(capt_img)
+
+    if DEBUG:
+        print('pic_path:', pic_path)
+        print('finl_img:', finl_img)
+
+    # TODO is weird here, what to convert/replace?
+    cmd = f'convert \
+        {finl_img} \
+        {pic_path}'
+    cmd_array = cmd.split()
+    subprocess.call(cmd_array)
+
+    if DEBUG:
+        print('output file:', pic_path)
 
 #-------------------------------------------------------------------------------
 # Run the main function if we are not an import

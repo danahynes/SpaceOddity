@@ -14,10 +14,16 @@ import os
 import subprocess
 import urllib.request
 
+DEBUG=1
+
+# TODO: add DEBUG
+# TODO: set wallpaper name with new date/time and delete old (avoids 'replace'
+# dialog)
+
 # NB: this script assumes that
 # ~/.config/spaceoddity/ exists, as well as
-# ~/.config/spaceoddity/spaceoddity.log and
-# ~/.config/spaceoddity/spaceoddity.json
+# ~/.config/spaceoddity/spaceoddity.json,
+# ~/.config/spaceoddity/spaceoddity.log
 
 #-------------------------------------------------------------------------------
 # Define the main function
@@ -44,12 +50,13 @@ def main():
     logging.basicConfig(filename = log_file, level = logging.DEBUG,
         format = '%(asctime)s - %(message)s')
 
-    # print('home_dir:', home_dir)
-    # print('conf_dir:', conf_dir)
-    # print('log_file:', log_file)
-    # print('conf_file:', conf_file)
-    # print('cap_path:', cap_path)
-    # exit(0)
+    if DEBUG:
+        print('home_dir:', home_dir)
+        print('conf_dir:', conf_dir)
+        print('data_file:', data_file)
+        print('log_file:', log_file)
+        print('conf_file:', conf_file)
+        print('cap_path:', cap_path)
 
 #-------------------------------------------------------------------------------
 # Start script and set default config values
@@ -78,8 +85,8 @@ def main():
         if not key in config.keys():
             config[key] = config_defaults.get(key)
 
-    # print(config)
-    # exit(0)
+    if DEBUG:
+        print(config)
 
     # the only keys we care about
     enabled = bool(config['enabled'])
@@ -116,7 +123,6 @@ def main():
     except urllib.error.URLError as err:
         logging.debug('Could not get JSON')
         logging.debug(err)
-        exit(1)
 
 #-------------------------------------------------------------------------------
 # Get pic from api.nasa.gov
@@ -131,7 +137,7 @@ def main():
 
         # create a download file path
         file_ext = pic_url.split('.')[-1]
-        pic_name = f'{prog_name}_wallpaper.{file_ext}'
+        pic_name = f'{prog_name}_desk.{file_ext}'
         pic_path = os.path.join(conf_dir, pic_name)
 
         try:
@@ -163,27 +169,29 @@ def main():
 #-------------------------------------------------------------------------------
 
     if caption:
-        logging.debug('Running caption')
 
         # set cmd for running caption
         cmd = cap_path
         cmd_array = cmd.split()
         subprocess.call(cmd_array)
+        logging.debug('Running caption: %s', cap_path)
 
     else:
         logging.debug('No caption')
 
     # set cmd for Gnome wallpaper and run
-    cmd = 'gsettings set org.gnome.desktop.background picture-uri ' + \
-        pic_path
+    cmd = f'gsettings set org.gnome.desktop.background picture-uri \
+        {pic_path}'
     cmd_array = cmd.split()
     subprocess.call(cmd_array)
 
     # set cmd for Gnome dark wallpaper and run
-    cmd = 'gsettings set org.gnome.desktop.background picture-uri-dark ' + \
-        pic_path
+    cmd = f'gsettings set org.gnome.desktop.background picture-uri-dark \
+        {pic_path}'
     cmd_array = cmd.split()
     subprocess.call(cmd_array)
+
+    # print('cmd_array:', cmd_array)
 
     logging.debug('pic is set')
 

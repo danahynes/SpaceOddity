@@ -1,0 +1,39 @@
+orig_img: foo_desk.jpg
+
+    copy in as foo_orig.jpg
+
+    CONVERT IN TO FOO_DESK.PNG
+    DO CAPTION ON FOO_DESK.PNG TO FOO_FINL.PNG
+    CONVERT FOO_FINL.PNG TO FOO_DESK.JPG
+
+out: foo_desk.jpg
+
+in: foo_desk.png
+
+    copy in as foo_orig.png
+
+    DO CAPTION ON FOO_DESK.PNG TO FOO_FINL.PNG
+
+    rename foo_finl.png to foo_desk.png
+
+out: foo_desk.png
+
+--------------------------------------------------------------------------------
+
+in: foo_desk.jpg
+
+    CONVERT IN TO FOO_ORIG.PNG
+    DO CAPTION ON FOO_ORIG.PNG TO FOO_FINAL.PNG
+    CONVERT FOO_FINAL.PNG TO FOO_DESK.JPG
+
+out: foo_desk.jpg
+
+in: foo_desk.png
+
+    copy in as foo_orig.png
+
+    DO CAPTION ON FOO_DESK.PNG TO FOO_FINAL.PNG
+    
+    rename foo_final.png to foo_desk.png
+
+out: foo_desk.png

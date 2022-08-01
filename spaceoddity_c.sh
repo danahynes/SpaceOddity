@@ -8,7 +8,7 @@
 #------------------------------------------------------------------------------#
 
 # where everybody lives
-INSTALL_DIR="${HOME}/.spaceoddity"
+INSTALL_DIR="${HOME}/.config/spaceoddity"
 
 #-------------------------------------------------------------------------------
 # get the stuff from the conf file
@@ -29,8 +29,10 @@ source <(grep = "${INSTALL_DIR}/spaceoddity.conf" | \
 #-------------------------------------------------------------------------------
 
 # passed parameters
-APOD_ORIGINAL_FILE="${1}"
-APOD_CAPT_TEXT="${2}"
+# APOD_ORIGINAL_FILE="${1}"
+# APOD_CAPT_TEXT="${2}"
+APOD_ORIGINAL_FILE="/home/dana/.config/spaceoddity/spaceoddity_wallpaper.jpg"
+APOD_CAPT_TEXT="This \nis\na\ntest"
 
 # apply required options (and defaults)
 APOD_CAPT_POSITION="${POSITION:=BR}"
@@ -85,6 +87,8 @@ APOD_LOG_FILE="${INSTALL_DIR}/apod_linux.log"
 ORIGINAL_W=$(identify -format "%[fx:w]" "${APOD_ORIGINAL_FILE}")
 ORIGINAL_H=$(identify -format "%[fx:h]" "${APOD_ORIGINAL_FILE}")
 
+echo "Original_H:", ${ORIGINAL_H}
+
 # get screen resolution
 # NB: must use single quotes for awk!
 SCREEN_W=$(xrandr --current | grep "*" | uniq | awk '{print $1}' | cut -d "x" \
@@ -107,14 +111,16 @@ fi
 SCALED_W=$(echo "scale=2;${ORIGINAL_W}/${SCALE}" | bc)
 SCALED_H=$(echo "scale=2;${ORIGINAL_H}/${SCALE}" | bc)
 
+echo "SCALED_W:" ${SCALED_W}
+
 # first we make the pic fit the screen (zoom to fit/fill)
 convert \
   "${APOD_ORIGINAL_FILE}" \
   -resize "${SCALED_W}"x"${SCALED_H}" \
   -extent "${SCALED_W}"x"${SCALED_H}" \
   -gravity center \
-  "${APOD_RESZ_IMG}" \
-  >> "${APOD_LOG_FILE}" 2>&1
+  "${APOD_RESZ_IMG}"
+ # >> "${APOD_LOG_FILE}" #2>&1
 
 #-------------------------------------------------------------------------------
 # The wallpaper has now been resized to "zoom" (i.e. fill the screen at the
@@ -131,8 +137,8 @@ convert \
   -background none \
   -gravity west \
   caption:"${APOD_CAPT_TEXT}" \
-  "${APOD_TEXT_IMG}" \
-  >> "${APOD_LOG_FILE}" 2>&1
+  "${APOD_TEXT_IMG}"
+ # >> "${APOD_LOG_FILE}" 2>&1
 
 # get size of text image
 TEXT_W=$(identify -format "%[fx:w]" "${APOD_TEXT_IMG}")
@@ -224,15 +230,15 @@ convert \
   >> "${APOD_LOG_FILE}" 2>&1
 
 # move new captioned image to wallpaper
-mv -f "${APOD_TEMP_IMG}" "${APOD_ORIGINAL_FILE}" \
-    >> "${APOD_LOG_FILE}" 2>&1
+# mv -f "${APOD_TEMP_IMG}" "${APOD_ORIGINAL_FILE}" \
+#     >> "${APOD_LOG_FILE}" 2>&1
 
 # delete temp files
-rm -f "${APOD_TEXT_IMG}" >> "${APOD_LOG_FILE}" 2>&1
-rm -f "${APOD_BACK_IMG}" >> "${APOD_LOG_FILE}" 2>&1
-rm -f "${APOD_COMB_IMG}" >> "${APOD_LOG_FILE}" 2>&1
-rm -f "${APOD_MASK_IMG}" >> "${APOD_LOG_FILE}" 2>&1
-rm -f "${APOD_CAPT_IMG}" >> "${APOD_LOG_FILE}" 2>&1
-rm -f "${APOD_RESZ_IMG}" >> "${APOD_LOG_FILE}" 2>&1
+# rm -f "${APOD_TEXT_IMG}" >> "${APOD_LOG_FILE}" 2>&1
+# rm -f "${APOD_BACK_IMG}" >> "${APOD_LOG_FILE}" 2>&1
+# rm -f "${APOD_COMB_IMG}" >> "${APOD_LOG_FILE}" 2>&1
+# rm -f "${APOD_MASK_IMG}" >> "${APOD_LOG_FILE}" 2>&1
+# rm -f "${APOD_CAPT_IMG}" >> "${APOD_LOG_FILE}" 2>&1
+# rm -f "${APOD_RESZ_IMG}" >> "${APOD_LOG_FILE}" 2>&1
 
 # -)
