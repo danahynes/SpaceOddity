@@ -7,16 +7,7 @@
 # License : WTFPLv2                                              \          /  #
 #------------------------------------------------------------------------------#
 
-# imports
-import json
-import logging
-import os
-import subprocess
-import urllib.request
-
-DEBUG=1
-
-# TODO: add DEBUG
+# TODO: check hdurl against prev, if same, bail
 # TODO: set wallpaper name with new date/time and delete old (avoids 'replace'
 # dialog)
 
@@ -24,6 +15,15 @@ DEBUG=1
 # ~/.config/spaceoddity/ exists, as well as
 # ~/.config/spaceoddity/spaceoddity.json,
 # ~/.config/spaceoddity/spaceoddity.log
+
+# imports
+import json
+import logging
+import os
+import subprocess
+import urllib.request
+
+DEBUG = 1
 
 #-------------------------------------------------------------------------------
 # Define the main function
@@ -50,6 +50,10 @@ def main():
     logging.basicConfig(filename = log_file, level = logging.DEBUG,
         format = '%(asctime)s - %(message)s')
 
+    # log start
+    logging.debug('------------------------------------------------------')
+    logging.debug('Starting main script')
+
     if DEBUG:
         print('home_dir:', home_dir)
         print('conf_dir:', conf_dir)
@@ -57,14 +61,6 @@ def main():
         print('log_file:', log_file)
         print('conf_file:', conf_file)
         print('cap_path:', cap_path)
-
-#-------------------------------------------------------------------------------
-# Start script and set default config values
-#-------------------------------------------------------------------------------
-
-    # log start
-    logging.debug('------------------------------------------------------')
-    logging.debug('Starting script')
 
 #-------------------------------------------------------------------------------
 # Get config values from config file
@@ -86,7 +82,7 @@ def main():
             config[key] = config_defaults.get(key)
 
     if DEBUG:
-        print(config)
+        print('config:', config)
 
     # the only keys we care about
     enabled = bool(config['enabled'])
@@ -120,9 +116,18 @@ def main():
             json.dump(apod_data, file, ensure_ascii = False, indent = 4)
 
         logging.debug('Got JSON from server')
+
+        if DEBUG:
+            print('apod_data:', apod_data)
+
     except urllib.error.URLError as err:
         logging.debug('Could not get JSON')
         logging.debug(err)
+
+        if DEBUG:
+            print('error:', err)
+
+        exit(1)
 
 #-------------------------------------------------------------------------------
 # Get pic from api.nasa.gov
@@ -140,6 +145,12 @@ def main():
         pic_name = f'{prog_name}_desk.{file_ext}'
         pic_path = os.path.join(conf_dir, pic_name)
 
+        if DEBUG:
+            print('pic_url:', pic_url)
+            print('file_ext:', file_ext)
+            print('pic_name:', pic_name)
+            print('pic_path:', pic_path)
+
         try:
 
             # download the full picture
@@ -148,6 +159,10 @@ def main():
         except urllib.error.URLError as err:
             logging.debug('Could not get new file')
             logging.debug(err)
+
+            if DEBUG:
+                print('error:', err)
+
             exit(1)
     else:
         logging.debug('Not an image, doing nothing')
@@ -174,10 +189,14 @@ def main():
         cmd = cap_path
         cmd_array = cmd.split()
         subprocess.call(cmd_array)
-        logging.debug('Running caption: %s', cap_path)
+        logging.debug('Running caption script')
 
     else:
         logging.debug('No caption')
+
+#-------------------------------------------------------------------------------
+# Set the wallpaper
+#-------------------------------------------------------------------------------
 
     # set cmd for Gnome wallpaper and run
     cmd = f'gsettings set org.gnome.desktop.background picture-uri \
@@ -190,8 +209,6 @@ def main():
         {pic_path}'
     cmd_array = cmd.split()
     subprocess.call(cmd_array)
-
-    # print('cmd_array:', cmd_array)
 
     logging.debug('pic is set')
 

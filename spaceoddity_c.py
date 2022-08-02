@@ -7,13 +7,14 @@
 # License : WTFPLv2                                              \          /  #
 #------------------------------------------------------------------------------#
 
-# NB: requires :
-# imagemagick (sudo apt install imagemagick)
-# wand (pip install wand)
 # TODO: convert imagemagick calls to wand
 # TODO: put mask/background/text into one operation?
 # TODO: fix alpha for foreground/background
     # maybe convert original to png?
+
+# NB: requires :
+# imagemagick (sudo apt install imagemagick)
+# wand (pip install wand)
 # NB: this script assumes that
 # ~/.config/spaceoddity/ exists, as well as
 # ~/.config/spaceoddity/spaceoddity.dat
@@ -55,28 +56,16 @@ def main():
     logging.basicConfig(filename = log_file, level = logging.DEBUG,
         format = '%(asctime)s - %(message)s')
 
-#-------------------------------------------------------------------------------
-# Get data file (the apod data downloaded by main script)
-#-------------------------------------------------------------------------------
-
-    # open data file
-    with open(data_file, encoding = 'UTF-8') as file:
-        apod_data = json.load(file)
-
-    # create a download file path
-    pic_url = apod_data['hdurl']
-    file_ext = pic_url.split('.')[-1]
-    pic_name = f'{prog_name}_desk.{file_ext}'
-    pic_path = os.path.join(conf_dir, pic_name)
-
-    # get data for caption
-    title = apod_data['title']
-    text = apod_data['explanation']
+    # log start
+    logging.debug('------------------------------------------------------')
+    logging.debug('Starting caption script')
 
     if DEBUG:
-        print('pic_path:', pic_path)
-        print('title:', title)
-        print('text:', text)
+        print('home_dir:', home_dir)
+        print('conf_dir:', conf_dir)
+        print('data_file:', data_file)
+        print('log_file:', log_file)
+        print('conf_file:', conf_file)
 
 #-------------------------------------------------------------------------------
 # Get config values from config file
@@ -134,6 +123,31 @@ def main():
     side_padding    = int(config['side_padding'])
 
 #-------------------------------------------------------------------------------
+# Get data file (the apod data downloaded by main script)
+#-------------------------------------------------------------------------------
+
+    # open data file
+    with open(data_file, encoding = 'UTF-8') as file:
+        apod_data = json.load(file)
+
+    # create a download file path
+    pic_url = apod_data['hdurl']
+    file_ext = pic_url.split('.')[-1]
+    pic_name = f'{prog_name}_desk.{file_ext}'
+    pic_path = os.path.join(conf_dir, pic_name)
+
+    # get data for caption
+    title = apod_data['title']
+    text = apod_data['explanation']
+
+    logging.debug('Got data from JSON file')
+
+    if DEBUG:
+        print('pic_path:', pic_path)
+        print('title:', title)
+        print('text:', text)
+
+#-------------------------------------------------------------------------------
 # create some file names
 #-------------------------------------------------------------------------------
 
@@ -168,6 +182,8 @@ def main():
     except shutil.SameFileError:
         pass
 
+    logging.debug('Backed up original image')
+
     if DEBUG:
         print(f'copying {pic_path} to {orig_img}')
 
@@ -181,6 +197,8 @@ def main():
         {npng_img}'
     cmd_array = cmd.split()
     subprocess.call(cmd_array)
+
+    logging.debug('Converted original image to PNG')
 
     if DEBUG:
         print(f'cconvert orig_img: {pic_path} to: {npng_img}')
@@ -267,6 +285,8 @@ def main():
     cmd_array = cmd.split()
     subprocess.call(cmd_array)
 
+    logging.debug('Resized image')
+
 #-------------------------------------------------------------------------------
 # The wallpaper has now been resized to "zoom" (i.e. fill the screen at the
 # smallest possible size, and yes I realize that's not what most people think
@@ -298,6 +318,8 @@ def main():
         {text_img}'
     cmd_array = shlex.split(cmd)
     subprocess.call(cmd_array)
+
+    logging.debug('Created text image')
 
 #-------------------------------------------------------------------------------
 # get text png size
@@ -343,6 +365,8 @@ def main():
     cmd_array = shlex.split(cmd)
     subprocess.call(cmd_array)
 
+    logging.debug('Created text background')
+
 #-------------------------------------------------------------------------------
 # Combine text and background image
 #-------------------------------------------------------------------------------
@@ -354,6 +378,8 @@ def main():
         {comb_img}'
     cmd_array = cmd.split()
     subprocess.call(cmd_array)
+
+    logging.debug('Created composite text image')
 
 #-------------------------------------------------------------------------------
 # create a round rect mask
@@ -374,6 +400,8 @@ def main():
     cmd_array = shlex.split(cmd)
     subprocess.call(cmd_array)
 
+    logging.debug('Created rounded mask image')
+
 #-------------------------------------------------------------------------------
 # merge combination image and mask
 #-------------------------------------------------------------------------------
@@ -385,6 +413,8 @@ def main():
         -composite {capt_img}'
     cmd_array = cmd.split()
     subprocess.call(cmd_array)
+
+    logging.debug('Created rounded rext text image')
 
 #-------------------------------------------------------------------------------
 # set the x and y position of the caption
@@ -453,6 +483,9 @@ def main():
     cmd_array = cmd.split()
     subprocess.call(cmd_array)
 
+    logging.debug('Created final image')
+
+
 #-------------------------------------------------------------------------------
 # delete temps and move final file
 #-------------------------------------------------------------------------------
@@ -472,11 +505,13 @@ def main():
         print('finl_img:', finl_img)
 
     # TODO is weird here, what to convert/replace?
-    cmd = f'convert \
-        {finl_img} \
-        {pic_path}'
-    cmd_array = cmd.split()
-    subprocess.call(cmd_array)
+    # cmd = f'convert \
+    #     {finl_img} \
+    #     {pic_path}'
+    # cmd_array = cmd.split()
+    # subprocess.call(cmd_array)
+
+    logging.debug('Replaced original imaged with final image')
 
     if DEBUG:
         print('output file:', pic_path)
