@@ -10,18 +10,27 @@
 # TODO: check hdurl against prev, if same, bail
 # TODO: set wallpaper name with new date/time and delete old (avoids 'replace'
 # dialog)
+# does this explain why deleting the file from ~/.config/spaceoddity
+# causes wallpaper to go black and not get replaced on next run?
+# also note right-clicking a file in nautilus and selecting "set as wallpaper"
+# copies the file to ~/Pictures/Wallpapers and maybe deletes other files?
+# b/c now i lost my orange stripey bg
+# basically weird shit happens when you delete the spaceoddity_desk.{file_ext}
+# file... needs further testing
 
-# NB: this script assumes that
-# ~/.config/spaceoddity/ exists, as well as
-# ~/.config/spaceoddity/spaceoddity.json,
-# ~/.config/spaceoddity/spaceoddity.log
+#-------------------------------------------------------------------------------
+# Imports
+#-------------------------------------------------------------------------------
 
-# imports
 import json
 import logging
 import os
 import subprocess
 import urllib.request
+
+#-------------------------------------------------------------------------------
+# Constants
+#-------------------------------------------------------------------------------
 
 DEBUG = 1
 
@@ -36,6 +45,7 @@ def main():
 #-------------------------------------------------------------------------------
 
     prog_name = 'spaceoddity'
+    script_path = os.path.dirname(os.path.realpath(__file__))
 
     # get locations
     home_dir = os.path.expanduser('~')
@@ -43,8 +53,17 @@ def main():
     data_file = os.path.join(conf_dir, f'{prog_name}.dat')
     log_file = os.path.join(conf_dir, f'{prog_name}.log')
     conf_file = os.path.join(conf_dir, f'{prog_name}.json')
-    # TODO: cap_path = os.path.join('/usr/bin', f'{prog_name}_c.py')
-    cap_path = f'./{prog_name}_c.py'
+    cap_path = os.path.join(script_path, f'./{prog_name}_c.py')
+
+    # create folders/files if they do not exist
+    if not os.path.exists(conf_dir):
+        os.mkdir(conf_dir)
+    if not os.path.exists(log_file):
+        with open(log_file, 'w+', encoding = 'utf-8') as file:
+            file.write('')
+    if not os.path.exists(conf_file):
+        with open(conf_file, 'w+', encoding = 'utf-8') as file:
+            file.write('{}')
 
     # set up logging
     logging.basicConfig(filename = log_file, level = logging.DEBUG,
@@ -69,7 +88,7 @@ def main():
     # set defaults
     config_defaults = {
         'enabled' : 1,
-        'caption' : 1,
+        'caption' : 1
     }
 
     # read config file
@@ -140,7 +159,6 @@ def main():
         # get the url to the actual image
         pic_url = apod_data['hdurl']
 
-        # create a download file path
         file_ext = pic_url.split('.')[-1]
         pic_name = f'{prog_name}_desk.{file_ext}'
         pic_path = os.path.join(conf_dir, pic_name)
@@ -184,12 +202,12 @@ def main():
 #-------------------------------------------------------------------------------
 
     if caption:
+        logging.debug('Running caption script')
 
         # set cmd for running caption
         cmd = cap_path
         cmd_array = cmd.split()
         subprocess.call(cmd_array)
-        logging.debug('Running caption script')
 
     else:
         logging.debug('No caption')

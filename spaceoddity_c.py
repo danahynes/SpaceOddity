@@ -7,9 +7,11 @@
 # License : WTFPLv2                                              \          /  #
 #------------------------------------------------------------------------------#
 
-# TODO: convert imagemagick calls to wand
-# TODO: put mask/background/text into one operation?
+# TODO: redirect all imagemagick errors to log file
 # TODO: fix alpha for foreground/background
+# TODO: convert imagemagick calls to wand
+# TODO: limit on cqption is ~1000 cahracters
+# TODO: put mask/background/text into one operation?
     # maybe convert original to png?
 
 # NB: requires :
@@ -17,12 +19,15 @@
 # wand (pip install wand)
 # NB: this script assumes that
 # ~/.config/spaceoddity/ exists, as well as
-# ~/.config/spaceoddity/spaceoddity.dat
+# ~/.config/spaceodlogging.debug('dity/spaceoddity.dat
 # ~/.config/spaceoddity/spaceoddity_desk.???,
 # ~/.config/spaceoddity/spaceoddity.json,
 # ~/.config/spaceoddity/spaceoddity.log,
 
-# imports
+#-------------------------------------------------------------------------------
+# Imports
+#-------------------------------------------------------------------------------
+
 import json
 import logging
 import os
@@ -30,6 +35,10 @@ import shlex
 import shutil
 import subprocess
 import tkinter
+
+#-------------------------------------------------------------------------------
+# Constants
+#-------------------------------------------------------------------------------
 
 DEBUG = 1
 
@@ -57,10 +66,11 @@ def main():
         format = '%(asctime)s - %(message)s')
 
     # log start
-    logging.debug('------------------------------------------------------')
+    logging.debug('-----------------------------------------------------------')
     logging.debug('Starting caption script')
 
     if DEBUG:
+        print('---------------------------------------------------------------')
         print('home_dir:', home_dir)
         print('conf_dir:', conf_dir)
         print('data_file:', data_file)
@@ -73,6 +83,9 @@ def main():
 
     # set defaults
     config_defaults = {
+        'show_title'        : 1,
+        'show_copyright'    : 1,
+        'show_text'         : 1,
         'position'          : 'BR',
         'fg_r'              : 255,
         'fg_g'              : 255,
@@ -105,6 +118,9 @@ def main():
 
     # NB: the int casts here are to make sure someone doesn't manually enter a
     # float into the config file (sanity check)
+    show_title      = bool(config['show_title'])
+    show_copyright  = bool(config['show_copyright'])
+    show_text       = bool(config['show_text'])
     position        = config['position'] # position is a string
     fg_r            = int(config['fg_r'])
     fg_g            = int(config['fg_g'])
@@ -137,22 +153,24 @@ def main():
     pic_path = os.path.join(conf_dir, pic_name)
 
     # get data for caption
-    title = apod_data['title']
-    text = apod_data['explanation']
+    str_title = apod_data['title']
+    str_copyright = apod_data['copyright']
+    str_text = apod_data['explanation']
 
     logging.debug('Got data from JSON file')
 
     if DEBUG:
         print('pic_path:', pic_path)
-        print('title:', title)
-        print('text:', text)
+        print('str_title:', str_title)
+        print('str_copyright:', str_copyright)
+        print('str_text:', str_text)
 
 #-------------------------------------------------------------------------------
 # create some file names
 #-------------------------------------------------------------------------------
 
     orig_img = os.path.join(conf_dir, f'{prog_name}_orig.{file_ext}')
-    npng_img = os.path.join(conf_dir, f'{prog_name}_desk.png')
+    desk_img = os.path.join(conf_dir, f'{prog_name}_desk.png')
     resz_img = os.path.join(conf_dir, f'{prog_name}_resz.png')
     text_img = os.path.join(conf_dir, f'{prog_name}_text.png')
     back_img = os.path.join(conf_dir, f'{prog_name}_back.png')
@@ -163,7 +181,7 @@ def main():
 
     if DEBUG:
         print('orig_img:', orig_img)
-        print('npng_img:', npng_img)
+        print('desk_img:', desk_img)
         print('resz_img:', resz_img)
         print('text_img:', text_img)
         print('back_img:', back_img)
@@ -179,8 +197,10 @@ def main():
     # first back up original img
     try:
         shutil.copyfile(pic_path, orig_img)
-    except shutil.SameFileError:
-        pass
+    except shutil.SameFileError as err:
+        logging.debug('Could not copy file')
+        logging.debug(err)
+        exit(0)
 
     logging.debug('Backed up original image')
 
@@ -194,14 +214,14 @@ def main():
     # convert it
     cmd = f'convert \
         {pic_path} \
-        {npng_img}'
+        {desk_img}'
     cmd_array = cmd.split()
     subprocess.call(cmd_array)
 
     logging.debug('Converted original image to PNG')
 
     if DEBUG:
-        print(f'cconvert orig_img: {pic_path} to: {npng_img}')
+        print(f'cconvert input image: {pic_path} to: {desk_img}')
 
 #-------------------------------------------------------------------------------
 # get picture size
@@ -211,7 +231,7 @@ def main():
         f'identify \
         -format \
         %[fx:w] \
-        {npng_img}'
+        {desk_img}'
     cmd_array = cmd.split()
     res = subprocess.check_output(cmd_array)
     pic_w = int(res.decode('UTF-8'))
@@ -220,7 +240,7 @@ def main():
         f'identify \
         -format \
         %[fx:h] \
-        {npng_img}'
+        {desk_img}'
     cmd_array = cmd.split()
     res = subprocess.check_output(cmd_array)
     pic_h = int(res.decode('UTF-8'))
@@ -238,8 +258,8 @@ def main():
     screen_h = root.winfo_screenheight()
 
     if DEBUG:
-        print('screen w:', screen_w)
-        print('screen h:', screen_h)
+        print('screen_w:', screen_w)
+        print('screen_h:', screen_h)
 
 #-------------------------------------------------------------------------------
 # get scale
@@ -257,7 +277,7 @@ def main():
     scale = scale_w if scale_w < scale_h else scale_h
 
 #-------------------------------------------------------------------------------
-# get new icture size
+# get new picture size
 #-------------------------------------------------------------------------------
 
     # get the scaled height/width and make sure it still fills the screen after
@@ -277,7 +297,7 @@ def main():
 
     cmd = \
         f'convert \
-        {pic_path} \
+        {desk_img} \
         -resize {new_w}x{new_h} \
         -extent {new_w}x{new_h} \
         -gravity center \
@@ -306,6 +326,23 @@ def main():
     # remove border size for text-only png
     tmp_w = width - (border * 2)
 
+    # form a string from shown attributes
+    str_caption = ''
+    if show_title:
+        str_caption = str_caption + str_title + '\n\n'
+    if show_copyright:
+        str_caption = str_caption + str_copyright + '\n\n'
+    if show_text:
+        str_caption = str_caption + str_text
+
+    # NB: limit on cqption is ~1000 cahracters
+    len_caption = len(str_caption)
+    print('len_caption:', len_caption)
+    str_caption = str_caption[0:1000]
+
+    if DEBUG:
+        print('str_caption:', str_caption)
+
     tmp_a = fg_a / 100
     cmd = \
         f'convert \
@@ -314,7 +351,7 @@ def main():
         -fill rgba({fg_r},{fg_g},{fg_b},{tmp_a}) \
         -background none \
         -gravity west \
-        caption:\"{title}\n\n{text}\" \
+        caption:\"{str_caption}\" \
         {text_img}'
     cmd_array = shlex.split(cmd)
     subprocess.call(cmd_array)
@@ -414,7 +451,7 @@ def main():
     cmd_array = cmd.split()
     subprocess.call(cmd_array)
 
-    logging.debug('Created rounded rext text image')
+    logging.debug('Created rounded rect text image')
 
 #-------------------------------------------------------------------------------
 # set the x and y position of the caption
@@ -485,14 +522,13 @@ def main():
 
     logging.debug('Created final image')
 
-
 #-------------------------------------------------------------------------------
 # delete temps and move final file
 #-------------------------------------------------------------------------------
 
     if not DEBUG:
         os.remove(orig_img)
-        os.remove(npng_img)
+        os.remove(desk_img)
         os.remove(resz_img)
         os.remove(text_img)
         os.remove(back_img)
@@ -504,17 +540,21 @@ def main():
         print('pic_path:', pic_path)
         print('finl_img:', finl_img)
 
-    # TODO is weird here, what to convert/replace?
-    # cmd = f'convert \
-    #     {finl_img} \
-    #     {pic_path}'
-    # cmd_array = cmd.split()
-    # subprocess.call(cmd_array)
+    # convert final png back to original format
+    cmd = f'convert \
+        {finl_img} \
+        {pic_path}'
+    cmd_array = cmd.split()
+    subprocess.call(cmd_array)
 
-    logging.debug('Replaced original imaged with final image')
+    if not DEBUG:
+        os.remove(finl_img)
 
+    logging.debug('Replaced original image with final image')
+    logging.debug('-----------------------------------------------------------')
     if DEBUG:
         print('output file:', pic_path)
+        print('---------------------------------------------------------------')
 
 #-------------------------------------------------------------------------------
 # Run the main function if we are not an import
