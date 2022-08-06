@@ -7,6 +7,8 @@
 # License : WTFPLv2                                              \          /  #
 #------------------------------------------------------------------------------#
 
+# TODO: break this into discrete functions
+# TODO: maybe clear log between runs? only save last?
 # TODO: check hdurl against prev, if same, bail
 # TODO: set wallpaper name with new date/time and delete old (avoids 'replace'
 # dialog)
