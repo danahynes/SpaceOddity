@@ -7,6 +7,9 @@
 # License : WTFPLv2                                              \          /  #
 #------------------------------------------------------------------------------#
 
+# TODO: check for title/copyright/expl and any other data in apod_data
+# also better formatting if one or more not preset
+# TODO: break this into discrete functions
 # TODO: redirect all imagemagick errors to log file
 # TODO: fix alpha for foreground/background
 # TODO: convert imagemagick calls to wand
@@ -153,8 +156,12 @@ def main():
     pic_path = os.path.join(conf_dir, pic_name)
 
     # get data for caption
-    str_title = apod_data['title']
-    str_copyright = apod_data['copyright']
+    str_title = ''
+    if 'title' in apod_data.keys():
+        str_title = apod_data['title']
+    str_copyright = ''
+    if 'copyright' in apod_data.keys():
+        str_copyright = apod_data['copyright']
     str_text = apod_data['explanation']
 
     logging.debug('Got data from JSON file')
