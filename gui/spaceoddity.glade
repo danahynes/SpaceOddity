@@ -228,8 +228,8 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label_caption">
-                    <property name="name">label_caption</property>
+                  <object class="GtkLabel" id="label_show_caption">
+                    <property name="name">label_show_caption</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">start</property>
@@ -239,22 +239,6 @@
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
-                    <property name="top-attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSwitch" id="switch_caption">
-                    <property name="name">switch_caption</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="halign">end</property>
-                    <property name="margin-start">10</property>
-                    <property name="margin-end">20</property>
-                    <property name="margin-top">10</property>
-                    <signal name="state-set" handler="switch_caption_set_state" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
                     <property name="top-attach">1</property>
                   </packing>
                 </child>
@@ -348,6 +332,22 @@
                   <packing>
                     <property name="left-attach">1</property>
                     <property name="top-attach">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSwitch" id="switch_show_caption">
+                    <property name="name">switch_show_caption</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="halign">end</property>
+                    <property name="margin-start">10</property>
+                    <property name="margin-end">20</property>
+                    <property name="margin-top">10</property>
+                    <signal name="state-set" handler="switch_show_caption_set_state" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">1</property>
                   </packing>
                 </child>
               </object>
@@ -550,8 +550,8 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label_border">
-                    <property name="name">label_border</property>
+                  <object class="GtkLabel" id="label_border_padding">
+                    <property name="name">label_border_padding</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">start</property>
@@ -611,8 +611,8 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkSpinButton" id="spin_border">
-                    <property name="name">spin_border</property>
+                  <object class="GtkSpinButton" id="spin_border_padding">
+                    <property name="name">spin_border_padding</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="margin-start">10</property>
