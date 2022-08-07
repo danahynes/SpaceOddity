@@ -95,8 +95,22 @@
     <property name="comments" translatable="yes">Set the NASA Astronomy Picture of the Day as your wallpaper</property>
     <property name="website">https://github.com/danahynes/SpaceOddity</property>
     <property name="website-label" translatable="yes">Visit the GitHub page</property>
-    <property name="authors">Dana Hynes</property>
+    <property name="license">        DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE 
+                    Version 2, December 2004 
+
+ Copyright (C) 2004 Sam Hocevar &lt;sam@hocevar.net&gt; 
+
+ Everyone is permitted to copy and distribute verbatim or modified 
+ copies of this license document, and changing it is allowed as long 
+ as the name is changed. 
+
+            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE 
+   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION 
+
+  0. You just DO WHAT THE FUCK YOU WANT TO.</property>
+    <property name="authors">Dana Hynes&lt;danahynes@users.noreply.github.com&gt;</property>
     <property name="logo">spaceoddity.png</property>
+    <property name="license-type">custom</property>
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="can-focus">False</property>
