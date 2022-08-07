@@ -17,8 +17,14 @@
 # TODO: object names as constants
 # TODO: remove DEBUG
 
-# NB: this script assumes config dir, log file, config file, gui dir, gui file,
-# local_dir, and version file all exist
+# NB: this script assumes
+# config dir,   DONE
+# log file,     DONE
+# config file,  DONE
+# gui dir,
+# gui file,
+# local_dir,
+# and version file all exist
 
 # NB: requires:
 # python3-gi
@@ -73,6 +79,16 @@ class Gui:
         loc_dir = os.path.join(gui_dir, 'locale')
         vers_file = os.path.join(gui_dir, 'VERSION.txt')
 
+        # create folders/files if they do not exist
+        if not os.path.exists(conf_dir):
+            os.mkdir(conf_dir)
+        if not os.path.exists(log_file):
+            with open(log_file, 'w+') as file:
+                file.write('')
+        if not os.path.exists(self.conf_file):
+            with open(self.conf_file, 'w+') as file:
+                file.write('{}')
+
         if DEBUG:
             print('home_dir:', home_dir)
             print('conf_dir:', conf_dir)
@@ -89,7 +105,7 @@ class Gui:
 
         # log start
         logging.debug('-------------------------------------------------------')
-        logging.debug('Starting gui script')
+        logging.debug('start gui script')
 
         # set default config dict
         self.config_defaults = {
@@ -195,9 +211,10 @@ class Gui:
         Gtk.main_quit()
 
         # log that we are finished with gui
-        logging.debug('finished gui script')
+        logging.debug('finish gui script')
         logging.debug('-------------------------------------------------------')
 
+        # quit script
         exit(0)
 
     # --------------------------------------------------------------------------
@@ -246,6 +263,9 @@ class Gui:
     # Helpers
     # --------------------------------------------------------------------------
 
+    # --------------------------------------------------------------------------
+    # Loads the gui state from the specified dict (user or default)
+    # --------------------------------------------------------------------------
     def __load_gui(self, dictionary):
         self.switch_enabled.set_active(dictionary['enabled'])
         self.switch_show_caption.set_active(dictionary['show_caption'])
@@ -277,6 +297,9 @@ class Gui:
         self.spin_bottom_padding.get_adjustment().set_value(dictionary['bottom_padding'])
         self.spin_side_padding.get_adjustment().set_value(dictionary['side_padding'])
 
+    # --------------------------------------------------------------------------
+    # Saves the gui state to the user dict
+    # --------------------------------------------------------------------------
     def __save_gui(self):
         self.config['enabled'] = self.switch_enabled.get_active()
         self.config['show_caption'] = self.switch_show_caption.get_active()
@@ -306,25 +329,35 @@ class Gui:
         self.config['bottom_padding'] = self.spin_bottom_padding.get_adjustment().get_value()
         self.config['side_padding'] = self.spin_side_padding.get_adjustment().get_value()
 
+    # --------------------------------------------------------------------------
+    # Loads the config dict from a file
+    # --------------------------------------------------------------------------
     def __load_config(self):
 
         # open the file and read json
         with open(self.conf_file, 'r') as file:
             try:
                 self.config = json.load(file)
-            except json.JSONDecodeError:
+                logging.debug('load config file: %s', file)
+            except json.JSONDecodeError as err:
                 self.config = dict(self.config_defaults)
+                logging.debug('could not load json, loading defaults')
+                logging.debug(err)
+
+                if DEBUG:
+                    print('error:', err)
 
         # get values or defaults
         for key in self.config_defaults:
             if key not in self.config.keys():
                 self.config[key] = self.config_defaults.get(key)
 
-        logging.debug('load config file: %s', file)
-
         if DEBUG:
             print('load config:', self.config)
 
+    # --------------------------------------------------------------------------
+    # Saves the user config dict to a file
+    # --------------------------------------------------------------------------
     def __save_config(self):
 
         # open the file and write json
@@ -333,9 +366,12 @@ class Gui:
 
         logging.debug('save config file: %s', file)
 
-        #if DEBUG:
-        #    print('save config:', self.config)
+        if DEBUG:
+            print('save config:', self.config)
 
+    # --------------------------------------------------------------------------
+    # Enables or disables controls based on the state of the first two switches
+    # --------------------------------------------------------------------------
     def __check_enable(self):
         enabled = self.switch_enabled.get_active()
         show_caption = self.switch_show_caption.get_active()
