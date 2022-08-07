@@ -49,41 +49,6 @@
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
-  <object class="GtkListStore" id="combo_list">
-    <columns>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">Top Left</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Top Center</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Top Right</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Center Left</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Center Center</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Center Right</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Bottom Left</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Bottom Center</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Bottom Right</col>
-      </row>
-    </data>
-  </object>
   <object class="GtkAboutDialog" id="dlg_about">
     <property name="name">dlg_about</property>
     <property name="can-focus">False</property>
@@ -772,6 +737,7 @@
                     <property name="name">label_position</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
+                    <property name="halign">start</property>
                     <property name="margin-start">20</property>
                     <property name="margin-top">20</property>
                     <property name="label" translatable="yes">Position</property>
@@ -782,23 +748,25 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBox" id="combo_position">
+                  <object class="GtkComboBoxText" id="combo_position">
                     <property name="name">combo_position</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="margin-start">10</property>
                     <property name="margin-end">20</property>
                     <property name="margin-top">20</property>
-                    <property name="model">combo_list</property>
-                    <property name="active">0</property>
-                    <property name="has-entry">True</property>
-                    <property name="entry-text-column">0</property>
-                    <child internal-child="entry">
-                      <object class="GtkEntry">
-                        <property name="can-focus">False</property>
-                        <property name="text" translatable="yes">Top Left</property>
-                      </object>
-                    </child>
+                    <property name="active">8</property>
+                    <items>
+                      <item id="0" translatable="yes">Top Left</item>
+                      <item id="1" translatable="yes">Top Center</item>
+                      <item id="2" translatable="yes">Top Right</item>
+                      <item id="3" translatable="yes">Center Left</item>
+                      <item id="4" translatable="yes">Center</item>
+                      <item id="5" translatable="yes">Center Right</item>
+                      <item id="6" translatable="yes">Bottom Left</item>
+                      <item id="7" translatable="yes">Bottom Center</item>
+                      <item id="8" translatable="yes">Bottom Right</item>
+                    </items>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
