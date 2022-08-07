@@ -90,7 +90,7 @@ def main():
     # set defaults
     config_defaults = {
         'enabled' : 1,
-        'caption' : 1
+        'show_caption' : 1
     }
 
     # read config file
@@ -107,7 +107,7 @@ def main():
 
     # the only keys we care about
     enabled = bool(config['enabled'])
-    caption = bool(config['caption'])
+    show_caption = bool(config['show_caption'])
 
 #-------------------------------------------------------------------------------
 # Bail if not enabled
@@ -203,7 +203,7 @@ def main():
 # Run caption script
 #-------------------------------------------------------------------------------
 
-    if caption:
+    if show_caption:
         logging.debug('Running caption script')
 
         # set cmd for running caption
