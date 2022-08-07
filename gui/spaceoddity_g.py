@@ -24,14 +24,14 @@
 #-------------------------------------------------------------------------------
 
 import gettext
-# import gi
 import json
 import locale
 import logging
 import os
 
-#gi.require_version("Gtk", "3.0")
-#from gi.repository import Gtk
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 #-------------------------------------------------------------------------------
 # Constants
@@ -46,7 +46,7 @@ DEBUG = 1
 class SignalHandler:
 
     def win_main_destroy(self, *_):
-        #Gtk.main_quit()
+        Gtk.main_quit()
         exit(0)
 
     def btn_apply_clicked(self, *_):
@@ -65,8 +65,8 @@ class SignalHandler:
         print('menu_item_defaults')
 
     def menu_item_about_clicked(self, *_):
-        #dlg_about.run()
-        #dlg_about.hide()
+        dlg_about.run()
+        dlg_about.hide()
         pass
 
 #-------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ def main():
     gui_dir = os.path.join(conf_dir, 'gui')
     gui_file = os.path.join(gui_dir, f'{prog_name}.glade')
     loc_dir = os.path.join(gui_dir, 'locale')
-    vers_file = os.path.join(conf_dir, 'VERSION.txt')
+    vers_file = os.path.join(gui_dir, 'VERSION.txt')
 
     # set up logging
     logging.basicConfig(filename = log_file, level = logging.DEBUG,
@@ -162,33 +162,43 @@ def main():
 
     handler = SignalHandler()
 
-    #builder = Gtk.Builder()
-    # builder.set_translation_domain(appName)
-    #builder.add_from_file(gui_file)
-    #builder.connect_signals(handler)
+    builder = Gtk.Builder()
+    builder.set_translation_domain(prog_name)
+    builder.add_from_file(gui_file)
+    builder.connect_signals(handler)
 
-    #win_main = builder.get_object('win_main')
-    # switch_enabled = builder.get_object('so_options_nb_general_switch_enabled')
-    # switch_caption = builder.get_object('so_options_nb_general_switch_caption')
+    win_main = builder.get_object('win_main')
 
-    # entryName = builder.get_object('entryName')
-    # entryComment = builder.get_object('entryComment')
-    # entryCat = builder.get_object('entryCat')
-    # entryApp = builder.get_object('entryApp')
-    # entryIcon = builder.get_object('entryIcon')
-    # switchTerm = builder.get_object('switchTerm')
-    # switchAll = builder.get_object('switchAll')
+    switch_enabled = builder.get_object('switch_enabled')
+    switch_caption = builder.get_object('switch_caption')
+    switch_show_title = builder.get_object('switch_show_title')
+    switch_show_copyright = builder.get_object('switch_show_copyright')
+    switch_show_text = builder.get_object('switch_show_text')
 
-    #global dlg_about # for handler reference
-    #dlg_about = builder.get_object('dlg_about')
+    btn_fg_color = builder.get_object('btn_fg_color')
+    slider_fg_transparency =  builder.get_object('slider_fg_transparency')
+    btn_bg_color = builder.get_object('btn_bg_color')
+    slider_bg_transparency =  builder.get_object('slider_bg_transparency')
+    
+    combo_position = builder.get_object('combo_position')
+    spin_caption_width = builder.get_object('spin_caption_width')
+    spin_font_size = builder.get_object('spin_font_size')
+    spin_corner_radius = builder.get_object('spin_corner_radius')
+    spin_border = builder.get_object('spin_border')
+    spin_top_padding = builder.get_object('spin_top_padding')
+    spin_bottom_padding = builder.get_object('spin_bottom_padding')
+    spin_side_padding = builder.get_object('spin_side_padding')
+
+    global dlg_about # for handler reference
+    dlg_about = builder.get_object('dlg_about')
     with open(vers_file, encoding='UTF-8') as file:
         version = file.readline()
-    #dlg_about.set_version(version)
+    dlg_about.set_version(version)
 
-    #win_main.show_all()
+    win_main.show_all()
 
     # run gtk main loop
-    #Gtk.main()
+    Gtk.main()
 
 #-------------------------------------------------------------------------------
 # Run the main function if we are not an import
