@@ -98,10 +98,10 @@ def main():
         'bg_g'              : 0,
         'bg_b'              : 0,
         'bg_a'              : 75,
-        'width'             : 500,
+        'caption_width'     : 500,
         'font_size'         : 15,
         'corner_radius'     : 15,
-        'border'            : 20,
+        'border_padding'    : 20,
         'top_padding'       : 50,
         'bottom_padding'    : 10,
         'side_padding'      : 10
@@ -133,10 +133,10 @@ def main():
     bg_g            = int(config['bg_g'])
     bg_b            = int(config['bg_b'])
     bg_a            = int(config['bg_a']) # as a percent (0-100)
-    width           = int(config['width'])
+    caption_width   = int(config['caption_width'])
     font_size       = int(config['font_size'])
     corner_radius   = int(config['corner_radius'])
-    border          = int(config['border'])
+    border_padding  = int(config['border_padding'])
     top_padding     = int(config['top_padding'])
     bottom_padding  = int(config['bottom_padding'])
     side_padding    = int(config['side_padding'])
@@ -331,7 +331,7 @@ def main():
     # NB: putting spaces in rgba breaks formatting?
 
     # remove border size for text-only png
-    tmp_w = width - (border * 2)
+    tmp_w = caption_width - (border_padding * 2)
 
     # form a string from shown attributes
     str_caption = ''
@@ -396,8 +396,8 @@ def main():
 #-------------------------------------------------------------------------------
 
     # add the boder back in for the text background size
-    text_w = text_w + (border * 2)
-    text_h = text_h + (border * 2)
+    text_w = text_w + (border_padding * 2)
+    text_h = text_h + (border_padding * 2)
 
     tmp_a = bg_a / 100
     cmd = \
