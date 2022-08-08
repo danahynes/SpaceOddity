@@ -299,16 +299,21 @@ class Main:
 
             self.__exit('not an image', 0)
 
-        # NB: this is for testing on days when the APOD is not an image
-        # pic_path = os.path.join(home_dir,
-        # 'Documents/Projects/APOD_Linux/test.jpg')
-        # apod_data = {'explanation':'Lorem ipsum dolor sit amet, consectetur
-        # adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-        # magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-        # ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute
-        # irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-        # fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-        # sunt in culpa qui officia deserunt mollit anim id est laborum.'
+            # NB: this is for testing on days when the APOD is not an image
+            # self.pic_path = '/home/dana/Documents/Projects/SpaceOddity/test.jpg'
+            # self.apod_data = {
+            #     'title': 'Dummy Title',
+            #     'copyright': 'Dummy Copyright',
+            #     'explanation':'Lorem ipsum dolor sit amet, consectetur \
+            #         adipiscing elit, sed do eiusmod tempor incididunt ut \
+            #         labore et dolore magna aliqua. Ut enim ad minim veniam, \
+            #         quis nostrud exercitation ullamco laboris nisi ut aliquip \
+            #         ex ea commodo consequat. Duis aute irure dolor in \
+            #         reprehenderit in voluptate velit esse cillum dolore eu \
+            #         fugiat nulla pariatur. Excepteur sint occaecat cupidatat \
+            #         non proident, sunt in culpa qui officia \deserunt mollit \
+            #         anim id est laborum.'
+            # }
 
     # --------------------------------------------------------------------------
     # Run caption script
