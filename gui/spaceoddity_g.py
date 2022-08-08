@@ -79,15 +79,9 @@ class Gui:
         loc_dir = os.path.join(gui_dir, 'locale')
         vers_file = os.path.join(gui_dir, 'VERSION.txt')
 
-        # create folders/files if they do not exist
+        # create folder if it does not exist
         if not os.path.exists(conf_dir):
             os.mkdir(conf_dir)
-        if not os.path.exists(log_file):
-            with open(log_file, 'w+') as file:
-                file.write('')
-        if not os.path.exists(self.conf_file):
-            with open(self.conf_file, 'w+') as file:
-                file.write('{}')
 
         if DEBUG:
             print('home_dir:', home_dir)
@@ -100,7 +94,8 @@ class Gui:
             print('vers_file:', vers_file)
 
         # set up logging
-        logging.basicConfig(filename=log_file, level=logging.DEBUG,
+        logging.basicConfig(filename=log_file, filemode='a',
+                            level=logging.DEBUG,
                             format='%(asctime)s - %(message)s')
 
         # log start
@@ -334,15 +329,21 @@ class Gui:
     # --------------------------------------------------------------------------
     def __load_config(self):
 
+        # make sure conf file exists
+        if not os.path.exists(self.conf_file):
+            self.config = dict(self.config_defaults)
+            self.__save_config()
+
         # open the file and read json
         with open(self.conf_file, 'r') as file:
             try:
                 self.config = json.load(file)
-                logging.debug('load config file: %s', file)
+                logging.debug('load config file: %s', self.conf_file)
             except json.JSONDecodeError as err:
                 self.config = dict(self.config_defaults)
                 logging.debug('could not load json, loading defaults')
                 logging.debug(err)
+                self.__save_config()
 
                 if DEBUG:
                     print('error:', err)
@@ -361,10 +362,10 @@ class Gui:
     def __save_config(self):
 
         # open the file and write json
-        with open(self.conf_file, 'w+') as file:
+        with open(self.conf_file, 'w') as file:
             json.dump(self.config, file, indent=4)
 
-        logging.debug('save config file: %s', file)
+        logging.debug('save config file: %s', self.conf_file)
 
         if DEBUG:
             print('save config:', self.config)
