@@ -8,7 +8,20 @@
 # -----------------------------------------------------------------------------#
 
 # TODO: test all conditions (no internet, bad url, etc)
+# no conf dir: OK
+# No log file: OK
+# No JSON: OK
+# not enabled: OK
+# Bad JSON: OK
+# bad url: OK
+# no internet: OK
+# not image: OK
+# bad hdurl: OK
+# caption no:
+# caption yes:
+
 # TODO: maybe clear log between runs? only save last? filemaode='w'
+# this will screw up logging from gui, but do we really need that?
 # TODO: check hdurl against prev, if same, bail (NO! this will break gui apply -
 # maybe only re-run caption stuff instead of re-downloading file? how much
 # would that save?)
@@ -21,6 +34,7 @@
 # b/c now i lost my orange stripey bg
 # basically weird shit happens when you delete the spaceoddity_desk.{file_ext}
 # file... needs further testing
+# TODO: remove all DEBUG
 
 # ------------------------------------------------------------------------------
 # Imports
@@ -68,17 +82,11 @@ class Main:
         self.data_file = os.path.join(self.conf_dir, f'{self.prog_name}.dat')
         log_file = os.path.join(self.conf_dir, f'{self.prog_name}.log')
         self.conf_file = os.path.join(self.conf_dir, f'{self.prog_name}.json')
-        cap_path = os.path.join(script_path, f'{self.prog_name}_c.py')
+        self.capt_path = os.path.join(script_path, f'{self.prog_name}_c.py')
 
-        # create folders/files if they do not exist
+        # create folder if it does not exist
         if not os.path.exists(self.conf_dir):
             os.mkdir(self.conf_dir)
-        if not os.path.exists(log_file):
-            with open(log_file, 'w+') as file:
-                file.write('')
-        if not os.path.exists(self.conf_file):
-            with open(self.conf_file, 'w+') as file:
-                file.write('{}')
 
         if DEBUG:
             print('home_dir:', home_dir)
@@ -86,20 +94,40 @@ class Main:
             print('data_file:', self.data_file)
             print('log_file:', log_file)
             print('conf_file:', self.conf_file)
-            print('cap_path:', cap_path)
+            print('capt_path:', self.capt_path)
 
         # set up logging
-        logging.basicConfig(filename=log_file, level=logging.DEBUG,
+        logging.basicConfig(filename=log_file, filemode='a',
+                            level=logging.DEBUG,
                             format='%(asctime)s - %(message)s')
 
         # log start
-        logging.debug('-------------------------------------------------------')
-        logging.debug('starting main script')
+        logging.debug('=======================================================')
+        logging.debug('start main script')
 
         # set default config dict
         self.config_defaults = {
-            'enabled':      1,
-            'show_caption': 1
+            'enabled':          1,
+            'show_caption':     1,
+            'show_title':       1,
+            'show_copyright':   1,
+            'show_text':        1,
+            'position':         8,
+            'fg_r':             1.0,
+            'fg_g':             1.0,
+            'fg_b':             1.0,
+            'fg_a':             100,
+            'bg_r':             0.0,
+            'bg_g':             0.0,
+            'bg_b':             0.0,
+            'bg_a':             75,
+            'caption_width':    500,
+            'font_size':        15,
+            'corner_radius':    15,
+            'border_padding':   20,
+            'top_padding':      50,
+            'bottom_padding':   10,
+            'side_padding':     10
         }
 
         # user config dict
@@ -111,6 +139,9 @@ class Main:
         # check to see if we are enabled
         if not self.config['enabled']:
 
+            if DEBUG:
+                print('not enabled')
+
             # log that we are finished with script
             self.__exit('not enabled', 0)
 
@@ -119,41 +150,56 @@ class Main:
     # --------------------------------------------------------------------------
     def run(self):
 
+        # call each step in the process
         self.__get_data()
         self.__download_image()
 
         self.__set_image()
 
+        if DEBUG:
+            print('all done')
+
+        # exit gracefully
+        self.__exit('all done', 0)
+
     # --------------------------------------------------------------------------
     # Helpers
     # --------------------------------------------------------------------------
 
-    def __exit(self, msg, code=0):
+    def __exit(self, msg, code):
 
         # log that we are finished with script
-        logging.debug('%s, exiting', msg)
+        logging.debug('%s, exit main script', msg)
         logging.debug('-------------------------------------------------------')
 
         # quit script
-        exit(code)
+        # NB: VSCode doesn't like using exit with any other code than 0
+        # exit(code)
+        exit(0)
 
     # --------------------------------------------------------------------------
     # Loads the config dict from a file
     # --------------------------------------------------------------------------
     def __load_config(self):
 
+        # make sure conf file exists
+        if not os.path.exists(self.conf_file):
+            self.config = dict(self.config_defaults)
+            self.__save_config()
+
         # read config file
         with open(self.conf_file, 'r') as file:
             try:
                 self.config = json.load(file)
-                logging.debug('load config file: %s', file)
+                logging.debug('load config file: %s', self.conf_file)
             except json.JSONDecodeError as err:
                 self.config = dict(self.config_defaults)
+                logging.debug('error: %s', err.reason)
                 logging.debug('could not load json, loading defaults')
-                logging.debug(err)
+                self.__save_config()
 
                 if DEBUG:
-                    print('error:', err)
+                    print('could not load json, loading defaults:', err.reason)
 
         # get values or defaults
         for key in self.config_defaults:
@@ -162,6 +208,20 @@ class Main:
 
         if DEBUG:
             print('load config:', self.config)
+
+    # --------------------------------------------------------------------------
+    # Saves the user config dict to a file
+    # --------------------------------------------------------------------------
+    def __save_config(self):
+
+        # open the file and write json
+        with open(self.conf_file, 'w') as file:
+            json.dump(self.config, file, indent=4)
+
+        logging.debug('save config file: %s', self.conf_file)
+
+        if DEBUG:
+            print('save config:', self.config)
 
     # --------------------------------------------------------------------------
     # Get sJSON from api.nasa.gov
@@ -177,7 +237,7 @@ class Main:
             self.apod_data = json.loads(json_data)
 
             # save json data to file (for use by caption script)
-            with open(self.data_file, 'w+') as file:
+            with open(self.data_file, 'w') as file:
                 json.dump(self.apod_data, file, indent=4)
 
             logging.debug('got json from server')
@@ -186,10 +246,10 @@ class Main:
                 print('apod_data:', self.apod_data)
 
         except urllib.error.URLError as err:
-            logging.debug(err)
+            logging.debug('error: %s', err.reason)
 
             if DEBUG:
-                print('error:', err)
+                print('could not get json:', err.reason)
 
             self.__exit('could not get json', 1)
 
@@ -203,7 +263,10 @@ class Main:
         if 'image' in media_type:
 
             # get the url to the actual image
-            pic_url = self.apod_data['hdurl']
+            if 'hdurl' in self.apod_data.keys():
+                pic_url = self.apod_data['hdurl']
+            elif 'url' in self.apod_data.keys():
+                pic_url = self.apod_data['url']
 
             # create a download path
             file_ext = pic_url.split('.')[-1]
@@ -223,10 +286,10 @@ class Main:
 
                 logging.debug('downloaded new file')
             except urllib.error.URLError as err:
-                logging.debug(err)
+                logging.debug('error: %s', err.reason)
 
                 if DEBUG:
-                    print('error:', err)
+                    print('could not download new file:', err.reason)
 
                 self.__exit('could not download new file', 1)
         else:
@@ -255,7 +318,7 @@ class Main:
         #     logging.debug('run caption script')
 
         #     # set cmd for running caption
-        #     cmd = cap_path
+        #     cmd = self.capt_path
         #     cmd_array = cmd.split()
         #     subprocess.call(cmd_array)
 
@@ -279,10 +342,10 @@ class Main:
         cmd_array = cmd.split()
         subprocess.call(cmd_array)
 
-        logging.debug('wallpaper is set')
+        logging.debug('image is set')
 
         if DEBUG:
-            print('wallpaper is set')
+            print('image is set')
 
 
 # ------------------------------------------------------------------------------
