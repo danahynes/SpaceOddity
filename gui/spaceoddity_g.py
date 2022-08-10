@@ -38,7 +38,7 @@
 import gettext
 import json
 import locale
-import logging
+# import logging
 import os
 
 import gi
@@ -72,7 +72,7 @@ class Gui:
         # get locations
         home_dir = os.path.expanduser('~')
         conf_dir = os.path.join(home_dir, '.config', prog_name)
-        log_file = os.path.join(conf_dir, f'{prog_name}.log')
+        # log_file = os.path.join(conf_dir, f'{prog_name}.log')
         self.conf_file = os.path.join(conf_dir, f'{prog_name}.json')
         gui_dir = os.path.join(conf_dir, 'gui')
         gui_file = os.path.join(gui_dir, f'{prog_name}.glade')
@@ -86,21 +86,21 @@ class Gui:
         if DEBUG:
             print('home_dir:', home_dir)
             print('conf_dir:', conf_dir)
-            print('log_file:', log_file)
+            # print('log_file:', log_file)
             print('conf_file:', self.conf_file)
             print('gui_dir:', gui_dir)
             print('gui_file:', gui_file)
             print('loc_dir:', loc_dir)
             print('vers_file:', vers_file)
 
-        # set up logging
-        logging.basicConfig(filename=log_file, filemode='a',
-                            level=logging.DEBUG,
-                            format='%(asctime)s - %(message)s')
+        # # set up logging
+        # logging.basicConfig(filename=log_file, filemode='a',
+        #                     level=logging.DEBUG,
+        #                     format='%(asctime)s - %(message)s')
 
         # log start
-        logging.debug('-------------------------------------------------------')
-        logging.debug('start gui script')
+        # logging.debug('-------------------------------------------------------')
+        # logging.debug('start gui script')
 
         # set default config dict
         self.config_defaults = {
@@ -206,8 +206,8 @@ class Gui:
         Gtk.main_quit()
 
         # log that we are finished with gui
-        logging.debug('finish gui script')
-        logging.debug('-------------------------------------------------------')
+        # logging.debug('finish gui script')
+        # logging.debug('-------------------------------------------------------')
 
         # quit script
         exit(0)
@@ -338,11 +338,11 @@ class Gui:
         with open(self.conf_file, 'r') as file:
             try:
                 self.config = json.load(file)
-                logging.debug('load config file: %s', self.conf_file)
+                # logging.debug('load config file: %s', self.conf_file)
             except json.JSONDecodeError as err:
                 self.config = dict(self.config_defaults)
-                logging.debug('could not load json, loading defaults')
-                logging.debug(err)
+                # logging.debug('could not load json, loading defaults')
+                # logging.debug(err)
                 self.__save_config()
 
                 if DEBUG:
@@ -365,7 +365,7 @@ class Gui:
         with open(self.conf_file, 'w') as file:
             json.dump(self.config, file, indent=4)
 
-        logging.debug('save config file: %s', self.conf_file)
+        # logging.debug('save config file: %s', self.conf_file)
 
         if DEBUG:
             print('save config:', self.config)
