@@ -12,6 +12,8 @@
 #-------------------------------------------------------------------------------
 # imports
 
+# TODO: learn more about setup.py and can we use it to install
+
 import getpass
 import os
 import shutil
@@ -19,6 +21,38 @@ import subprocess
 
 # TODO: files and folders created during this session wil have owner/group set
 # to root b/c script was called by sudo. NEED TO FIX THIS
+
+'''
+{
+    user: {
+        mkdirs: [
+            dir1,
+            dir2
+        ],
+        mkfiles: [
+            file1,
+            file2
+        ]
+        cp: {
+            file1: dst1,
+            file2: dst2,
+        }
+    },
+    sudo: {
+        mkdirs: [
+            dir1,
+            dir2
+        ],
+        mkfiles: [
+            file1,
+            file2
+        ]
+        cp: {
+            file1: dst1,
+            file2: dst2,
+        }
+    }
+'''
 
 #-------------------------------------------------------------------------------
 # define the main function to run

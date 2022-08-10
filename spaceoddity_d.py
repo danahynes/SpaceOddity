@@ -17,16 +17,11 @@
 # no internet: OK
 # not image: OK
 # bad hdurl: OK
-# caption no:
+# caption no: OK
 # caption yes:
 
-# TODO: maybe clear log between runs? only save last? filemaode='w'
-# this will screw up logging from gui, but do we really need that?
-# TODO: check hdurl against prev, if same, bail (NO! this will break gui apply -
-# maybe only re-run caption stuff instead of re-downloading file? how much
-# would that save?)
-# TODO: set wallpaper name with new date/time and delete old (avoids 'replace'
-# dialog) maybe not necessary
+# TODO: set wallpaper name with new date/time and delete old
+# (avoids 'replace' dialog)
 # does this explain why deleting the file from ~/.config/spaceoddity
 # causes wallpaper to go black and not get replaced on next run?
 # also note right-clicking a file in nautilus and selecting "set as wallpaper"
@@ -34,6 +29,22 @@
 # b/c now i lost my orange stripey bg
 # basically weird shit happens when you delete the spaceoddity_desk.{file_ext}
 # file... needs further testing
+
+# !!! right click - set as wallpaer copies to ~/Pictures/Wallpapers
+# if deleted from this, screen goes black
+
+# !!! if already set to spaceoddity_desk.xxx, then set to system, then run
+# again, file is downloaded but not set - maybe replace dialog?
+
+# !!! set spaceoddity_desk.xxx - delete file from .config - screen goes black
+# no fallback image
+
+# !!! if using add picture and delete file, fallback to previous
+
+# so basically we only need to deal with the scenario where a new image is
+# downloaded, the user changes the wallpaper manually, then the script runs
+# again
+
 # TODO: remove all DEBUG
 
 # ------------------------------------------------------------------------------
@@ -43,8 +54,10 @@
 import json
 import logging
 import os
+import shlex
 import subprocess
 import urllib.request
+from gi.repository import Gio, GLib
 
 # ------------------------------------------------------------------------------
 # Constants
@@ -97,7 +110,7 @@ class Main:
             print('capt_path:', self.capt_path)
 
         # set up logging
-        logging.basicConfig(filename=log_file, filemode='a',
+        logging.basicConfig(filename=log_file, filemode='w',
                             level=logging.DEBUG,
                             format='%(asctime)s - %(message)s')
 
@@ -153,7 +166,7 @@ class Main:
         # call each step in the process
         self.__get_data()
         self.__download_image()
-
+        self.__do_caption()
         self.__set_image()
 
         if DEBUG:
@@ -295,57 +308,49 @@ class Main:
         else:
 
             if DEBUG:
-                print('not an image')
+                print('not an image, making fake data')
+
+                # NB: this is for testing on days when the APOD is not an image
+
+                self.apod_data = {
+                    'hdurl': '/home/dana/Documents/Projects/SpaceOddity/test.jpg',
+                    'title': 'Dummy Title',
+                    'copyright': 'Dummy Copyright',
+                    'explanation': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+                }
+                with open(self.data_file, 'w') as file:
+                    json.dump(self.apod_data, file, indent=4)
+
+                src = '/home/dana/Documents/Projects/SpaceOddity/test.jpg'
+                dst = '/home/dana/.config/spaceoddity/spaceoddity_desk.jpg'
+                os.system(f'cp {src} {dst}')
 
             self.__exit('not an image', 0)
-
-            # NB: this is for testing on days when the APOD is not an image
-            # self.pic_path = '/home/dana/Documents/Projects/SpaceOddity/test.jpg'
-            # self.apod_data = {
-            #     'title': 'Dummy Title',
-            #     'copyright': 'Dummy Copyright',
-            #     'explanation':'Lorem ipsum dolor sit amet, consectetur \
-            #         adipiscing elit, sed do eiusmod tempor incididunt ut \
-            #         labore et dolore magna aliqua. Ut enim ad minim veniam, \
-            #         quis nostrud exercitation ullamco laboris nisi ut aliquip \
-            #         ex ea commodo consequat. Duis aute irure dolor in \
-            #         reprehenderit in voluptate velit esse cillum dolore eu \
-            #         fugiat nulla pariatur. Excepteur sint occaecat cupidatat \
-            #         non proident, sunt in culpa qui officia \deserunt mollit \
-            #         anim id est laborum.'
-            # }
 
     # --------------------------------------------------------------------------
     # Run caption script
     # --------------------------------------------------------------------------
+    def __do_caption(self):
 
-        # if show_caption:
-        #     logging.debug('run caption script')
-
-        #     # set cmd for running caption
-        #     cmd = self.capt_path
-        #     cmd_array = cmd.split()
-        #     subprocess.call(cmd_array)
-
-        # else:
-        #     logging.debug('caption not enabled')
+        # set cmd for running caption
+        cmd = self.capt_path
+        cmd_array = shlex.split(cmd)
+        subprocess.call(cmd_array)
 
     # --------------------------------------------------------------------------
     # Set the wallpaper
     # --------------------------------------------------------------------------
     def __set_image(self):
 
-        # set cmd for Gnome wallpaper and run
-        cmd = f'gsettings set org.gnome.desktop.background picture-uri \
-            {self.pic_path}'
-        cmd_array = cmd.split()
-        subprocess.call(cmd_array)
+        # get system settings
+        settings = Gio.Settings.new('org.gnome.desktop.background')
 
-        # set cmd for Gnome dark wallpaper and run
-        cmd = f'gsettings set org.gnome.desktop.background picture-uri-dark \
-            {self.pic_path}'
-        cmd_array = cmd.split()
-        subprocess.call(cmd_array)
+        # convert pic_path to variant
+        glib_value = GLib.Variant('s', self.pic_path)
+
+        # set variant for both light and dark themes
+        settings.set_value('picture-uri', glib_value)
+        settings.set_value('picture-uri-dark', glib_value)
 
         logging.debug('image is set')
 
