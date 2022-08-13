@@ -8,20 +8,25 @@
 # -----------------------------------------------------------------------------#
 
 # TODO: test all conditions (no internet, bad url, etc)
-# no conf dir: OK
-# No log file: OK
-# No JSON: OK
-# not enabled: OK
-# Bad JSON: OK
-# bad url: OK
-# no internet: OK
-# not image: OK
-# bad hdurl: OK
-# caption no: OK
+# no conf dir:
+# No log file:
+# No json:
+# not enabled:
+# Bad json:
+# bad url:
+# no internet:
+# not image:
+# bad hdurl:
+# caption no:
 # caption yes:
 
 # TODO: white line on right of image (oversizing doesn't help)
 # TODO: remove all DEBUG
+
+# TODO: add option to span multiple monitors
+# I know more-or-less HOW to do this, but as i don't have multiple monitors,
+# and I haven't taken the time to fix my laptop's 'HDMI out' connection to my
+# TV... I don't have a way to test it. So for now it's on the back burner.
 
 # NB: requires:
 # pygobject
@@ -68,29 +73,32 @@ class Main:
         # set the program name for use in file and folder names
         self.prog_name = 'spaceoddity'
 
-        # the url to load JSON from
+        # the url to load json from
         self.apod_url = 'https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY'
 
         # TODO: make this the final location pf the caption script
+        # actually, move caption stuff to this file?
         script_path = os.path.dirname(os.path.realpath(__file__))
 
         # get locations
-        home_dir = os.path.expanduser('~')
-        self.conf_dir = os.path.join(home_dir, '.config', self.prog_name)
-        self.data_file = os.path.join(self.conf_dir, f'{self.prog_name}.dat')
-        log_file = os.path.join(self.conf_dir, f'{self.prog_name}.log')
-        self.conf_file = os.path.join(self.conf_dir, f'{self.prog_name}.cfg')
+        home_path = os.path.expanduser('~')
+        self.conf_path = os.path.join(home_path, '.config', self.prog_name)
+        self.apod_file = os.path.join(self.conf_path, f'{self.prog_name}.dat')
+        log_file = os.path.join(self.conf_path, f'{self.prog_name}.log')
+        self.conf_file = os.path.join(self.conf_path, f'{self.prog_name}.cfg')
         self.capt_path = os.path.join(script_path, f'{self.prog_name}_c.py')
-        self.capt_file = os.path.join(self.conf_dir, f'{self.prog_name}_capt.cfg')
+        self.capt_file = os.path.join(self.conf_path, f'{self.prog_name}_capt.cfg')
 
         # create folder if it does not exist
-        if not os.path.exists(self.conf_dir):
-            os.mkdir(self.conf_dir)
+        if not os.path.exists(self.conf_path):
+            os.mkdir(self.conf_path)
 
         if DEBUG:
-            print('home_dir:', home_dir)
-            print('conf_dir:', self.conf_dir)
-            print('data_file:', self.data_file)
+            print('prog_anme:', self.prog_name)
+            print('apod_url:', self.apod_url)
+            print('home_path:', home_path)
+            print('conf_dir:', self.conf_path)
+            print('data_file:', self.apod_file)
             print('log_file:', log_file)
             print('conf_file:', self.conf_file)
             print('capt_path:', self.capt_path)
@@ -105,7 +113,7 @@ class Main:
         logging.debug('start main script')
 
         # set default config dict
-        self.config_defaults = {
+        self.conf_dict_def = {
             'enabled':          1,
             'show_caption':     1,
             'show_title':       1,
@@ -130,13 +138,13 @@ class Main:
         }
 
         # user config dict
-        self.config = {}
+        self.conf_dict = {}
 
         # init the config dict from user settings
-        self.__load_config()
+        self.__load_conf_dict()
 
         # check to see if we are enabled
-        if not self.config['enabled']:
+        if not self.conf_dict['enabled']:
 
             # log the enabled state
             logging.debug('main script disabled')
@@ -153,13 +161,14 @@ class Main:
     def run(self):
 
         # call each step in the process
-        self.__get_data()
+        self.__download_apod_dict()
         self.__download_image()
         self.__resize_image()
-        self.__do_caption()
+        self.__load_capt_dict()
+        # self.__do_caption()
         self.__set_image()
 
-        # exit gracefully
+        # exit gracefully n
         self.__exit()
 
     # --------------------------------------------------------------------------
@@ -184,82 +193,133 @@ class Main:
     # --------------------------------------------------------------------------
     # Load the config dict from a file
     # --------------------------------------------------------------------------
-    def __load_config(self):
+    def __load_conf_dict(self):
 
-        # make sure conf file exists
+        # if config file does not exist, set defaults and save to file
         if not os.path.exists(self.conf_file):
-            self.config = dict(self.config_defaults)
-            self.__save_config()
+            self.conf_dict = dict(self.conf_dict_def)
+            self.__save_conf_dict()
 
         # read config file
         with open(self.conf_file, 'r') as file:
             try:
-                self.config = json.load(file)
+                self.conf_dict = json.load(file)
 
                 # log success
                 logging.debug('load config file: %s', self.conf_file)
 
             except json.JSONDecodeError as error:
 
-                # shallow copy defaults to user
-                self.config = dict(self.config_defaults)
+                # if config file error, set defaults and save to file
+                self.conf_dict = dict(self.conf_dict_def)
+                self.__save_conf_dict()
 
                 # log error
                 logging.error(error.reason)
                 logging.error('could not load config file, load defaults')
-
-                # save the defualt config
-                self.__save_config()
 
                 if DEBUG:
                     print('could not load config file, load defaults:',
                           error.reason)
 
         # set defaults for any missing keys
-        for key in self.config_defaults:
-            if key not in self.config.keys():
-                self.config[key] = self.config_defaults.get(key)
-
+        for key in self.conf_dict_def:
+            if key not in self.conf_dict.keys():
+                self.conf_dict[key] = self.conf_dict_def[key]
+        self.__save_conf_dict()
+        
         if DEBUG:
-            print('load config:', self.config)
+            print('load config:', self.conf_dict)
 
     # --------------------------------------------------------------------------
     # Save the user config dict to a file
     # --------------------------------------------------------------------------
-    def __save_config(self):
+    def __save_conf_dict(self):
 
         # open the file and write json
         with open(self.conf_file, 'w') as file:
-            json.dump(self.config, file, indent=4)
+            json.dump(self.conf_dict, file, indent=4)
 
         # log success
         logging.debug('save config file: %s', self.conf_file)
 
         if DEBUG:
-            print('save config:', self.config)
+            print('save config:', self.conf_dict)
 
     # --------------------------------------------------------------------------
-    # Get JSON from APOD url
+    # Get json from caption data file
     # --------------------------------------------------------------------------
-    def __get_data(self):
+    def __load_capt_dict(self):
 
-        # get the JSON and format it
+        # create file if not exist
+        if not os.path.exists(self.capt_file):
+            self.capt_dict = {}
+            self.__save_capt_dict()
+
+        # load dict from file
+        with open(self.capt_file, 'r') as file:
+            try:
+                self.capt_dict = json.load(file)
+
+                # log success
+                logging.debug('load capt file: %s', self.capt_file)
+
+            except json.JSONDecodeError as error:
+
+                # if capt file error, set defaults and save to file
+                self.capt_dict = {}
+                self.__save_capt_dict()
+
+                # log error
+                logging.error(error.reason)
+                logging.error('could not load capt file')
+
+                if DEBUG:
+                    print('could not load capt file:', error.reason)
+
+                # this is a fatal error
+                self.__exit()
+
+        if DEBUG:
+            print('load capt:', self.capt_dict)
+
+    # --------------------------------------------------------------------------
+    # Set capt settings to caption data file
+    # --------------------------------------------------------------------------
+    def __save_capt_dict(self):
+
+        # open the file and write json
+        with open(self.capt_file, 'w') as file:
+            json.dump(self.capt_dict, file, indent=4)
+
+        # log success
+        logging.debug('save capt file: %s', self.capt_file)
+
+        if DEBUG:
+            print('save capt:', self.capt_dict)
+
+    # --------------------------------------------------------------------------
+    # Get json from APOD url
+    # --------------------------------------------------------------------------
+    def __download_apod_dict(self):
+
+        # get the json and format it
         try:
 
             # get json from url
             response = urllib.request.urlopen(self.apod_url)
-            json_data = response.read()
-            self.apod_data = json.loads(json_data)
+            response_text = response.read()
+            self.apod_dict = json.loads(response_text)
 
             # save json data to file (for use by caption script)
-            with open(self.data_file, 'w') as file:
-                json.dump(self.apod_data, file, indent=4)
+            with open(self.apod_file, 'w') as file:
+                json.dump(self.apod_dict, file, indent=4)
 
             # log success
             logging.debug('get data from server')
 
             if DEBUG:
-                print('apod_data:', self.apod_data)
+                print('get data from server:', self.apod_dict)
 
         except urllib.error.URLError as error:
 
@@ -274,26 +334,85 @@ class Main:
             self.__exit()
 
     # --------------------------------------------------------------------------
+    # Set some fake data when debugging and APOD is not an image
+    # --------------------------------------------------------------------------
+    def __do_not_image(self):
+
+        if TEST_IMAGE:
+            print('not an image, making fake data')
+
+            # NB: this is for testing on days when the APOD is not an image
+            str_exp = 'Lorem ipsum dolor sit amet, consectetur adipiscing '
+            str_exp += 'elit, sed do eiusmod tempor incididunt ut labore '
+            str_exp += 'et dolore magna aliqua. Ut enim ad minim veniam, '
+            str_exp += 'quis nostrud exercitation ullamco laboris nisi ut '
+            str_exp += 'aliquip ex ea commodo consequat. Duis aute irure '
+            str_exp += 'dolor in reprehenderit in voluptate velit esse '
+            str_exp += 'cillum dolore eu fugiat nulla pariatur. Excepteur '
+            str_exp += 'sint occaecat cupidatat non proident, sunt in '
+            str_exp += 'culpa qui officia deserunt mollit anim id est '
+            str_exp += 'laborum.'
+
+            self.apod_dict = {
+                'title': 'Dummy Title',
+                'copyright': 'Dummy Copyright',
+                'explanation': f'{str_exp}'
+            }
+
+            with open(self.apod_file, 'w') as file:
+                json.dump(self.apod_dict, file, indent=4)
+
+            src = '/home/dana/Documents/Projects/SpaceOddity/test/test.jpg'
+            dst = '/home/dana/.config/spaceoddity/test.jpg'
+            os.system(f'cp {src} {dst}')
+
+            # TODO: move to own function and error check
+            self.capt_dict['filepath'] = f'{dst}'
+            with open(self.capt_file, 'w') as file:
+                json.dump(self.capt_dict, file, indent=4)
+
+        else:
+
+            # log status of apod
+            logging.debug('today\'s APOD is not an image')
+
+            # this is a fatal error
+            self.__exit()
+
+    # --------------------------------------------------------------------------
     # Get image from api.nasa.gov
     # --------------------------------------------------------------------------
     def __download_image(self):
 
         # make sure it's an image (sometimes it's a video)
-        media_type = self.apod_data['media_type']
+        media_type = self.apod_dict['media_type']
         if 'image' in media_type:
 
             # get the url to the actual image
-            if 'hdurl' in self.apod_data.keys():
-                pic_url = self.apod_data['hdurl']
-            elif 'url' in self.apod_data.keys():
-                pic_url = self.apod_data['url']
+            pic_url = ''
+            if 'hdurl' in self.apod_dict.keys():
+                pic_url = self.apod_dict['hdurl']
+            elif 'url' in self.apod_dict.keys():
+                pic_url = self.apod_dict['url']
+
+            # bail if no url
+            if pic_url == '':
+
+                # log error
+                logging.error('no url')
+
+                if DEBUG:
+                    print('no url')
+
+                # this is a fatal error
+                self.__exit()
 
             # create a download path
             now = datetime.now()
             str_now = now.strftime('%Y%m%d%H%M%S')
             file_ext = pic_url.split('.')[-1]
             pic_name = f'{self.prog_name}_{str_now}.{file_ext}'
-            self.pic_path = os.path.join(self.conf_dir, pic_name)
+            self.pic_path = os.path.join(self.conf_path, pic_name)
 
             if DEBUG:
                 print('pic_url:', pic_url)
@@ -306,23 +425,9 @@ class Main:
                 # download the hi-res image
                 urllib.request.urlretrieve(pic_url, self.pic_path)
 
-                # TODO: move to own function and error check
-                if not os.path.exists(self.capt_file):
-                    with open(self.capt_file, 'w') as file:
-                        file.write('{}')
-
-                with open(self.capt_file, 'r') as file:
-                    self.capt_data = json.load(file)
-
-                if 'filepath' in self.capt_data.keys():
-                    filepath = self.capt_data['filepath']
-                    if os.path.exists(filepath):
-                        os.system(f'rm {filepath}')
-
-                # TODO: move to own function and error check
-                self.capt_data['filepath'] = self.pic_path
-                with open(self.capt_file, 'w') as file:
-                    json.dump(self.capt_data, file, indent=4)
+                # TODO: remove old file
+                # run capt dict functions
+                # self.__load_capt_dict()
 
                 # log success
                 logging.debug('download image')
@@ -340,46 +445,8 @@ class Main:
                 self.__exit()
         else:
 
-            if TEST_IMAGE:
-                print('not an image, making fake data')
-
-                # NB: this is for testing on days when the APOD is not an image
-                str_exp = 'Lorem ipsum dolor sit amet, consectetur adipiscing '
-                str_exp += 'elit, sed do eiusmod tempor incididunt ut labore '
-                str_exp += 'et dolore magna aliqua. Ut enim ad minim veniam, '
-                str_exp += 'quis nostrud exercitation ullamco laboris nisi ut '
-                str_exp += 'aliquip ex ea commodo consequat. Duis aute irure '
-                str_exp += 'dolor in reprehenderit in voluptate velit esse '
-                str_exp += 'cillum dolore eu fugiat nulla pariatur. Excepteur '
-                str_exp += 'sint occaecat cupidatat non proident, sunt in '
-                str_exp += 'culpa qui officia deserunt mollit anim id est '
-                str_exp += 'laborum.'
-
-                self.apod_data = {
-                    'title': 'Dummy Title',
-                    'copyright': 'Dummy Copyright',
-                    'explanation': f'{str_exp}'
-                }
-
-                with open(self.data_file, 'w') as file:
-                    json.dump(self.apod_data, file, indent=4)
-
-                src = '/home/dana/Documents/Projects/SpaceOddity/test/test.jpg'
-                dst = '/home/dana/.config/spaceoddity/test.jpg'
-                os.system(f'cp {src} {dst}')
-
-                # TODO: move to own function and error check
-                self.capt_data['filepath'] = f'{dst}'
-                with open(self.capt_file, 'w') as file:
-                    json.dump(self.capt_data, file, indent=4)
-
-            else:
-
-                # log status of apod
-                logging.debug('today\'s APOD is not an image')
-
-                # this is a fatal error
-                self.__exit()
+            # do the not image stuff
+            self.__do_not_image()
 
     # --------------------------------------------------------------------------
     # Resize image to fill screen
@@ -454,15 +521,15 @@ class Main:
         subprocess.call(cmd_array)
 
         # save all the data to a file for caption script
-        self.capt_data['filepath'] = self.pic_path
-        self.capt_data['pic_w'] = new_w
-        self.capt_data['pic_h'] = new_h
-        self.capt_data['screen_w'] = screen_w
-        self.capt_data['screen_h'] = screen_h
+        self.capt_dict['filepath'] = self.pic_path
+        self.capt_dict['pic_w'] = new_w
+        self.capt_dict['pic_h'] = new_h
+        self.capt_dict['screen_w'] = screen_w
+        self.capt_dict['screen_h'] = screen_h
 
         # TODO: move to own function and error check
         with open(self.capt_file, 'w') as file:
-            json.dump(self.capt_data, file, indent=4)
+            json.dump(self.capt_dict, file, indent=4)
 
         # log success
         logging.debug('resize image')
@@ -492,12 +559,12 @@ class Main:
         # settings.set_value('picture-uri', glib_value)
         # settings.set_value('picture-uri-dark', glib_value)
 
-        cmd = f'gsettings set org.gnome.desktop.background picture-uri {self.pic_path}'
+        cmd = f'gsettings set org.gnome.desktop.background picture-uri file://{self.pic_path}'
         cmd_array = cmd.split()
         subprocess.call(cmd_array)
         logging.debug(cmd_array)
 
-        cmd = f'gsettings set org.gnome.desktop.background picture-uri-dark {self.pic_path}'
+        cmd = f'gsettings set org.gnome.desktop.background picture-uri-dark file://{self.pic_path}'
         cmd_array = cmd.split()
         subprocess.call(cmd_array)
         logging.debug(cmd_array)
