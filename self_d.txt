@@ -1,0 +1,20 @@
+init:
+    prog_name
+    apod_url
+    conf_path
+    apod_file
+    conf_file
+    capt_path
+    capt_file
+    conf_dict_def
+    conf_dict
+
+load_capt_dict:
+   capt_dict
+
+download_apod_dict:
+    apod_dict
+
+download_image:
+    pic_path
+
