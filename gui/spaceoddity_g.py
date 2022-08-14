@@ -7,6 +7,8 @@
 # License : WTFPLv2                                              \          /  #
 # -----------------------------------------------------------------------------#
 
+# TODO: replace spinners with sliders
+# TODO: remove fg_a
 # TODO: use gtkapplication
 # TODO: grouping of controls - see settings (deep dark box),
 # login manager (light box w/separator)
