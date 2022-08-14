@@ -1,20 +1,59 @@
-init:
+Methods
+
+__init__:
     prog_name
     apod_url
+    conf_dir
     conf_path
-    apod_file
-    conf_file
+    apod_path
     capt_path
-    capt_file
+    scpt_path
+
     conf_dict_def
     conf_dict
-
-load_capt_dict:
-   capt_dict
-
-download_apod_dict:
+    apod_dict_def
     apod_dict
+    capt_dict_def
+    capt_dict
 
-download_image:
     pic_path
+
+run:
+    __load_dict (conf)
+    __download_apod_dict
+    __download_image
+    __resize_image
+#   __do_caption
+    __set_image
+    __exit
+
+Steps
+
+__download_apod_dict:
+    __save_dict (apod)
+
+__download_image:
+    __apod_is_image
+    __apod_is_not_image
+
+__resize_image:
+    __save_dict (capt)
+
+Helpers
+
+__load_dict:
+    __save_dict (dict)
+    __save_dict (dict)
+
+__apod_is_image:
+    __get_pic_url
+    __exit
+    __load_dict (capt)
+    __exit
+
+__apod_is_not_image:
+    __save_dict (apod)
+    __load_dict (apod)
+    __get_pic_url
+    __load_dict (capt)
 
