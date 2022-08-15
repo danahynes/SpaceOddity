@@ -1,4 +1,4 @@
-Methods
+methods
 
 __init__:
     prog_name
@@ -27,7 +27,7 @@ run:
     __set_image
     __exit
 
-Steps
+steps
 
 __download_apod_dict:
     __save_dict (apod)
@@ -39,7 +39,7 @@ __download_image:
 __resize_image:
     __save_dict (capt)
 
-Helpers
+helpers
 
 __load_dict:
     __save_dict (dict)
