@@ -7,12 +7,7 @@
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
-  <object class="GtkAdjustment" id="adj_colors_fg_transparency">
-    <property name="upper">100</property>
-    <property name="step-increment">1</property>
-    <property name="page-increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="adj_layout_border">
+  <object class="GtkAdjustment" id="adj_layout_border_padding">
     <property name="upper">100</property>
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
@@ -363,14 +358,14 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <child>
-                  <object class="GtkLabel" id="label_fg_color">
-                    <property name="name">label_fg_color</property>
+                  <object class="GtkLabel" id="label_font">
+                    <property name="name">label_font</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">start</property>
                     <property name="margin-start">20</property>
                     <property name="margin-top">20</property>
-                    <property name="label" translatable="yes">Foreground color</property>
+                    <property name="label" translatable="yes">Font</property>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
@@ -378,17 +373,52 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label_fg_transparency">
-                    <property name="name">label_fg_transparency</property>
+                  <object class="GtkFontButton" id="btn_font">
+                    <property name="name">btn_font</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="margin-start">10</property>
+                    <property name="margin-end">20</property>
+                    <property name="margin-top">20</property>
+                    <property name="font">Sans 12</property>
+                    <property name="language">en-us</property>
+                    <property name="preview-text"/>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_fg_color">
+                    <property name="name">label_fg_color</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">start</property>
                     <property name="margin-start">20</property>
                     <property name="margin-top">10</property>
-                    <property name="label" translatable="yes">Foreground transparency</property>
+                    <property name="label" translatable="yes">Foreground color</property>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
+                    <property name="top-attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkColorButton" id="btn_fg_color">
+                    <property name="name">btn_fg_color</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="halign">end</property>
+                    <property name="margin-start">10</property>
+                    <property name="margin-end">20</property>
+                    <property name="margin-top">10</property>
+                    <property name="hexpand">True</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
                     <property name="top-attach">1</property>
                   </packing>
                 </child>
@@ -404,6 +434,22 @@
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
+                    <property name="top-attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkColorButton" id="btn_bg_color">
+                    <property name="name">btn_bg_color</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="halign">end</property>
+                    <property name="margin-start">10</property>
+                    <property name="margin-end">20</property>
+                    <property name="margin-top">10</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
                     <property name="top-attach">2</property>
                   </packing>
                 </child>
@@ -424,38 +470,8 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkColorButton" id="btn_fg_color">
-                    <property name="name">so_options_nb_grid_colors_button_foreground</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <property name="margin-start">10</property>
-                    <property name="margin-end">20</property>
-                    <property name="margin-top">20</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton" id="btn_bg_color">
-                    <property name="name">btn_bg_color</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <property name="margin-start">10</property>
-                    <property name="margin-end">20</property>
-                    <property name="margin-top">10</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkScale" id="slider_bg_transparency">
-                    <property name="name">slider_bg_transparency</property>
+                  <object class="GtkScale" id="scale_bg_transparency">
+                    <property name="name">scale_bg_transparency</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="margin-start">10</property>
@@ -472,34 +488,15 @@
                     <property name="top-attach">3</property>
                   </packing>
                 </child>
-                <child>
-                  <object class="GtkScale" id="slider_fg_transparency">
-                    <property name="name">slider_fg_transparency</property>
-                    <property name="width-request">200</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="margin-start">10</property>
-                    <property name="margin-end">20</property>
-                    <property name="margin-top">10</property>
-                    <property name="hexpand">True</property>
-                    <property name="adjustment">adj_colors_fg_transparency</property>
-                    <property name="fill-level">100</property>
-                    <property name="draw-value">False</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">1</property>
-                  </packing>
-                </child>
               </object>
               <packing>
                 <property name="name">page_colors</property>
-                <property name="title" translatable="yes">Colors</property>
+                <property name="title" translatable="yes">Fonts &amp; Colors</property>
                 <property name="position">1</property>
               </packing>
             </child>
             <child>
-              <!-- n-columns=2 n-rows=8 -->
+              <!-- n-columns=2 n-rows=7 -->
               <object class="GtkGrid" id="grid_layout">
                 <property name="name">grid_layout</property>
                 <property name="visible">True</property>
@@ -512,223 +509,10 @@
                     <property name="halign">start</property>
                     <property name="margin-start">20</property>
                     <property name="margin-top">10</property>
-                    <property name="label" translatable="yes">Caption width</property>
+                    <property name="label" translatable="yes">Width</property>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
-                    <property name="top-attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label_font_size">
-                    <property name="name">label_font_size</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="halign">start</property>
-                    <property name="margin-start">20</property>
-                    <property name="margin-top">10</property>
-                    <property name="label" translatable="yes">Font size</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label_corner_radius">
-                    <property name="name">label_corner_radius</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="halign">start</property>
-                    <property name="margin-start">20</property>
-                    <property name="margin-top">10</property>
-                    <property name="label" translatable="yes">Corner radius</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label_border_padding">
-                    <property name="name">label_border_padding</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="halign">start</property>
-                    <property name="margin-start">20</property>
-                    <property name="margin-top">10</property>
-                    <property name="label" translatable="yes">Border padding</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label_top_padding">
-                    <property name="name">label_top_padding</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="halign">start</property>
-                    <property name="margin-start">20</property>
-                    <property name="margin-top">10</property>
-                    <property name="label" translatable="yes">Top padding</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">5</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label_bottom_padding">
-                    <property name="name">label_bottom_padding</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="halign">start</property>
-                    <property name="margin-start">20</property>
-                    <property name="margin-top">10</property>
-                    <property name="label" translatable="yes">Bottom padding</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">6</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label_side_padding">
-                    <property name="name">label_side_padding</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="halign">start</property>
-                    <property name="margin-start">20</property>
-                    <property name="margin-top">10</property>
-                    <property name="margin-bottom">20</property>
-                    <property name="label" translatable="yes">Side padding</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">7</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinButton" id="spin_border_padding">
-                    <property name="name">spin_border_padding</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="margin-start">10</property>
-                    <property name="margin-end">20</property>
-                    <property name="margin-top">10</property>
-                    <property name="text" translatable="yes">0</property>
-                    <property name="adjustment">adj_layout_border</property>
-                    <property name="numeric">True</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinButton" id="spin_font_size">
-                    <property name="name">spin_font_size</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="margin-start">10</property>
-                    <property name="margin-end">20</property>
-                    <property name="margin-top">10</property>
-                    <property name="text" translatable="yes">0</property>
-                    <property name="adjustment">adj_layout_font_size</property>
-                    <property name="numeric">True</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinButton" id="spin_corner_radius">
-                    <property name="name">spin_corner_radius</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="margin-start">10</property>
-                    <property name="margin-end">20</property>
-                    <property name="margin-top">10</property>
-                    <property name="text" translatable="yes">0</property>
-                    <property name="adjustment">adj_layout_corner_radius</property>
-                    <property name="numeric">True</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinButton" id="spin_top_padding">
-                    <property name="name">spin_top_padding</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="margin-start">10</property>
-                    <property name="margin-end">20</property>
-                    <property name="margin-top">10</property>
-                    <property name="text" translatable="yes">0</property>
-                    <property name="adjustment">adj_layout_top_padding</property>
-                    <property name="numeric">True</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">5</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinButton" id="spin_bottom_padding">
-                    <property name="name">spin_bottom_padding</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="margin-start">10</property>
-                    <property name="margin-end">20</property>
-                    <property name="margin-top">10</property>
-                    <property name="text" translatable="yes">0</property>
-                    <property name="adjustment">adj_layout_bottom_padding</property>
-                    <property name="numeric">True</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">6</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinButton" id="spin_side_padding">
-                    <property name="name">spin_side_padding</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="margin-start">10</property>
-                    <property name="margin-end">20</property>
-                    <property name="margin-top">10</property>
-                    <property name="margin-bottom">20</property>
-                    <property name="text" translatable="yes">0</property>
-                    <property name="adjustment">adj_layout_side_padding</property>
-                    <property name="numeric">True</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">7</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinButton" id="spin_caption_width">
-                    <property name="name">spin_caption_width</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="margin-start">10</property>
-                    <property name="margin-end">20</property>
-                    <property name="margin-top">10</property>
-                    <property name="hexpand">True</property>
-                    <property name="text" translatable="yes">100</property>
-                    <property name="adjustment">adj_layout_caption_width</property>
-                    <property name="numeric">True</property>
-                    <property name="value">100</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
                     <property name="top-attach">1</property>
                   </packing>
                 </child>
@@ -755,6 +539,7 @@
                     <property name="margin-start">10</property>
                     <property name="margin-end">20</property>
                     <property name="margin-top">20</property>
+                    <property name="hexpand">True</property>
                     <property name="active">8</property>
                     <items>
                       <item id="0" translatable="yes">Top Left</item>
@@ -771,6 +556,186 @@
                   <packing>
                     <property name="left-attach">1</property>
                     <property name="top-attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScale" id="scale_caption_width">
+                    <property name="name">scale_caption_width</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="margin-start">10</property>
+                    <property name="margin-end">20</property>
+                    <property name="margin-top">10</property>
+                    <property name="adjustment">adj_layout_caption_width</property>
+                    <property name="fill-level">0</property>
+                    <property name="round-digits">1</property>
+                    <property name="draw-value">False</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_corner_radius">
+                    <property name="name">label_corner_radius</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="margin-start">20</property>
+                    <property name="margin-top">10</property>
+                    <property name="label" translatable="yes">Corner radius</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScale" id="scale_corner_radius">
+                    <property name="name">scale_corner_radius</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="margin-start">10</property>
+                    <property name="margin-end">20</property>
+                    <property name="margin-top">10</property>
+                    <property name="adjustment">adj_layout_corner_radius</property>
+                    <property name="round-digits">1</property>
+                    <property name="draw-value">False</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_border_padding">
+                    <property name="name">label_border_padding</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="margin-start">20</property>
+                    <property name="margin-top">10</property>
+                    <property name="label" translatable="yes">Border padding</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScale" id="scale_border_padding">
+                    <property name="name">scale_border_padding</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="margin-start">10</property>
+                    <property name="margin-end">20</property>
+                    <property name="margin-top">10</property>
+                    <property name="adjustment">adj_layout_border_padding</property>
+                    <property name="round-digits">1</property>
+                    <property name="draw-value">False</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_top_padding">
+                    <property name="name">label_top_padding</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="margin-start">20</property>
+                    <property name="margin-top">10</property>
+                    <property name="label" translatable="yes">Top padding</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScale" id="scale_top_padding">
+                    <property name="name">scale_top_padding</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="margin-start">10</property>
+                    <property name="margin-end">20</property>
+                    <property name="margin-top">10</property>
+                    <property name="adjustment">adj_layout_top_padding</property>
+                    <property name="round-digits">1</property>
+                    <property name="draw-value">False</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_bottom_padding">
+                    <property name="name">label_bottom_padding</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="margin-start">20</property>
+                    <property name="margin-top">10</property>
+                    <property name="label" translatable="yes">Bottom padding</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScale" id="scale_bottom_padding">
+                    <property name="name">scale_bottom_padding</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="margin-start">10</property>
+                    <property name="margin-end">20</property>
+                    <property name="margin-top">10</property>
+                    <property name="adjustment">adj_layout_bottom_padding</property>
+                    <property name="round-digits">1</property>
+                    <property name="draw-value">False</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_side_padding">
+                    <property name="name">label_side_padding</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="margin-start">20</property>
+                    <property name="margin-top">10</property>
+                    <property name="margin-bottom">20</property>
+                    <property name="label" translatable="yes">Side padding</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">6</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScale" id="scale_side_padding">
+                    <property name="name">scale_side_padding</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="margin-start">10</property>
+                    <property name="margin-end">20</property>
+                    <property name="margin-top">10</property>
+                    <property name="margin-bottom">20</property>
+                    <property name="adjustment">adj_layout_side_padding</property>
+                    <property name="round-digits">1</property>
+                    <property name="draw-value">False</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">6</property>
                   </packing>
                 </child>
               </object>
