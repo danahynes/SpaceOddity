@@ -9,6 +9,8 @@
 
 # TODO: replace spinners with sliders
 # TODO: remove fg_a
+# TODO: color buttons don't stretch/align right
+# TODO: font chooser
 # TODO: use gtkapplication
 # TODO: grouping of controls - see settings (deep dark box),
 # login manager (light box w/separator)
