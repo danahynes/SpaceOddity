@@ -75,21 +75,13 @@ class Main:
         # set the program name for use in file and folder names
         self.prog_name = 'spaceoddity'
 
-        # the url to load json from
-        self.apod_url = 'https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY'
-
-        # TODO: make this the final location pf the caption script
-        # actually, move caption stuff to this file?
-        curr_dir = os.path.dirname(os.path.realpath(__file__))
-
         # get locations
         home_dir = os.path.expanduser('~')
         self.conf_dir = os.path.join(home_dir, '.config', self.prog_name)
-        self.conf_path = os.path.join(self.conf_dir, f'{self.prog_name}.cfg')
         self.apod_path = os.path.join(self.conf_dir, f'{self.prog_name}.dat')
         self.capt_path = os.path.join(self.conf_dir,
                                       f'{self.prog_name}_capt.cfg')
-        self.scpt_path = os.path.join(curr_dir, f'{self.prog_name}_c.py')
+
         log_file = os.path.join(self.conf_dir, f'{self.prog_name}.log')
 
         # create folder if it does not exist
@@ -98,14 +90,10 @@ class Main:
 
         if DEBUG:
             print('prog_name:', self.prog_name)
-            print('apod_url:', self.apod_url)
-            print('curr_dir:', curr_dir)
             print('home_dir:', home_dir)
             print('conf_dir:', self.conf_dir)
-            print('conf_path:', self.conf_path)
             print('apod_path:', self.apod_path)
             print('capt_path:', self.capt_path)
-            print('scpt_path:', self.scpt_path)
             print('log_file:', log_file)
 
         # set up logging
@@ -168,9 +156,11 @@ class Main:
     # --------------------------------------------------------------------------
     def run(self):
 
+        # get path to config directory
+        conf_path = os.path.join(self.conf_dir, f'{self.prog_name}.cfg')
+
         # init the config dict from user settings
-        self.conf_dict = self.__load_dict(self.conf_path,
-                                          defaults=self.conf_dict_def)
+        self.conf_dict = self.__load_dict(conf_path, defaults=self.conf_dict_def)
 
         # check to see if we are enabled
         if self.conf_dict['enabled']:
@@ -205,11 +195,14 @@ class Main:
     # --------------------------------------------------------------------------
     def __download_apod_dict(self):
 
+        # the url to load json from
+        apod_url = 'https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY'
+
         # get the json and format it
         try:
 
             # get json from url
-            response = urllib.request.urlopen(self.apod_url)
+            response = urllib.request.urlopen(apod_url)
             response_text = response.read()
             self.apod_dict = json.loads(response_text)
 
@@ -345,8 +338,13 @@ class Main:
     # --------------------------------------------------------------------------
     def __make_caption(self):
 
+        # TODO: make this the final location pf the caption script
+        # actually, move caption stuff to this file?
+        curr_dir = os.path.dirname(os.path.realpath(__file__))
+        scpt_path = os.path.join(curr_dir, f'{self.prog_name}_c.py')
+
         # set cmd for running caption
-        cmd = self.scpt_path
+        cmd = scpt_path
         cmd_array = shlex.split(cmd)
         subprocess.call(cmd_array)
 
@@ -570,8 +568,6 @@ class Main:
 
             # save the fake apod data
             self.__save_dict(self.apod_path, self.apod_dict)
-            self.apod_dict = self.__load_dict(self.apod_path,
-                                              self.apod_dict_def)
 
             # get the url to the actual image
             pic_url = self.__get_pic_url()
