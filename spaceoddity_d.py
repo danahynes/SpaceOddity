@@ -10,9 +10,13 @@
 # TODO: test all conditions (no internet, bad url, etc)
 # no conf dir:
 # No log file:
-# No json:
+# No cfg:
+# bad cfg:
+# bad cfg opt:
+# bad cfg apod:
+# bad cfg capt:
+# bad cfg gui:
 # not enabled:
-# Bad json:
 # bad url:
 # no internet:
 # not image:
@@ -20,9 +24,8 @@
 # caption no:
 # caption yes:
 
-# TODO reduce number of f''
+# TODO: add 'modified' flag in load dict to only save dict if changed
 # TODO: convert imagemagick calls to wand
-# TODO: combine config, apod, capt into single file
 # TODO: white line on right of image (oversizing doesn't help)
 # TODO: remove all DEBUG
 # TODO: add option to span multiple monitors
@@ -78,9 +81,10 @@ class Main:
         # get locations
         home_dir = os.path.expanduser('~')
         self.conf_dir = os.path.join(home_dir, '.config', self.prog_name)
-        self.apod_path = os.path.join(self.conf_dir, f'{self.prog_name}.dat')
-        self.capt_path = os.path.join(self.conf_dir,
-                                      f'{self.prog_name}_capt.cfg')
+        self.conf_path = os.path.join(self.conf_dir, f'{self.prog_name}.cfg')
+        # self.apod_path = os.path.join(self.conf_dir, f'{self.prog_name}.dat')
+        # self.capt_path = os.path.join(self.conf_dir,
+        #                               f'{self.prog_name}_capt.cfg')
 
         log_file = os.path.join(self.conf_dir, f'{self.prog_name}.log')
 
@@ -92,8 +96,8 @@ class Main:
             print('prog_name:', self.prog_name)
             print('home_dir:', home_dir)
             print('conf_dir:', self.conf_dir)
-            print('apod_path:', self.apod_path)
-            print('capt_path:', self.capt_path)
+            # print('apod_path:', self.apod_path)
+            # print('capt_path:', self.capt_path)
             print('log_file:', log_file)
 
         # set up logging
@@ -106,48 +110,48 @@ class Main:
 
         # set default config dict
         self.conf_dict_def = {
-            'enabled':          1,
-            'show_caption':     1,
-            'show_title':       1,
-            'show_copyright':   1,
-            'show_text':        1,
-            'position':         8,
-            'fg_r':             1.0,
-            'fg_g':             1.0,
-            'fg_b':             1.0,
-            'fg_a':             100,
-            'bg_r':             0.0,
-            'bg_g':             0.0,
-            'bg_b':             0.0,
-            'bg_a':             75,
-            'caption_width':    500,
-            'font_size':        15,
-            'corner_radius':    15,
-            'border_padding':   20,
-            'top_padding':      50,
-            'bottom_padding':   10,
-            'side_padding':     10
+            'options': {
+                'enabled':          1,
+                'show_caption':     1
+            },
+            'apod': {
+                'media_type':       '',
+                'hdurl':            '',
+                'url':              '',
+                'title':            '',
+                'copyright':        '',
+                'explanation':      ''
+            },
+            'caption': {
+                'filepath':         '',
+                'pic_w':            0,
+                'pic_h':            0,
+                'screen_w':         0,
+                'screen_h':         0
+            },
+            'gui': {
+                'show_title':       1,
+                'show_copyright':   1,
+                'show_text':        1,
+                'position':         8,
+                'fg_r':             1.0,
+                'fg_g':             1.0,
+                'fg_b':             1.0,
+                'fg_a':             100,
+                'bg_r':             0.0,
+                'bg_g':             0.0,
+                'bg_b':             0.0,
+                'bg_a':             75,
+                'caption_width':    500,
+                'font_size':        15,
+                'corner_radius':    15,
+                'border_padding':   20,
+                'top_padding':      50,
+                'bottom_padding':   10,
+                'side_padding':     10
+            }
         }
         self.conf_dict = {}
-
-        self.apod_dict_def = {
-            'media_type':   '',
-            'hdurl':        '',
-            'url':          '',
-            'title':        '',
-            'copyrgight':   '',
-            'explanation':  ''
-        }
-        self.apod_dict = {}
-
-        self.capt_dict_def = {
-            'filepath': '',
-            'pic_w':    0,
-            'pic_h':    0,
-            'screen_w': 0,
-            'screen_h': 0
-        }
-        self.capt_dict = {}
 
         self.pic_path = ''
 
@@ -156,22 +160,20 @@ class Main:
     # --------------------------------------------------------------------------
     def run(self):
 
-        # get path to config directory
-        conf_path = os.path.join(self.conf_dir, f'{self.prog_name}.cfg')
-
         # init the config dict from user settings
-        self.conf_dict = self.__load_dict(conf_path, defaults=self.conf_dict_def)
+        self.__load_conf()
 
         # check to see if we are enabled
-        if self.conf_dict['enabled']:
+        options = self.conf_dict['options']
+        if options['enabled']:
 
             # call each step in the process
             self.__download_apod_dict()
             self.__download_image()
             self.__resize_image()
 
-            # if self.conf_dict['show_caption']:
-            # TODO: self.__make_caption()
+            if options['show_caption']:
+                self.__make_caption()
 
             self.__set_image()
 
@@ -204,23 +206,27 @@ class Main:
             # get json from url
             response = urllib.request.urlopen(apod_url)
             response_text = response.read()
-            self.apod_dict = json.loads(response_text)
+            apod_dict = json.loads(response_text)
 
             # set defaults for any missing keys
-            for key in self.apod_dict_def:
-                if key not in self.apod_dict.keys():
-                    self.apod_dict[key] = self.apod_dict_def[key]
+            apod_dict_def = self.conf_dict_def['apod']
+            for key in apod_dict_def:
+                if key not in apod_dict.keys():
+                    apod_dict[key] = apod_dict_def[key]
+
+            # apply new dict to config
+            self.conf_dict['apod'] = apod_dict
 
             # log success
             logging.debug('get data from server')
 
             if DEBUG:
-                print('get data from server:', self.apod_dict)
+                print('get data from server:', apod_dict)
 
         except urllib.error.URLError as error:
 
             # if config file error, set defaults and save to file
-            self.apod_dict = self.apod_dict_def.copy()
+            # self.apod_dict = self.apod_dict_def.copy()
 
             # log error
             logging.error(error.reason)
@@ -230,7 +236,7 @@ class Main:
                 print('could not get data from server:', error.reason)
 
         # save json data to file (for use by caption script)
-        self.__save_dict(self.apod_path, self.apod_dict)
+        self.__save_conf()
 
     # --------------------------------------------------------------------------
     # Get image from api.nasa.gov
@@ -238,7 +244,8 @@ class Main:
     def __download_image(self):
 
         # make sure it's an image (sometimes it's a video)
-        media_type = self.apod_dict['media_type']
+        apod_dict = self.conf_dict['apod']
+        media_type = apod_dict['media_type']
         if 'image' in media_type:
 
             # do the image stuff
@@ -321,17 +328,18 @@ class Main:
         subprocess.call(cmd_array)
 
         # save all the data to a file for caption script
-        self.capt_dict['filepath'] = self.pic_path
-        self.capt_dict['pic_w'] = new_w
-        self.capt_dict['pic_h'] = new_h
-        self.capt_dict['screen_w'] = screen_w
-        self.capt_dict['screen_h'] = screen_h
-
-        # save the caption data
-        self.__save_dict(self.capt_path, self.capt_dict)
+        capt_dict = self.conf_dict['caption']
+        capt_dict['filepath'] = self.pic_path
+        capt_dict['pic_w'] = new_w
+        capt_dict['pic_h'] = new_h
+        capt_dict['screen_w'] = screen_w
+        capt_dict['screen_h'] = screen_h
 
         # log success
         logging.debug('resize image')
+
+        # save the caption data
+        self.__save_conf()
 
     # --------------------------------------------------------------------------
     # Run caption script
@@ -346,7 +354,7 @@ class Main:
         # set cmd for running caption
         cmd = scpt_path
         cmd_array = shlex.split(cmd)
-        subprocess.call(cmd_array)
+        # TODO: subprocess.call(cmd_array)
 
     # --------------------------------------------------------------------------
     # Set the wallpaper
@@ -362,24 +370,6 @@ class Main:
         # set variant for both light and dark themes
         settings.set_value('picture-uri', glib_value)
         settings.set_value('picture-uri-dark', glib_value)
-
-        # cmd = \
-        #     f'gsettings \
-        #     set \
-        #     org.gnome.desktop.background \
-        #     picture-uri \
-        #     file://{self.pic_path}'
-        # cmd_array = shlex.split(cmd)
-        # subprocess.call(cmd_array)
-
-        # cmd = \
-        #     f'gsettings \
-        #     set \
-        #     org.gnome.desktop.background \
-        #     picture-uri-dark \
-        #     file://{self.pic_path}'
-        # cmd_array = shlex.split(cmd)
-        # subprocess.call(cmd_array)
 
         # log success
         logging.debug('set image')
@@ -409,37 +399,33 @@ class Main:
     # --------------------------------------------------------------------------
     # Load dictionary data from a file
     # --------------------------------------------------------------------------
-    def __load_dict(self, filepath, defaults=None):
-
-        # create a local dictionary to hold result
-        dictionary = {}
+    def __load_conf(self):
 
         # if config file does not exist, set defaults and save to file
-        if not os.path.exists(filepath):
-            self.__save_dict(filepath, dictionary)
+        if not os.path.exists(self.conf_path):
+            self.conf_dict = self.conf_dict_def.copy()
+            self.__save_conf()
 
         # read config file
-        with open(filepath, 'r') as file:
+        with open(self.conf_path, 'r') as file:
             try:
-                dictionary = json.load(file)
+                self.conf_dict = json.load(file)
 
                 # set defaults for any missing keys
-                if defaults is not None:
-                    for key in defaults:
-                        if key not in dictionary.keys():
-                            dictionary[key] = defaults[key]
+                for key in self.conf_dict_def:
+                    if key not in self.conf_dict.keys():
+                        self.conf_dict[key] = self.conf_dict_def[key]
 
                 # log success
-                logging.debug('load dict file: %s', filepath)
+                logging.debug('load conf file: %s', self.conf_path)
 
                 if DEBUG:
-                    print('load dict:', dictionary)
+                    print('load conf:', self.conf_dict)
 
             except json.JSONDecodeError as error:
 
                 # if config file error, set defaults and save to file
-                if defaults is not None:
-                    dictionary = defaults.copy()
+                self.conf_dict = self.conf_dict_def.copy()
 
                 # log error
                 logging.error(error.reason)
@@ -450,25 +436,22 @@ class Main:
                           error.reason)
 
         # save the dict either way
-        self.__save_dict(filepath, dictionary)
-
-        # and send it back
-        return dictionary
+        self.__save_conf()
 
     # --------------------------------------------------------------------------
     # Save dioctionary data to a file
     # --------------------------------------------------------------------------
-    def __save_dict(self, filepath, dictionary):
+    def __save_conf(self):
 
         # open the file and write json
-        with open(filepath, 'w') as file:
-            json.dump(dictionary, file, indent=4)
+        with open(self.conf_path, 'w') as file:
+            json.dump(self.conf_dict, file, indent=4)
 
         # log success
-        logging.debug('save dict file: %s', filepath)
+        logging.debug('save conf file: %s', self.conf_path)
 
         if DEBUG:
-            print('save dict:', dictionary)
+            print('save conf:', self.conf_dict)
 
     # --------------------------------------------------------------------------
     # Get the image when it isi an actual image
@@ -509,9 +492,10 @@ class Main:
             urllib.request.urlretrieve(pic_url, self.pic_path)
 
             # remove old file
-            self.capt_dict = self.__load_dict(self.capt_path,
-                                              defaults=self.capt_dict_def)
-            old_path = self.capt_dict['filepath']
+            # self.capt_dict = self.__load_dict(self.capt_path,
+            #                                   defaults=self.capt_dict_def)
+            capt_dict = self.conf_dict['caption']
+            old_path = capt_dict['filepath']
             if os.path.exists(old_path):
                 os.remove(old_path)
 
@@ -545,7 +529,8 @@ class Main:
             print('not an image, making fake data')
 
             # NB: this is for testing on days when the APOD is not an image
-            fake_url = '/home/dana/Documents/Projects/SpaceOddity/static/test.jpg'
+            fake_url = '/home/dana/Documents/Projects/SpaceOddity/static/'
+            fake_url += 'test.jpg'
             str_exp = 'Lorem ipsum dolor sit amet, consectetur adipiscing '
             str_exp += 'elit, sed do eiusmod tempor incididunt ut labore '
             str_exp += 'et dolore magna aliqua. Ut enim ad minim veniam, '
@@ -557,17 +542,16 @@ class Main:
             str_exp += 'culpa qui officia deserunt mollit anim id est '
             str_exp += 'laborum.'
 
-            self.apod_dict = {
-                'media_type':   'image',
-                'hdurl':        f'{fake_url}',
-                'url':          f'{fake_url}',
-                'title':        'Dummy Title',
-                'copyright':    'Dummy Copyright',
-                'explanation':  f'{str_exp}'
-            }
+            apod_dict = self.conf_dict['apod']
+            apod_dict['media_type'] = 'image'
+            apod_dict['hdurl'] = fake_url
+            apod_dict['url'] = fake_url
+            apod_dict['title'] = 'Dummy Title'
+            apod_dict['copyright'] = 'Dummy Copyright'
+            apod_dict['explanation'] = str_exp
 
             # save the fake apod data
-            self.__save_dict(self.apod_path, self.apod_dict)
+            self.__save_conf()
 
             # get the url to the actual image
             pic_url = self.__get_pic_url()
@@ -588,9 +572,8 @@ class Main:
             os.system(f'cp {pic_url} {self.pic_path}')
 
             # remove old file
-            self.capt_dict = self.__load_dict(self.capt_path,
-                                              defaults=self.capt_dict_def)
-            old_path = self.capt_dict['filepath']
+            capt_dict = self.conf_dict['caption']
+            old_path = capt_dict['filepath']
             if os.path.exists(old_path):
                 os.remove(old_path)
 
@@ -600,10 +583,11 @@ class Main:
     def __get_pic_url(self):
 
         pic_url = ''
-        if 'hdurl' in self.apod_dict.keys():
-            pic_url = self.apod_dict['hdurl']
-        elif 'url' in self.apod_dict.keys():
-            pic_url = self.apod_dict['url']
+        apod_dict = self.conf_dict['apod']
+        if 'hdurl' in apod_dict.keys():
+            pic_url = apod_dict['hdurl']
+        elif 'url' in apod_dict.keys():
+            pic_url = apod_dict['url']
 
         return pic_url
 
