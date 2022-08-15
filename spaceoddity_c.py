@@ -346,7 +346,7 @@ class Caption:
             print('str_caption:', str_caption)
 
         # log success
-        logging.debug('get data from dat file')
+        logging.debug('get caption')
 
         # return the final string
         return str_caption
@@ -384,6 +384,9 @@ class Caption:
 
         # NB: ImageMagick limit on caption is ~1000 cahracters
         str_caption = str_caption[:1000]
+
+        # log success
+        logging.debug('format caption: %s', str_caption)
 
         # return the final string
         return str_caption
@@ -452,6 +455,8 @@ class Caption:
         # round off values if division goes wonky
         x_pos = int(x_pos)
         y_pos = int(y_pos)
+
+        logging.debug('get position: %i, %s', x_pos, y_pos)
 
         # return result as tuple
         return x_pos, y_pos
