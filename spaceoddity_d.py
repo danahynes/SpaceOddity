@@ -418,8 +418,6 @@ class Main:
 
         # if config file does not exist, set defaults and save to file
         if not os.path.exists(filepath):
-            if defaults is not None:
-                dictionary = defaults.copy()
             self.__save_dict(filepath, dictionary)
 
         # read config file
