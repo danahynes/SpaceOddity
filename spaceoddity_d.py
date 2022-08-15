@@ -20,6 +20,8 @@
 # caption no: OK
 # caption yes:
 
+# TODO: check all self
+# TODO: make sure every function has at least one logging statement
 # TODO: add 'modified' flag in load dict to only save dict if changed
 # TODO: white line on right of image (oversizing doesn't help)
 # TODO: remove all DEBUG
@@ -81,11 +83,7 @@ class Main:
         home_dir = os.path.expanduser('~')
         self.conf_dir = os.path.join(home_dir, '.config', self.prog_name)
         self.conf_path = os.path.join(self.conf_dir, f'{self.prog_name}.cfg')
-        # self.apod_path = os.path.join(self.conf_dir, f'{self.prog_name}.dat')
-        # self.capt_path = os.path.join(self.conf_dir,
-        #                               f'{self.prog_name}_capt.cfg')
-
-        log_file = os.path.join(self.conf_dir, f'{self.prog_name}.log')
+        log_path = os.path.join(self.conf_dir, f'{self.prog_name}.log')
 
         # create folder if it does not exist
         if not os.path.exists(self.conf_dir):
@@ -95,12 +93,11 @@ class Main:
             print('prog_name:', self.prog_name)
             print('home_dir:', home_dir)
             print('conf_dir:', self.conf_dir)
-            # print('apod_path:', self.apod_path)
-            # print('capt_path:', self.capt_path)
-            print('log_file:', log_file)
+            print('conf path:', self.conf_path)
+            print('log_path:', log_path)
 
         # set up logging
-        logging.basicConfig(filename=log_file, level=logging.DEBUG,
+        logging.basicConfig(filename=log_path, level=logging.DEBUG,
                             format='%(asctime)s - %(levelname)s - %(message)s')
 
         # log start
@@ -111,7 +108,25 @@ class Main:
         self.conf_dict_def = {
             'options': {
                 'enabled':          1,
-                'show_caption':     1
+                'show_caption':     1,
+                'show_title':       1,
+                'show_copyright':   1,
+                'show_text':        1,
+                'position':         8,
+                'fg_r':             1.0,
+                'fg_g':             1.0,
+                'fg_b':             1.0,
+                'bg_r':             0.0,
+                'bg_g':             0.0,
+                'bg_b':             0.0,
+                'bg_a':             75,
+                'caption_width':    500,
+                'font_size':        15,
+                'corner_radius':    15,
+                'border_padding':   20,
+                'top_padding':      50,
+                'bottom_padding':   10,
+                'side_padding':     10
             },
             'apod': {
                 'media_type':       '',
@@ -128,30 +143,12 @@ class Main:
                 'screen_w':         0,
                 'screen_h':         0
             },
-            'gui': {
-                'show_title':       1,
-                'show_copyright':   1,
-                'show_text':        1,
-                'position':         8,
-                'fg_r':             1.0,
-                'fg_g':             1.0,
-                'fg_b':             1.0,
-                'fg_a':             100,
-                'bg_r':             0.0,
-                'bg_g':             0.0,
-                'bg_b':             0.0,
-                'bg_a':             75,
-                'caption_width':    500,
-                'font_size':        15,
-                'corner_radius':    15,
-                'border_padding':   20,
-                'top_padding':      50,
-                'bottom_padding':   10,
-                'side_padding':     10
-            }
         }
+
+        # user config dict
         self.conf_dict = {}
 
+        # path to final image
         self.pic_path = ''
 
     # --------------------------------------------------------------------------
@@ -332,7 +329,7 @@ class Main:
         # set cmd for running caption
         cmd = scpt_path
         cmd_array = shlex.split(cmd)
-        # TODO: subprocess.call(cmd_array)
+        subprocess.call(cmd_array)
 
     # --------------------------------------------------------------------------
     # Set the wallpaper
