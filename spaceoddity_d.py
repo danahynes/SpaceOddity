@@ -8,24 +8,19 @@
 # -----------------------------------------------------------------------------#
 
 # TODO: test all conditions (no internet, bad url, etc)
-# no conf dir:
-# No log file:
-# No cfg:
-# bad cfg:
-# bad cfg opt:
-# bad cfg apod:
-# bad cfg capt:
-# bad cfg gui:
-# not enabled:
-# bad url:
-# no internet:
-# not image:
-# bad hdurl:
-# caption no:
+# no conf dir:OK
+# No log file: OK
+# No cfg:OK
+# bad cfg: OK
+# not enabled: OK
+# bad apod url: OK
+# no internet: OK
+# not image: OK
+# bad pic url: OK
+# caption no: OK
 # caption yes:
 
 # TODO: add 'modified' flag in load dict to only save dict if changed
-# TODO: convert imagemagick calls to wand
 # TODO: white line on right of image (oversizing doesn't help)
 # TODO: remove all DEBUG
 # TODO: add option to span multiple monitors
@@ -35,6 +30,8 @@
 
 # NB: requires:
 # pygobject
+# imagemagick
+# wand
 
 # ------------------------------------------------------------------------------
 # Imports
@@ -51,6 +48,8 @@ import urllib.request
 import gi
 gi.require_version('Gdk', '3.0')
 from gi.repository import Gdk, Gio, GLib  # noqa: E402 (ignore import order)
+
+from wand.image import Image # noqa: E402 (ignore import order)
 
 # ------------------------------------------------------------------------------
 # Constants
@@ -223,10 +222,10 @@ class Main:
             if DEBUG:
                 print('get data from server:', apod_dict)
 
-        except urllib.error.URLError as error:
+            # save json data to file (for use by caption script)
+            self.__save_conf()
 
-            # if config file error, set defaults and save to file
-            # self.apod_dict = self.apod_dict_def.copy()
+        except urllib.error.URLError as error:
 
             # log error
             logging.error(error.reason)
@@ -235,8 +234,8 @@ class Main:
             if DEBUG:
                 print('could not get data from server:', error.reason)
 
-        # save json data to file (for use by caption script)
-        self.__save_conf()
+            # this is a fatal error
+            self.__exit()
 
     # --------------------------------------------------------------------------
     # Get image from api.nasa.gov
@@ -261,23 +260,9 @@ class Main:
     def __resize_image(self):
 
         # get original size
-        cmd = \
-            f'identify \
-            -format \
-            %[fx:w] \
-            {self.pic_path}'
-        cmd_array = shlex.split(cmd)
-        res = subprocess.check_output(cmd_array)
-        old_w = int(res.decode('UTF-8'))
-
-        cmd = \
-            f'identify \
-            -format \
-            %[fx:h] \
-            {self.pic_path}'
-        cmd_array = shlex.split(cmd)
-        res = subprocess.check_output(cmd_array)
-        old_h = int(res.decode('UTF-8'))
+        with Image(filename=self.pic_path) as image:
+            old_w = image.width
+            old_h = image.height
 
         if DEBUG:
             print('old_w:', old_w)
@@ -316,16 +301,9 @@ class Main:
             print('new_w:', new_w)
             print('new_h:', new_h)
 
-        # do the resize
-        cmd = \
-            f'convert \
-            {self.pic_path} \
-            -resize {new_w}x{new_h} \
-            -extent {new_w}x{new_h} \
-            -gravity center \
-            {self.pic_path}'
-        cmd_array = shlex.split(cmd)
-        subprocess.call(cmd_array)
+        with Image(filename=self.pic_path) as image:
+            image.sample(new_w, new_h)
+            image.save(filename=self.pic_path)
 
         # save all the data to a file for caption script
         capt_dict = self.conf_dict['caption']
@@ -428,12 +406,12 @@ class Main:
                 self.conf_dict = self.conf_dict_def.copy()
 
                 # log error
-                logging.error(error.reason)
+                logging.error(error)
                 logging.error('could not load config file, load defaults')
 
                 if DEBUG:
                     print('could not load config file, load defaults:',
-                          error.reason)
+                          error)
 
         # save the dict either way
         self.__save_conf()
@@ -460,18 +438,6 @@ class Main:
 
         # get the url to the actual image
         pic_url = self.__get_pic_url()
-
-        # bail if no url
-        if pic_url == '':
-
-            # log error
-            logging.error('no url')
-
-            if DEBUG:
-                print('no url')
-
-            # this is a fatal error
-            self.__exit()
 
         # create a download path
         now = datetime.now()
@@ -505,14 +471,14 @@ class Main:
             if DEBUG:
                 print('download image')
 
-        except urllib.error.URLError as error:
+        except ValueError as error:
 
             # log error
-            logging.error(error.reason)
+            logging.error(error)
             logging.error('could not download image')
 
             if DEBUG:
-                print('could not download image:', error.reason)
+                print('could not download image:', error)
 
             # this is a fatal error
             self.__exit()
