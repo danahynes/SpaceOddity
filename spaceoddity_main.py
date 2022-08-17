@@ -20,13 +20,9 @@
 # caption no: OK
 # caption yes:
 
-# TODO: add 'modified' flag in load dict to only save dict if changed
 # TODO: white line on right of image (oversizing doesn't help)
 # TODO: remove all DEBUG
-# TODO: add option to span multiple monitors
-# I know more-or-less HOW to do this, but as i don't have multiple monitors,
-# and I haven't taken the time to fix my laptop's 'HDMI out' connection to my
-# TV... I don't have a way to test it. So for now it's on the back burner.
+# TODO: some imagemagick python binding
 
 # NB: requires:
 # pygobject
@@ -132,6 +128,7 @@ class Main:
                 'explanation':      ''
             },
             'caption': {
+                'old_filepath':     '',
                 'filepath':         '',
                 'pic_w':            0,
                 'pic_h':            0,
@@ -358,6 +355,17 @@ class Main:
         settings.set_value('picture-uri', glib_value)
         settings.set_value('picture-uri-dark', glib_value)
 
+        # remove old file
+        capt_dict = self.conf_dict['caption']
+        old_path = capt_dict['old_filepath']
+        if os.path.exists(old_path):
+            os.remove(old_path)
+
+        # move new file to old file
+        capt_dict['old_filepath'] = capt_dict['filepath']
+        capt_dict['filepath'] = self.pic_path
+        self.__save_conf()
+
         # log success
         logging.debug('set image')
 
@@ -466,12 +474,6 @@ class Main:
             # download the hi-res image
             urllib.request.urlretrieve(pic_url, self.pic_path)
 
-            # remove old file
-            capt_dict = self.conf_dict['caption']
-            old_path = capt_dict['filepath']
-            if os.path.exists(old_path):
-                os.remove(old_path)
-
             # log success
             logging.debug('download image')
 
@@ -543,12 +545,6 @@ class Main:
 
             # copy test image (simulates downloading)
             os.system(f'cp {pic_url} {self.pic_path}')
-
-            # remove old file
-            capt_dict = self.conf_dict['caption']
-            old_path = capt_dict['filepath']
-            if os.path.exists(old_path):
-                os.remove(old_path)
 
             # log success
             logging.debug('make fake image')
