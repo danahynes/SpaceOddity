@@ -21,12 +21,6 @@ import shlex
 import subprocess
 
 # ------------------------------------------------------------------------------
-# Constants
-# ------------------------------------------------------------------------------
-
-DEBUG = 1
-
-# ------------------------------------------------------------------------------
 # Define the main class
 # ------------------------------------------------------------------------------
 
@@ -50,12 +44,6 @@ class Caption:
         self.conf_dir = os.path.join(home_dir, '.config', prog_name)
         self.conf_path = os.path.join(self.conf_dir, f'{prog_name}.cfg')
         log_path = os.path.join(self.conf_dir, f'{prog_name}.log')
-
-        if DEBUG:
-            print('home_dir:', home_dir)
-            print('conf_dir:', self.conf_dir)
-            print('conf_path:', self.conf_path)
-            print('log_path:', log_path)
 
         # set up logging
         logging.basicConfig(filename=log_path, level=logging.DEBUG,
@@ -94,9 +82,6 @@ class Caption:
 
             # log the caption state
             logging.debug('caption script disabled')
-
-            if DEBUG:
-                print('caption script disabled')
 
         # exit gracefully
         self.__exit()
@@ -151,10 +136,6 @@ class Caption:
         out = subprocess.check_output(cmd_array)
         text_height = int(out)
 
-        if DEBUG:
-            print('text_width:', text_width)
-            print('text_height:', text_height)
-
         # add the border into the height
         self.caption_height = text_height + (border_padding * 2)
 
@@ -189,9 +170,6 @@ class Caption:
         # create a file path for caption image
         self.capt_path = os.path.join(self.conf_dir, 'capt.png')
 
-        if DEBUG:
-            print('capt_path:', self.capt_path)
-
         # combine text and back images
         cmd = f'convert \
             {back_path} \
@@ -221,15 +199,8 @@ class Caption:
         # get the path to the image
         pic_path = capt_dict['filepath']
 
-        if DEBUG:
-            print('pic_path:', pic_path)
-
         # get the position of the caption
         x_pos, y_pos = self.__get_position()
-
-        if DEBUG:
-            print('x_pos:', x_pos)
-            print('y_pos:', y_pos)
 
         # make the final image
         cmd = f'convert \
@@ -257,9 +228,6 @@ class Caption:
         logging.debug('exit caption script')
         logging.debug('-------------------------------------------------------')
 
-        if DEBUG:
-            print('exit caption script')
-
         # quit script
         exit()
 
@@ -280,17 +248,11 @@ class Caption:
                 # log success
                 logging.debug('load conf file: %s', self.conf_path)
 
-                if DEBUG:
-                    print('load conf:', self.conf_dict)
-
             except json.JSONDecodeError as error:
 
                 # log error
                 logging.error(error)
                 logging.error('could not load config file')
-
-                if DEBUG:
-                    print('could not load config file"', error)
 
                 # this is a fatal error
                 self.__exit()
@@ -312,11 +274,6 @@ class Caption:
         has_copyright = apod_data['copyright']
         has_explanation = apod_data['explanation']
 
-        if DEBUG:
-            print('has_title:', has_title)
-            print('has_copyright:', has_copyright)
-            print('has_explanation:', has_explanation)
-
         # find out which attributes to show
         show_has_title = ''
         show_has_copyright = ''
@@ -331,9 +288,6 @@ class Caption:
         # move to subroutine to avoid complexity
         str_caption = self.__format_caption(show_has_title, show_has_copyright,
                                             show_has_explanation)
-
-        if DEBUG:
-            print('str_caption:', str_caption)
 
         # log success
         logging.debug('get caption')
