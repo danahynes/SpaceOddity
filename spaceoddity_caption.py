@@ -183,7 +183,7 @@ class Caption:
 
         # done with temp images
         os.remove(text_path)
-        os.system(back_path)
+        os.remove(back_path)
 
         # log success
         logging.debug('create caption image')
