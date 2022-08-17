@@ -1,55 +1,91 @@
-methods
-
 __init__:
     prog_name
     conf_dir
-    apod_path
-    capt_path
- 
+    conf_path
     conf_dict_def
     conf_dict
-    apod_dict_def
-    apod_dict
-    capt_dict_def
-    capt_dict
-
     pic_path
 
 run:
-    __load_dict (conf)
+    __load_conf
+    conf_dict
     __download_apod_dict
     __download_image
     __resize_image
-#   __do_caption
+    __make_caption
     __set_image
     __exit
-
-steps
-
+    
 __download_apod_dict:
-    __save_dict (apod)
+    conf_dict_def
+    conf_dict
+    __save_conf
+    __exit
 
 __download_image:
+    conf_dict
     __apod_is_image
     __apod_is_not_image
 
 __resize_image:
-    __save_dict (capt)
+    pic_path
+    pic_path
+    pic_path
+    pic_path
+    conf_dict
+    pic_path
+    __save_conf
 
-helpers
+__make_caption:
+    prog_name
 
-__load_dict:
-    __save_dict (dict)
-    __save_dict (dict)
+__set_image:
+    pic_path
+
+__exit:
+
+__load_conf:
+    conf_path
+    conf_dict
+    conf_dict_def
+    __save_conf
+    conf_path
+    conf_dict_def
+    conf_dict
+    conf_dict
+    conf_dict_def
+    conf_path
+    conf_dict
+    conf_dict
+    conf)dict_def
+    __save_conf
+
+__save_conf:
+    conf_path
+    conf_dict
+    conf_path
+    conf_dict
 
 __apod_is_image:
     __get_pic_url
-    __exit
-    __load_dict (capt)
+    prog_name
+    pic_path
+    conf_dir
+    pic_path
+    pic_path
+    conf_dict
     __exit
 
 __apod_is_not_image:
-    __save_dict (apod)
+    conf_dict
+    __save_conf
     __get_pic_url
-    __load_dict (capt)
+    prog_name
+    pic_path
+    conf_dir
+    pic_path
+    pic_path
+    conf_dict
 
+__get_pic_url:
+    conf_dict
