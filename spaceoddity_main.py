@@ -48,7 +48,6 @@ from gi.repository import Gdk, Gio, GLib  # noqa: E402 (ignore import order)
 # Constants
 # ------------------------------------------------------------------------------
 
-DEBUG = 1
 TEST_IMAGE = 1
 
 # ------------------------------------------------------------------------------
@@ -79,13 +78,6 @@ class Main:
         # create folder if it does not exist
         if not os.path.exists(self.conf_dir):
             os.mkdir(self.conf_dir)
-
-        if DEBUG:
-            print('prog_name:', self.prog_name)
-            print('home_dir:', home_dir)
-            print('conf_dir:', self.conf_dir)
-            print('conf path:', self.conf_path)
-            print('log_path:', log_path)
 
         # set up logging
         logging.basicConfig(filename=log_path, level=logging.DEBUG,
@@ -170,9 +162,6 @@ class Main:
             # log the enabled state
             logging.debug('main script disabled')
 
-            if DEBUG:
-                print('main script disabled')
-
         # exit gracefully
         self.__exit()
 
@@ -208,9 +197,6 @@ class Main:
             # log success
             logging.debug('get data from server')
 
-            if DEBUG:
-                print('get data from server:', apod_dict)
-
             # save json data to file (for use by caption script)
             self.__save_conf()
 
@@ -219,9 +205,6 @@ class Main:
             # log error
             logging.error(error.reason)
             logging.error('could not get data from server')
-
-            if DEBUG:
-                print('could not get data from server:', error.reason)
 
             # this is a fatal error
             self.__exit()
@@ -266,10 +249,6 @@ class Main:
         out = subprocess.check_output(cmd_array)
         old_h = int(out)
 
-        if DEBUG:
-            print('old_w:', old_w)
-            print('old_h:', old_h)
-
         # get screen size
         display = Gdk.Display.get_default()
         monitor = display.get_primary_monitor()
@@ -277,17 +256,9 @@ class Main:
         screen_w = geometry.width
         screen_h = geometry.height
 
-        if DEBUG:
-            print('screen_w:', screen_w)
-            print('screen_h:', screen_h)
-
         # get the scale factor for height and width
         scale_w = old_w / screen_w
         scale_h = old_h / screen_h
-
-        if DEBUG:
-            print('scale_w:', scale_w)
-            print('scale_h:', scale_h)
 
         # use the smallest scale to get the biggest new dimension
         scale = scale_w if scale_w < scale_h else scale_h
@@ -298,10 +269,6 @@ class Main:
         new_w = screen_w if new_w < screen_w else new_w
         new_h = int(old_h / scale)
         new_h = screen_h if new_h < screen_h else new_h
-
-        if DEBUG:
-            print('new_w:', new_w)
-            print('new_h:', new_h)
 
         cmd = \
             f'convert \
@@ -369,9 +336,6 @@ class Main:
         # log success
         logging.debug('set image')
 
-        if DEBUG:
-            print('set image')
-
     # --------------------------------------------------------------------------
     # Gracefully exit the script when we are done or on failure
     # --------------------------------------------------------------------------
@@ -380,9 +344,6 @@ class Main:
         # log that we are finished with script
         logging.debug('exit main script')
         logging.debug('-------------------------------------------------------')
-
-        if DEBUG:
-            print('exit main script')
 
         # quit script
         exit()
@@ -414,9 +375,6 @@ class Main:
                 # log success
                 logging.debug('load conf file: %s', self.conf_path)
 
-                if DEBUG:
-                    print('load conf:', self.conf_dict)
-
             except json.JSONDecodeError as error:
 
                 # if config file error, set defaults and save to file
@@ -425,10 +383,6 @@ class Main:
                 # log error
                 logging.error(error)
                 logging.error('could not load config file, load defaults')
-
-                if DEBUG:
-                    print('could not load config file, load defaults:',
-                          error)
 
         # save the dict either way
         self.__save_conf()
@@ -445,9 +399,6 @@ class Main:
         # log success
         logging.debug('save conf file: %s', self.conf_path)
 
-        if DEBUG:
-            print('save conf:', self.conf_dict)
-
     # --------------------------------------------------------------------------
     # Get the image when it isi an actual image
     # --------------------------------------------------------------------------
@@ -463,11 +414,6 @@ class Main:
         pic_name = f'{self.prog_name}_{str_now}.{file_ext}'
         self.pic_path = os.path.join(self.conf_dir, pic_name)
 
-        if DEBUG:
-            print('pic_url:', pic_url)
-            print('pic_name:', pic_name)
-            print('pic_path:', self.pic_path)
-
         # try to download image
         try:
 
@@ -477,17 +423,11 @@ class Main:
             # log success
             logging.debug('download image')
 
-            if DEBUG:
-                print('download image')
-
         except ValueError as error:
 
             # log error
             logging.error(error)
             logging.error('could not download image')
-
-            if DEBUG:
-                print('could not download image:', error)
 
             # this is a fatal error
             self.__exit()
@@ -538,19 +478,11 @@ class Main:
             pic_name = f'{self.prog_name}_{str_now}.{file_ext}'
             self.pic_path = os.path.join(self.conf_dir, pic_name)
 
-            if DEBUG:
-                print('pic_url:', pic_url)
-                print('pic_name:', pic_name)
-                print('pic_path:', self.pic_path)
-
             # copy test image (simulates downloading)
             os.system(f'cp {pic_url} {self.pic_path}')
 
             # log success
             logging.debug('make fake image')
-
-            if DEBUG:
-                print('make fake image')
 
     # --------------------------------------------------------------------------
     # Get the most appropriate url to the full size image
