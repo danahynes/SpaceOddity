@@ -8,16 +8,10 @@
 # -----------------------------------------------------------------------------#
 
 # TODO: test all options
-
 # TODO: check all self
+# TODO: check all f''
 # TODO: make sure every function has at least one logging statement
-# TODO: convert imagemagick calls to wand
 # TODO: remove DEBUG
-
-# NB: requires:
-# pygobject
-# imagemagick (sudo apt install imagemagick)
-# wand (pip install wand)
 
 # ------------------------------------------------------------------------------
 # Imports
@@ -151,15 +145,14 @@ class Caption:
         cmd_array = shlex.split(cmd)
         subprocess.call(cmd_array)
 
-        # get height of text-only image
+        # get text height
         cmd = \
             f'identify \
-            -format \
-            %[fx:h] \
+            -format %h \
             {text_path}'
         cmd_array = shlex.split(cmd)
-        res = subprocess.check_output(cmd_array)
-        text_height = int(res.decode('UTF-8'))
+        out = subprocess.check_output(cmd_array)
+        text_height = int(out)
 
         if DEBUG:
             print('text_width:', text_width)

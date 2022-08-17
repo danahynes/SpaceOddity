@@ -20,8 +20,6 @@
 # caption no: OK
 # caption yes:
 
-# TODO: check all self
-# TODO: make sure every function has at least one logging statement
 # TODO: add 'modified' flag in load dict to only save dict if changed
 # TODO: white line on right of image (oversizing doesn't help)
 # TODO: remove all DEBUG
@@ -33,7 +31,6 @@
 # NB: requires:
 # pygobject
 # imagemagick
-# wand
 
 # ------------------------------------------------------------------------------
 # Imports
@@ -50,8 +47,6 @@ import urllib.request
 import gi
 gi.require_version('Gdk', '3.0')
 from gi.repository import Gdk, Gio, GLib  # noqa: E402 (ignore import order)
-
-from wand.image import Image # noqa: E402 (ignore import order)
 
 # ------------------------------------------------------------------------------
 # Constants
@@ -256,10 +251,23 @@ class Main:
     # --------------------------------------------------------------------------
     def __resize_image(self):
 
-        # get original size
-        with Image(filename=self.pic_path) as image:
-            old_w = image.width
-            old_h = image.height
+        # get original width
+        cmd = \
+            f'identify \
+            -format %w \
+            {self.pic_path}'
+        cmd_array = shlex.split(cmd)
+        out = subprocess.check_output(cmd_array)
+        old_w = int(out)
+
+        # get original height
+        cmd = \
+            f'identify \
+            -format %h \
+            {self.pic_path}'
+        cmd_array = shlex.split(cmd)
+        out = subprocess.check_output(cmd_array)
+        old_h = int(out)
 
         if DEBUG:
             print('old_w:', old_w)
@@ -298,9 +306,13 @@ class Main:
             print('new_w:', new_w)
             print('new_h:', new_h)
 
-        with Image(filename=self.pic_path) as image:
-            image.sample(new_w, new_h)
-            image.save(filename=self.pic_path)
+        cmd = \
+            f'convert \
+            {self.pic_path} \
+            -resize {new_w}x{new_h} \
+            {self.pic_path}'
+        cmd_array = shlex.split(cmd)
+        subprocess.call(cmd_array)
 
         # save all the data to a file for caption script
         capt_dict = self.conf_dict['caption']
@@ -324,7 +336,7 @@ class Main:
         # TODO: make this the final location pf the caption script
         # actually, move caption stuff to this file?
         curr_dir = os.path.dirname(os.path.realpath(__file__))
-        scpt_path = os.path.join(curr_dir, f'{self.prog_name}_c.py')
+        scpt_path = os.path.join(curr_dir, f'{self.prog_name}_caption.py')
 
         # set cmd for running caption
         cmd = scpt_path
@@ -455,8 +467,6 @@ class Main:
             urllib.request.urlretrieve(pic_url, self.pic_path)
 
             # remove old file
-            # self.capt_dict = self.__load_dict(self.capt_path,
-            #                                   defaults=self.capt_dict_def)
             capt_dict = self.conf_dict['caption']
             old_path = capt_dict['filepath']
             if os.path.exists(old_path):
@@ -539,6 +549,12 @@ class Main:
             old_path = capt_dict['filepath']
             if os.path.exists(old_path):
                 os.remove(old_path)
+
+            # log success
+            logging.debug('make fake image')
+
+            if DEBUG:
+                print('make fake image')
 
     # --------------------------------------------------------------------------
     # Get the most appropriate url to the full size image
