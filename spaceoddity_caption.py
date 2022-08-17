@@ -8,10 +8,6 @@
 # -----------------------------------------------------------------------------#
 
 # TODO: test all options
-# TODO: check all self
-# TODO: check all f''
-# TODO: make sure every function has at least one logging statement
-# TODO no write/save in with open
 # TODO: remove DEBUG
 
 # ------------------------------------------------------------------------------
@@ -208,8 +204,8 @@ class Caption:
         subprocess.call(cmd_array)
 
         # done with temp images
-        os.system(f'rm {text_path}')
-        os.system(f'rm {back_path}')
+        os.remove(text_path)
+        os.system(back_path)
 
         # log success
         logging.debug('create caption image')
@@ -247,7 +243,7 @@ class Caption:
         subprocess.call(cmd_array)
 
         # done with mask
-        os.system(f'rm {self.capt_path}')
+        os.remove(self.capt_path)
 
         # log success
         logging.debug('combine images')
@@ -430,7 +426,7 @@ class Caption:
             x_pos = x_overhang + (screen_width / 2) - (caption_width / 2)
             y_pos = y_overhang + (screen_height / 2) - (self.caption_height / 2)
         elif position == 5:
-            x_pos = x_overhang - screen_width - self.caption_width - \
+            x_pos = x_overhang - screen_width - caption_width - \
                 side_padding
             y_pos = y_overhang + (screen_height / 2) - (self.caption_height / 2)
         elif position == 6:
