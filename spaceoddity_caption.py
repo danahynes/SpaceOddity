@@ -11,6 +11,7 @@
 # TODO: check all self
 # TODO: check all f''
 # TODO: make sure every function has at least one logging statement
+# TODO no write/save in with open
 # TODO: remove DEBUG
 
 # ------------------------------------------------------------------------------
