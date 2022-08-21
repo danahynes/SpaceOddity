@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -----------------------------------------------------------------------------#
-# Filename: spaceoddity_c.py                                     /          \  #
+# Filename: spaceoddity_caption.py                               /          \  #
 # Project : SpaceOddity                                         |     ()     | #
 # Date    : 07/22/2022                                          |            | #
 # Author  : Dana Hynes                                          |   \____/   | #
@@ -8,7 +8,7 @@
 # -----------------------------------------------------------------------------#
 
 # TODO: test all options
-# TODO: remove DEBUG
+# TODO: font needs font files or how?
 
 # ------------------------------------------------------------------------------
 # Imports
@@ -19,6 +19,10 @@ import logging
 import os
 import shlex
 import subprocess
+
+import gi
+gi.require_version('Pango', '1.0')
+from gi.repository import Pango  # noqa: E402 (ignore import order)
 
 # ------------------------------------------------------------------------------
 # Define the main class
@@ -99,15 +103,22 @@ class Caption:
         options = self.conf_dict['options']
 
         # remove border size for text-only png
-        caption_width = options['caption_width']
+        width = options['width']
         border_padding = options['border_padding']
-        text_width = caption_width - (border_padding * 2)
+        text_width = width - (border_padding * 2)
 
         # get text options
-        font_size = options['font_size']
-        fg_r = options['fg_r'] * 255
-        fg_g = options['fg_g'] * 255
-        fg_b = options['fg_b'] * 255
+        font = options['font']
+        font_desc = Pango.FontDescription().from_string(font)
+        # font_family = font_desc.get_family()
+        font_size = font_desc.get_size()
+        is_absolute_size = font_desc.get_size_is_absolute()
+        if not is_absolute_size:
+            scale = Pango.SCALE
+            font_size /= scale
+        font_r = options['font_r'] * 255
+        font_g = options['font_g'] * 255
+        font_b = options['font_b'] * 255
 
         # get the text to draw
         str_caption = self.__get_text()
@@ -115,13 +126,12 @@ class Caption:
         # create a path to save to
         text_path = os.path.join(self.conf_dir, 'text.png')
 
-        # create a text-only image without border padding
         cmd = \
             f'convert \
             -size {text_width} \
             -pointsize {font_size} \
             -background none \
-            -fill rgba({fg_r},{fg_g},{fg_b},1.0) \
+            -fill rgba({font_r},{font_g},{font_b},1.0) \
             caption:\"{str_caption}\" \
             {text_path}'
         cmd_array = shlex.split(cmd)
@@ -152,14 +162,14 @@ class Caption:
         # create background image
         cmd = \
             f'convert \
-            -size {caption_width}x{self.caption_height} \
+            -size {width}x{self.caption_height} \
             xc:none \
             -fill \"rgba({bg_r},{bg_g},{bg_b},{bg_a})\" \
             -draw \
             \"roundRectangle \
             0,\
             0,\
-            {caption_width},\
+            {width},\
             {self.caption_height}, \
             {corner_radius},\
             {corner_radius}\" \
@@ -266,7 +276,7 @@ class Caption:
         options = self.conf_dict['options']
         show_title = options['show_title']
         show_copyright = options['show_copyright']
-        show_explanation = options['show_text']
+        show_explanation = options['show_explanation']
 
         # get apod options
         apod_data = self.conf_dict['apod']
@@ -342,7 +352,7 @@ class Caption:
 
         # get user options
         options = self.conf_dict['options']
-        caption_width = options['caption_width']
+        width = options['width']
         side_padding = options['side_padding']
         top_padding = options['top_padding']
         bottom_padding = options['bottom_padding']
@@ -359,7 +369,7 @@ class Caption:
         y_overhang = (pic_height - screen_height) / 2
 
         # default position is bottom right (8)
-        x_pos = pic_width - x_overhang - caption_width - side_padding
+        x_pos = pic_width - x_overhang - width - side_padding
         y_pos = pic_height - y_overhang - self.caption_height - bottom_padding
 
         # get x, y from position
@@ -368,19 +378,19 @@ class Caption:
             x_pos = x_overhang + side_padding
             y_pos = y_overhang + top_padding
         elif position == 1:
-            x_pos = x_overhang + (screen_width / 2) - (caption_width / 2)
+            x_pos = x_overhang + (screen_width / 2) - (width / 2)
             y_pos = y_overhang + top_padding
         elif position == 2:
-            x_pos = pic_width - x_overhang - caption_width - side_padding
+            x_pos = pic_width - x_overhang - width - side_padding
             y_pos = y_overhang + top_padding
         elif position == 3:
             x_pos = x_overhang + side_padding
             y_pos = y_overhang + (screen_height / 2) - (self.caption_height / 2)
         elif position == 4:
-            x_pos = x_overhang + (screen_width / 2) - (caption_width / 2)
+            x_pos = x_overhang + (screen_width / 2) - (width / 2)
             y_pos = y_overhang + (screen_height / 2) - (self.caption_height / 2)
         elif position == 5:
-            x_pos = x_overhang - screen_width - caption_width - \
+            x_pos = x_overhang - screen_width - width - \
                 side_padding
             y_pos = y_overhang + (screen_height / 2) - (self.caption_height / 2)
         elif position == 6:
@@ -388,11 +398,11 @@ class Caption:
             y_pos = pic_height - y_overhang - self.caption_height - \
                 bottom_padding
         elif position == 7:
-            x_pos = x_overhang + (screen_width / 2) - (caption_width / 2)
+            x_pos = x_overhang + (screen_width / 2) - (width / 2)
             y_pos = y_overhang - screen_height - self.caption_height - \
                 bottom_padding
         elif position == 8:
-            x_pos = pic_width - x_overhang - caption_width - side_padding
+            x_pos = pic_width - x_overhang - width - side_padding
             y_pos = pic_height - y_overhang - self.caption_height - \
                 bottom_padding
 
