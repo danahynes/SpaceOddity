@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -----------------------------------------------------------------------------#
-# Filename: spaceoddity_d.py                                     /          \  #
+# Filename: spaceoddity_main.py                                  /          \  #
 # Project : SpaceOddity                                         |     ()     | #
 # Date    : 07/17/2022                                          |            | #
 # Author  : Dana Hynes                                          |   \____/   | #
@@ -19,9 +19,8 @@
 # bad pic url: OK
 # caption no: OK
 # caption yes:
-
+# TODO: show date
 # TODO: white line on right of image (oversizing doesn't help)
-# TODO: remove all DEBUG
 # TODO: some imagemagick python binding
 
 # NB: requires:
@@ -77,7 +76,7 @@ class Main:
 
         # create folder if it does not exist
         if not os.path.exists(self.conf_dir):
-            os.mkdir(self.conf_dir)
+            os.makedirs(self.conf_dir)
 
         # set up logging
         logging.basicConfig(filename=log_path, level=logging.DEBUG,
@@ -91,22 +90,23 @@ class Main:
         self.conf_dict_def = {
             'options': {
                 'enabled':          1,
-                'show_caption':     1,
+                'show_caption':     0,
                 'show_title':       1,
                 'show_copyright':   1,
-                'show_text':        1,
-                'position':         8,
-                'fg_r':             1.0,
-                'fg_g':             1.0,
-                'fg_b':             1.0,
+                'show_explanation': 1,
+                'show_date':        1,
+                'font':             'Sans Regular 12',
+                'font_r':           1.0,
+                'font_g':           1.0,
+                'font_b':           1.0,
                 'bg_r':             0.0,
                 'bg_g':             0.0,
                 'bg_b':             0.0,
                 'bg_a':             75,
-                'caption_width':    500,
-                'font_size':        15,
-                'corner_radius':    15,
-                'border_padding':   20,
+                'position':         8,
+                'width':            500,
+                'corner_radius':    10,
+                'border_padding':   120,
                 'top_padding':      50,
                 'bottom_padding':   10,
                 'side_padding':     10
@@ -203,7 +203,7 @@ class Main:
         except urllib.error.URLError as error:
 
             # log error
-            logging.error(error.reason)
+            logging.error(error)
             logging.error('could not get data from server')
 
             # this is a fatal error
@@ -262,6 +262,7 @@ class Main:
 
         # use the smallest scale to get the biggest new dimension
         scale = scale_w if scale_w < scale_h else scale_h
+        scale = scale_h if scale_h < scale_w else scale_w
 
         # get the scaled height/width and make sure it still fills the screen
         # after rounding with an int cast
@@ -297,10 +298,9 @@ class Main:
     # --------------------------------------------------------------------------
     def __make_caption(self):
 
-        # TODO: make this the final location pf the caption script
-        # actually, move caption stuff to this file?
-        curr_dir = os.path.dirname(os.path.realpath(__file__))
-        scpt_path = os.path.join(curr_dir, f'{self.prog_name}_caption.py')
+        # get path to caption script
+        app_dir = os.path.dirname(os.path.realpath(__file__))
+        scpt_path = os.path.join(app_dir, f'{self.prog_name}_caption.py')
 
         # set cmd for running caption
         cmd = scpt_path
@@ -316,11 +316,12 @@ class Main:
         settings = Gio.Settings.new('org.gnome.desktop.background')
 
         # convert pic_path to variant
-        glib_value = GLib.Variant('s', self.pic_path)
+        glib_value_uri = GLib.Variant('s', self.pic_path)
+        glib_value_uri_dark = GLib.Variant('s', self.pic_path)
 
         # set variant for both light and dark themes
-        settings.set_value('picture-uri', glib_value)
-        settings.set_value('picture-uri-dark', glib_value)
+        settings.set_value('picture-uri', glib_value_uri)
+        settings.set_value('picture-uri-dark', glib_value_uri_dark)
 
         # remove old file
         capt_dict = self.conf_dict['caption']
@@ -360,29 +361,30 @@ class Main:
         # if config file does not exist, set defaults and save to file
         if not os.path.exists(self.conf_path):
             self.conf_dict = self.conf_dict_def.copy()
-            self.__save_conf()
 
-        # read config file
-        with open(self.conf_path, 'r') as file:
-            try:
-                self.conf_dict = json.load(file)
+        else:
 
-                # set defaults for any missing keys
-                for key in self.conf_dict_def:
-                    if key not in self.conf_dict.keys():
-                        self.conf_dict[key] = self.conf_dict_def[key]
+            # read config file
+            with open(self.conf_path, 'r') as file:
+                try:
+                    self.conf_dict = json.load(file)
 
-                # log success
-                logging.debug('load conf file: %s', self.conf_path)
+                    # set defaults for any missing keys
+                    for key in self.conf_dict_def:
+                        if key not in self.conf_dict.keys():
+                            self.conf_dict[key] = self.conf_dict_def[key]
 
-            except json.JSONDecodeError as error:
+                    # log success
+                    logging.debug('load conf file: %s', self.conf_path)
 
-                # if config file error, set defaults and save to file
-                self.conf_dict = self.conf_dict_def.copy()
+                except json.JSONDecodeError as error:
 
-                # log error
-                logging.error(error)
-                logging.error('could not load config file, load defaults')
+                    # if config file error, set defaults and save to file
+                    self.conf_dict = self.conf_dict_def.copy()
+
+                    # log error
+                    logging.error(error)
+                    logging.error('could not load config file, load defaults')
 
         # save the dict either way
         self.__save_conf()

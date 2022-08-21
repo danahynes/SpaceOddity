@@ -17,20 +17,13 @@
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
-  <object class="GtkAdjustment" id="adj_layout_caption_width">
-    <property name="lower">100</property>
-    <property name="upper">1000</property>
-    <property name="value">100</property>
-    <property name="step-increment">1</property>
-    <property name="page-increment">10</property>
-  </object>
   <object class="GtkAdjustment" id="adj_layout_corner_radius">
     <property name="upper">100</property>
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
   <object class="GtkAdjustment" id="adj_layout_font_size">
-    <property name="upper">100</property>
+    <property name="upper">20</property>
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
@@ -41,6 +34,13 @@
   </object>
   <object class="GtkAdjustment" id="adj_layout_top_padding">
     <property name="upper">100</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adj_layout_width">
+    <property name="lower">100</property>
+    <property name="upper">1000</property>
+    <property name="value">100</property>
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
@@ -68,7 +68,7 @@
    TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION 
 
   0. You just DO WHAT THE FUCK YOU WANT TO.</property>
-    <property name="authors">Dana Hynes&lt;danahynes@users.noreply.github.com&gt;</property>
+    <property name="authors">Dana Hynes</property>
     <property name="logo">spaceoddity.png</property>
     <property name="license-type">custom</property>
     <child internal-child="vbox">
@@ -268,15 +268,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label_show_text">
-                    <property name="name">label_show_text</property>
+                  <object class="GtkLabel" id="label_show_explanation">
+                    <property name="name">label_show_explanation</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">start</property>
                     <property name="margin-start">20</property>
                     <property name="margin-top">10</property>
                     <property name="margin-bottom">20</property>
-                    <property name="label" translatable="yes">Show text</property>
+                    <property name="label" translatable="yes">Show explanation</property>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
@@ -314,8 +314,8 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkSwitch" id="switch_show_text">
-                    <property name="name">switch_show_text</property>
+                  <object class="GtkSwitch" id="switch_show_explanation">
+                    <property name="name">switch_show_explanation</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="halign">end</property>
@@ -353,40 +353,22 @@
             </child>
             <child>
               <!-- n-columns=2 n-rows=4 -->
-              <object class="GtkGrid" id="grid_colors">
-                <property name="name">grid_colors</property>
+              <object class="GtkGrid" id="grid_font_and_colors">
+                <property name="name">grid_font_and_colors</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <child>
-                  <object class="GtkLabel" id="label_font">
+                  <object class="GtkLabel" id="label_font_size">
                     <property name="name">label_font</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">start</property>
                     <property name="margin-start">20</property>
                     <property name="margin-top">20</property>
-                    <property name="label" translatable="yes">Font</property>
+                    <property name="label" translatable="yes">Font size</property>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
-                    <property name="top-attach">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkFontButton" id="btn_font">
-                    <property name="name">btn_font</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <property name="margin-start">10</property>
-                    <property name="margin-end">20</property>
-                    <property name="margin-top">20</property>
-                    <property name="font">Sans 12</property>
-                    <property name="language">en-us</property>
-                    <property name="preview-text"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
                     <property name="top-attach">0</property>
                   </packing>
                 </child>
@@ -398,7 +380,7 @@
                     <property name="halign">start</property>
                     <property name="margin-start">20</property>
                     <property name="margin-top">10</property>
-                    <property name="label" translatable="yes">Foreground color</property>
+                    <property name="label" translatable="yes">Font color</property>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
@@ -406,8 +388,8 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkColorButton" id="btn_fg_color">
-                    <property name="name">btn_fg_color</property>
+                  <object class="GtkColorButton" id="btn_font_color">
+                    <property name="name">btn_font_color</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
@@ -480,7 +462,6 @@
                     <property name="margin-bottom">20</property>
                     <property name="adjustment">adj_colors_bg_transparency</property>
                     <property name="fill-level">100</property>
-                    <property name="draw-value">False</property>
                     <property name="value-pos">left</property>
                   </object>
                   <packing>
@@ -488,10 +469,26 @@
                     <property name="top-attach">3</property>
                   </packing>
                 </child>
+                <child>
+                  <object class="GtkScale" id="slider_font_size">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="margin-start">10</property>
+                    <property name="margin-end">20</property>
+                    <property name="margin-top">20</property>
+                    <property name="adjustment">adj_layout_font_size</property>
+                    <property name="round-digits">1</property>
+                    <property name="value-pos">left</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
               </object>
               <packing>
                 <property name="name">page_colors</property>
-                <property name="title" translatable="yes">Fonts &amp; Colors</property>
+                <property name="title" translatable="yes">Font &amp; Colors</property>
                 <property name="position">1</property>
               </packing>
             </child>
@@ -502,8 +499,8 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <child>
-                  <object class="GtkLabel" id="label_caption_width">
-                    <property name="name">label_caption_width</property>
+                  <object class="GtkLabel" id="label_width">
+                    <property name="name">label_width</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">start</property>
@@ -559,17 +556,16 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkScale" id="scale_caption_width">
-                    <property name="name">scale_caption_width</property>
+                  <object class="GtkScale" id="scale_width">
+                    <property name="name">scale_width</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="margin-start">10</property>
                     <property name="margin-end">20</property>
                     <property name="margin-top">10</property>
-                    <property name="adjustment">adj_layout_caption_width</property>
-                    <property name="fill-level">0</property>
+                    <property name="adjustment">adj_layout_width</property>
                     <property name="round-digits">1</property>
-                    <property name="draw-value">False</property>
+                    <property name="value-pos">left</property>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
@@ -601,7 +597,7 @@
                     <property name="margin-top">10</property>
                     <property name="adjustment">adj_layout_corner_radius</property>
                     <property name="round-digits">1</property>
-                    <property name="draw-value">False</property>
+                    <property name="value-pos">left</property>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
@@ -633,7 +629,7 @@
                     <property name="margin-top">10</property>
                     <property name="adjustment">adj_layout_border_padding</property>
                     <property name="round-digits">1</property>
-                    <property name="draw-value">False</property>
+                    <property name="value-pos">left</property>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
@@ -665,7 +661,7 @@
                     <property name="margin-top">10</property>
                     <property name="adjustment">adj_layout_top_padding</property>
                     <property name="round-digits">1</property>
-                    <property name="draw-value">False</property>
+                    <property name="value-pos">left</property>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
@@ -697,7 +693,7 @@
                     <property name="margin-top">10</property>
                     <property name="adjustment">adj_layout_bottom_padding</property>
                     <property name="round-digits">1</property>
-                    <property name="draw-value">False</property>
+                    <property name="value-pos">left</property>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
@@ -731,7 +727,7 @@
                     <property name="margin-bottom">20</property>
                     <property name="adjustment">adj_layout_side_padding</property>
                     <property name="round-digits">1</property>
-                    <property name="draw-value">False</property>
+                    <property name="value-pos">left</property>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
