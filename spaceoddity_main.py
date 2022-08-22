@@ -8,17 +8,17 @@
 # -----------------------------------------------------------------------------#
 
 # TODO: test all conditions (no internet, bad url, etc)
-# no conf dir:OK
-# No log file: OK
-# No cfg:OK
-# bad cfg: OK
-# not enabled: OK
-# bad apod url: OK
-# no internet: OK
-# not image: OK
-# bad pic url: OK
-# caption no: OK
-# caption yes:
+# no conf dir:
+# No log file:
+# No cfg:
+# bad cfg:
+# not enabled:
+# bad apod url:
+# no internet:
+# not image:
+# bad pic url:
+# caption no:
+# caption yes
 # TODO: show date
 # TODO: white line on right of image (oversizing doesn't help)
 # TODO: some imagemagick python binding
@@ -74,27 +74,15 @@ class Main:
         self.conf_path = os.path.join(self.conf_dir, f'{self.prog_name}.cfg')
         log_path = os.path.join(self.conf_dir, f'{self.prog_name}.log')
 
-        # create folder if it does not exist
-        if not os.path.exists(self.conf_dir):
-            os.makedirs(self.conf_dir)
-
-        # set up logging
-        logging.basicConfig(filename=log_path, level=logging.DEBUG,
-                            format='%(asctime)s - %(levelname)s - %(message)s')
-
-        # log start
-        logging.debug('=======================================================')
-        logging.debug('start main script')
-
         # set default config dict
         self.conf_dict_def = {
             'options': {
                 'enabled':          1,
+                # TODO: set this back to 1 after testing
                 'show_caption':     0,
                 'show_title':       1,
                 'show_copyright':   1,
                 'show_explanation': 1,
-                'show_date':        1,
                 'font':             'Sans Regular 12',
                 'font_r':           1.0,
                 'font_g':           1.0,
@@ -106,7 +94,7 @@ class Main:
                 'position':         8,
                 'width':            500,
                 'corner_radius':    10,
-                'border_padding':   120,
+                'border_padding':   20,
                 'top_padding':      50,
                 'bottom_padding':   10,
                 'side_padding':     10
@@ -120,20 +108,35 @@ class Main:
                 'explanation':      ''
             },
             'caption': {
-                'old_filepath':     '',
-                'filepath':         '',
                 'pic_w':            0,
                 'pic_h':            0,
                 'screen_w':         0,
                 'screen_h':         0
             },
+            'files': {
+                'old_filepath':     '',
+                'filepath':         ''
+            },
         }
 
         # user config dict
-        self.conf_dict = {}
+        self.conf_dict = self.conf_dict_def.copy()
 
-        # path to final image
-        self.pic_path = ''
+        # create config folder if it does not exist
+        if not os.path.exists(self.conf_dir):
+            os.makedirs(self.conf_dir)
+
+        # remove old log file
+        if os.path.exists(log_path):
+            os.remove(log_path)
+
+        # set up logging
+        logging.basicConfig(filename=log_path, level=logging.DEBUG,
+                            format='%(asctime)s - %(levelname)s - %(message)s')
+
+        # log start
+        logging.debug('=======================================================')
+        logging.debug('start main script')
 
     # --------------------------------------------------------------------------
     # Run the script
@@ -156,6 +159,7 @@ class Main:
                 self.__make_caption()
 
             self.__set_image()
+            self.__delete_old_image()
 
         else:
 
@@ -197,9 +201,6 @@ class Main:
             # log success
             logging.debug('get data from server')
 
-            # save json data to file (for use by caption script)
-            self.__save_conf()
-
         except urllib.error.URLError as error:
 
             # log error
@@ -217,6 +218,8 @@ class Main:
         # make sure it's an image (sometimes it's a video)
         apod_dict = self.conf_dict['apod']
         media_type = apod_dict['media_type']
+
+        # check if today's apod is an image (sometimes it's a video)
         if 'image' in media_type:
 
             # do the image stuff
@@ -231,11 +234,15 @@ class Main:
     # --------------------------------------------------------------------------
     def __resize_image(self):
 
+        # get path to downloaded image
+        files_dict = self.conf_dict['files']
+        pic_path = files_dict['filepath']
+
         # get original width
         cmd = \
             f'identify \
             -format %w \
-            {self.pic_path}'
+            {pic_path}'
         cmd_array = shlex.split(cmd)
         out = subprocess.check_output(cmd_array)
         old_w = int(out)
@@ -244,7 +251,7 @@ class Main:
         cmd = \
             f'identify \
             -format %h \
-            {self.pic_path}'
+            {pic_path}'
         cmd_array = shlex.split(cmd)
         out = subprocess.check_output(cmd_array)
         old_h = int(out)
@@ -261,27 +268,27 @@ class Main:
         scale_h = old_h / screen_h
 
         # use the smallest scale to get the biggest new dimension
-        scale = scale_w if scale_w < scale_h else scale_h
-        scale = scale_h if scale_h < scale_w else scale_w
+        scale = 0
+        if scale_w < scale_h:
+            scale = scale_w
+        else:
+            scale = scale_h
 
         # get the scaled height/width and make sure it still fills the screen
         # after rounding with an int cast
         new_w = int(old_w / scale)
-        new_w = screen_w if new_w < screen_w else new_w
         new_h = int(old_h / scale)
-        new_h = screen_h if new_h < screen_h else new_h
 
         cmd = \
             f'convert \
-            {self.pic_path} \
+            {pic_path} \
             -resize {new_w}x{new_h} \
-            {self.pic_path}'
+            {pic_path}'
         cmd_array = shlex.split(cmd)
         subprocess.call(cmd_array)
 
-        # save all the data to a file for caption script
+        # save sizes to user dict for caption script
         capt_dict = self.conf_dict['caption']
-        capt_dict['filepath'] = self.pic_path
         capt_dict['pic_w'] = new_w
         capt_dict['pic_h'] = new_h
         capt_dict['screen_w'] = screen_w
@@ -290,20 +297,20 @@ class Main:
         # log success
         logging.debug('resize image')
 
-        # save the caption data
-        self.__save_conf()
-
     # --------------------------------------------------------------------------
     # Run caption script
     # --------------------------------------------------------------------------
     def __make_caption(self):
 
+        # save cofig dict for caption script
+        self.__save_conf()
+
         # get path to caption script
         app_dir = os.path.dirname(os.path.realpath(__file__))
-        scpt_path = os.path.join(app_dir, f'{self.prog_name}_caption.py')
+        capt_path = os.path.join(app_dir, f'{self.prog_name}_caption.py')
 
         # set cmd for running caption
-        cmd = scpt_path
+        cmd = capt_path
         cmd_array = shlex.split(cmd)
         subprocess.call(cmd_array)
 
@@ -312,35 +319,44 @@ class Main:
     # --------------------------------------------------------------------------
     def __set_image(self):
 
+        # get path to downloaded image
+        files_dict = self.conf_dict['files']
+        pic_path = files_dict['filepath']
+
         # get system settings
         settings = Gio.Settings.new('org.gnome.desktop.background')
 
         # convert pic_path to variant
-        glib_value_uri = GLib.Variant('s', self.pic_path)
-        glib_value_uri_dark = GLib.Variant('s', self.pic_path)
+        glib_value_uri = GLib.Variant('s', pic_path)
+        glib_value_uri_dark = GLib.Variant('s', pic_path)
 
         # set variant for both light and dark themes
         settings.set_value('picture-uri', glib_value_uri)
         settings.set_value('picture-uri-dark', glib_value_uri_dark)
 
-        # remove old file
-        capt_dict = self.conf_dict['caption']
-        old_path = capt_dict['old_filepath']
-        if os.path.exists(old_path):
-            os.remove(old_path)
-
-        # move new file to old file
-        capt_dict['old_filepath'] = capt_dict['filepath']
-        capt_dict['filepath'] = self.pic_path
-        self.__save_conf()
-
         # log success
-        logging.debug('set image')
+        logging.debug('set image: %s', pic_path)
+
+    # --------------------------------------------------------------------------
+    # Delete old image
+    # --------------------------------------------------------------------------
+    def __delete_old_image(self):
+
+        # get previous path name
+        files_dict = self.conf_dict['files']
+        old_image = files_dict['old_filepath']
+
+        # if it exists, delete it
+        if os.path.exists(old_image):
+            os.remove(old_image)
 
     # --------------------------------------------------------------------------
     # Gracefully exit the script when we are done or on failure
     # --------------------------------------------------------------------------
     def __exit(self):
+
+        # save config dict to file
+        self.__save_conf()
 
         # log that we are finished with script
         logging.debug('exit main script')
@@ -358,36 +374,49 @@ class Main:
     # --------------------------------------------------------------------------
     def __load_conf(self):
 
-        # if config file does not exist, set defaults and save to file
+        # create default dict if file does not exist
         if not os.path.exists(self.conf_path):
             self.conf_dict = self.conf_dict_def.copy()
+            self.__save_conf()
 
-        else:
+        # read config file
+        with open(self.conf_path, 'r') as file:
+            try:
+                self.conf_dict = json.load(file)
 
-            # read config file
-            with open(self.conf_path, 'r') as file:
-                try:
-                    self.conf_dict = json.load(file)
+                # NB: there is probably a better way to do this
+                # get dicts
+                dict_def = self.conf_dict_def
+                dict_user = self.conf_dict
 
-                    # set defaults for any missing keys
-                    for key in self.conf_dict_def:
-                        if key not in self.conf_dict.keys():
-                            self.conf_dict[key] = self.conf_dict_def[key]
+                # set defaults for any missing sections
+                for key in dict_def:
+                    if key not in dict_user.keys():
+                        dict_user[key] = dict_def[key]
 
-                    # log success
-                    logging.debug('load conf file: %s', self.conf_path)
+                # do second-level kv defaults
+                for key in dict_def:
+                    dict_def_2 = dict_def[key]
+                    dict_user_2 = dict_user[key]
+                    for key in dict_def_2:
+                        if key not in dict_user_2.keys():
+                            dict_user_2[key] = dict_def_2[key]
 
-                except json.JSONDecodeError as error:
+                # move filepath for deletiom
+                files_dict = self.conf_dict['files']
+                files_dict['old_filepath'] = files_dict['filepath']
 
-                    # if config file error, set defaults and save to file
-                    self.conf_dict = self.conf_dict_def.copy()
+                # log success
+                logging.debug('load conf file: %s', self.conf_path)
 
-                    # log error
-                    logging.error(error)
-                    logging.error('could not load config file, load defaults')
+            except json.JSONDecodeError as error:
 
-        # save the dict either way
-        self.__save_conf()
+                # if config file error, set defaults and save to file
+                self.conf_dict = self.conf_dict_def.copy()
+
+                # log error
+                logging.error(error)
+                logging.error('could not load config file, load defaults')
 
     # --------------------------------------------------------------------------
     # Save dioctionary data to a file
@@ -414,13 +443,17 @@ class Main:
         str_now = now.strftime('%Y%m%d%H%M%S')
         file_ext = pic_url.split('.')[-1]
         pic_name = f'{self.prog_name}_{str_now}.{file_ext}'
-        self.pic_path = os.path.join(self.conf_dir, pic_name)
+        pic_path = os.path.join(self.conf_dir, pic_name)
 
         # try to download image
         try:
 
             # download the hi-res image
-            urllib.request.urlretrieve(pic_url, self.pic_path)
+            urllib.request.urlretrieve(pic_url, pic_path)
+
+            # set pathname
+            files_dict = self.conf_dict['files']
+            files_dict['filepath'] = pic_path
 
             # log success
             logging.debug('download image')
@@ -467,9 +500,6 @@ class Main:
             apod_dict['copyright'] = 'Dummy Copyright'
             apod_dict['explanation'] = str_exp
 
-            # save the fake apod data
-            self.__save_conf()
-
             # get the url to the actual image
             pic_url = self.__get_pic_url()
 
@@ -478,13 +508,30 @@ class Main:
             str_now = now.strftime('%Y%m%d%H%M%S')
             file_ext = pic_url.split('.')[-1]
             pic_name = f'{self.prog_name}_{str_now}.{file_ext}'
-            self.pic_path = os.path.join(self.conf_dir, pic_name)
+            pic_path = os.path.join(self.conf_dir, pic_name)
 
             # copy test image (simulates downloading)
-            os.system(f'cp {pic_url} {self.pic_path}')
+            cmd = \
+                f'cp \
+                {pic_url} \
+                {pic_path}'
+            cmd_array = shlex.split(cmd)
+            subprocess.call(cmd_array)
+
+            # set pathname
+            files_dict = self.conf_dict['files']
+            files_dict['filepath'] = pic_path
 
             # log success
             logging.debug('make fake image')
+
+        else:
+
+            # log failure
+            logging.debug('apod is not an image')
+
+            # nothing left to do
+            self.__exit()
 
     # --------------------------------------------------------------------------
     # Get the most appropriate url to the full size image

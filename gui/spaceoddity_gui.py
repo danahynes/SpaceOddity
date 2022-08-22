@@ -7,6 +7,7 @@
 # License : WTFPLv2                                              \          /  #
 # -----------------------------------------------------------------------------#
 
+# TODO: show values for sliders
 # TODO: doesn't delete old image when apply after loading defaults
 # TODO: also doesn't set picture-uri-dark in dconf (works from main)
 # TODO: get_font_name/set_font_name is depercated
@@ -117,7 +118,6 @@ class Gui:
                 'explanation':      ''
             },
             'caption': {
-                'old_filepath':     '',
                 'filepath':         '',
                 'pic_w':            0,
                 'pic_h':            0,
