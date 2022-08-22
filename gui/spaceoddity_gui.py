@@ -7,6 +7,7 @@
 # License : WTFPLv2                                              \          /  #
 # -----------------------------------------------------------------------------#
 
+# TODO: show date
 # TODO: show values for sliders
 # TODO: doesn't delete old image when apply after loading defaults
 # TODO: also doesn't set picture-uri-dark in dconf (works from main)

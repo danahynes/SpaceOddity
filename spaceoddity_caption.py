@@ -8,7 +8,7 @@
 # -----------------------------------------------------------------------------#
 
 # TODO: test all options
-# TODO: font needs font files or how?
+# TODO: some imagemagick python binding (wand?)
 
 # ------------------------------------------------------------------------------
 # Imports
@@ -19,10 +19,6 @@ import logging
 import os
 import shlex
 import subprocess
-
-import gi
-gi.require_version('Pango', '1.0')
-from gi.repository import Pango  # noqa: E402 (ignore import order)
 
 # ------------------------------------------------------------------------------
 # Define the main class
@@ -49,6 +45,9 @@ class Caption:
         self.conf_path = os.path.join(self.conf_dir, f'{prog_name}.cfg')
         log_path = os.path.join(self.conf_dir, f'{prog_name}.log')
 
+        # user config dict
+        self.conf_dict = {}
+
         # set up logging
         logging.basicConfig(filename=log_path, level=logging.DEBUG,
                             format='%(asctime)s - %(levelname)s - %(message)s')
@@ -56,15 +55,6 @@ class Caption:
         # log start
         logging.debug('-------------------------------------------------------')
         logging.debug('start caption script')
-
-        # user config dict
-        self.conf_dict = {}
-
-        # the path to the caption image
-        self.capt_path = ''
-
-        # the default height of the caption
-        self.caption_height = 0
 
     # --------------------------------------------------------------------------
     # Run the script
@@ -79,43 +69,36 @@ class Caption:
         if options['show_caption']:
 
             # call each step in the process
-            self.__make_caption()
-            self.__combine_images()
+            self.make_caption()
+            self.combine_images()
 
         else:
 
-            # log the caption state
+            # log the enabled state
             logging.debug('caption script disabled')
 
         # exit gracefully
-        self.__exit()
+        self.do_exit()
 
-    # --------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Steps
     # --------------------------------------------------------------------------
 
     # --------------------------------------------------------------------------
     # Make caption png
     # --------------------------------------------------------------------------
-    def __make_caption(self):
+    def make_caption(self):
 
         # get options
         options = self.conf_dict['options']
 
         # remove border size for text-only png
-        width = options['width']
+        capt_width = options['width']
         border_padding = options['border_padding']
-        text_width = width - (border_padding * 2)
+        text_width = capt_width - (border_padding * 2)
 
         # get text options
-        font = options['font']
-        font_desc = Pango.FontDescription().from_string(font)
-        # font_family = font_desc.get_family()
-        font_size = font_desc.get_size()
-        is_absolute_size = font_desc.get_size_is_absolute()
-        if not is_absolute_size:
-            scale = Pango.SCALE
-            font_size /= scale
+        font_size = options['font_size']
         font_r = options['font_r'] * 255
         font_g = options['font_g'] * 255
         font_b = options['font_b'] * 255
@@ -147,7 +130,11 @@ class Caption:
         text_height = int(out)
 
         # add the border into the height
-        self.caption_height = text_height + (border_padding * 2)
+        capt_height = text_height + (border_padding * 2)
+
+        # save caption height for placement
+        capt_dict = self.conf_dict['caption']
+        capt_dict['height'] = capt_height
 
         # get background options
         bg_r = options['bg_r'] * 255
@@ -162,15 +149,15 @@ class Caption:
         # create background image
         cmd = \
             f'convert \
-            -size {width}x{self.caption_height} \
+            -size {capt_width}x{capt_height} \
             xc:none \
             -fill \"rgba({bg_r},{bg_g},{bg_b},{bg_a})\" \
             -draw \
             \"roundRectangle \
             0,\
             0,\
-            {width},\
-            {self.caption_height}, \
+            {capt_width},\
+            {capt_height}, \
             {corner_radius},\
             {corner_radius}\" \
             {back_path}'
@@ -178,7 +165,7 @@ class Caption:
         subprocess.call(cmd_array)
 
         # create a file path for caption image
-        self.capt_path = os.path.join(self.conf_dir, 'capt.png')
+        capt_path = os.path.join(self.conf_dir, 'capt.png')
 
         # combine text and back images
         cmd = f'convert \
@@ -187,7 +174,7 @@ class Caption:
             -gravity center \
             -compose over \
             -composite \
-            {self.capt_path}'
+            {capt_path}'
         cmd_array = shlex.split(cmd)
         subprocess.call(cmd_array)
 
@@ -196,26 +183,29 @@ class Caption:
         os.remove(back_path)
 
         # log success
-        logging.debug('create caption image')
+        logging.debug('make caption')
 
     # --------------------------------------------------------------------------
     # Combine original image and caption
     # --------------------------------------------------------------------------
-    def __combine_images(self):
+    def combine_images(self):
 
         # get the user options
-        capt_dict = self.conf_dict['caption']
+        files_dict = self.conf_dict['files']
 
         # get the path to the image
-        pic_path = capt_dict['filepath']
+        pic_path = files_dict['filepath']
 
         # get the position of the caption
         x_pos, y_pos = self.__get_position()
 
+        # create a file path for caption image
+        capt_path = os.path.join(self.conf_dir, 'capt.png')
+
         # make the final image
         cmd = f'convert \
             {pic_path} \
-            {self.capt_path} \
+            {capt_path} \
             -geometry +{x_pos}+{y_pos} \
             -compose over \
             -composite \
@@ -223,8 +213,8 @@ class Caption:
         cmd_array = shlex.split(cmd)
         subprocess.call(cmd_array)
 
-        # done with mask
-        os.remove(self.capt_path)
+        # done with caption
+        os.remove(capt_path)
 
         # log success
         logging.debug('combine images')
@@ -232,7 +222,10 @@ class Caption:
     # --------------------------------------------------------------------------
     # Gracefully exit the script when we are done or on failure
     # --------------------------------------------------------------------------
-    def __exit(self):
+    def do_exit(self):
+
+        # save config dict to file
+        self.__save_conf()
 
         # log that we are finished with script
         logging.debug('exit caption script')
@@ -256,7 +249,7 @@ class Caption:
                 self.conf_dict = json.load(file)
 
                 # log success
-                logging.debug('load conf file: %s', self.conf_path)
+                logging.debug('load conf file: %s', self.conf_dict)
 
             except json.JSONDecodeError as error:
 
@@ -265,7 +258,19 @@ class Caption:
                 logging.error('could not load config file')
 
                 # this is a fatal error
-                self.__exit()
+                self.do_exit()
+
+    # --------------------------------------------------------------------------
+    # Save dictionary data to a file
+    # --------------------------------------------------------------------------
+    def __save_conf(self):
+
+        # open the file and write json
+        with open(self.conf_path, 'w') as file:
+            json.dump(self.conf_dict, file, indent=4)
+
+        # log success
+        logging.debug('save conf file: %s', self.conf_dict)
 
     # --------------------------------------------------------------------------
     # Get the text to show in the caption bubble
@@ -300,7 +305,7 @@ class Caption:
                                             show_has_explanation)
 
         # log success
-        logging.debug('get caption')
+        logging.debug('get caption: %s', str_caption)
 
         # return the final string
         return str_caption
@@ -359,6 +364,7 @@ class Caption:
 
         # get settings from user dict
         caption = self.conf_dict['caption']
+        height = caption['height']
         pic_width = caption['pic_w']
         pic_height = caption['pic_h']
         screen_width = caption['screen_w']
@@ -370,7 +376,7 @@ class Caption:
 
         # default position is bottom right (8)
         x_pos = pic_width - x_overhang - width - side_padding
-        y_pos = pic_height - y_overhang - self.caption_height - bottom_padding
+        y_pos = pic_height - y_overhang - height - bottom_padding
 
         # get x, y from position
         position = options['position']
@@ -385,25 +391,25 @@ class Caption:
             y_pos = y_overhang + top_padding
         elif position == 3:
             x_pos = x_overhang + side_padding
-            y_pos = y_overhang + (screen_height / 2) - (self.caption_height / 2)
+            y_pos = y_overhang + (screen_height / 2) - (height / 2)
         elif position == 4:
             x_pos = x_overhang + (screen_width / 2) - (width / 2)
-            y_pos = y_overhang + (screen_height / 2) - (self.caption_height / 2)
+            y_pos = y_overhang + (screen_height / 2) - (height / 2)
         elif position == 5:
             x_pos = x_overhang - screen_width - width - \
                 side_padding
-            y_pos = y_overhang + (screen_height / 2) - (self.caption_height / 2)
+            y_pos = y_overhang + (screen_height / 2) - (height / 2)
         elif position == 6:
             x_pos = x_overhang + side_padding
-            y_pos = pic_height - y_overhang - self.caption_height - \
+            y_pos = pic_height - y_overhang - height - \
                 bottom_padding
         elif position == 7:
             x_pos = x_overhang + (screen_width / 2) - (width / 2)
-            y_pos = y_overhang - screen_height - self.caption_height - \
+            y_pos = y_overhang - screen_height - height - \
                 bottom_padding
         elif position == 8:
             x_pos = pic_width - x_overhang - width - side_padding
-            y_pos = pic_height - y_overhang - self.caption_height - \
+            y_pos = pic_height - y_overhang - height - \
                 bottom_padding
 
         # round off values if division goes wonky
