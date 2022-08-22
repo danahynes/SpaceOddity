@@ -174,7 +174,7 @@ class Main:
     # --------------------------------------------------------------------------
 
     # --------------------------------------------------------------------------
-    # Get json from APOD url
+    # Get json from api.nasa.gov
     # --------------------------------------------------------------------------
     def __download_apod_dict(self):
 
@@ -419,7 +419,7 @@ class Main:
                 logging.error('could not load config file, load defaults')
 
     # --------------------------------------------------------------------------
-    # Save dioctionary data to a file
+    # Save dictionary data to a file
     # --------------------------------------------------------------------------
     def __save_conf(self):
 
@@ -431,7 +431,7 @@ class Main:
         logging.debug('save conf file: %s', self.conf_path)
 
     # --------------------------------------------------------------------------
-    # Get the image when it isi an actual image
+    # Get the image when it is an actual image
     # --------------------------------------------------------------------------
     def __apod_is_image(self):
 
