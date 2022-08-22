@@ -8,20 +8,26 @@
 # -----------------------------------------------------------------------------#
 
 # TODO: test all conditions (no internet, bad url, etc)
-# no conf dir:
-# No log file:
-# No cfg:
-# bad cfg:
-# not enabled:
-# bad apod url:
-# no internet:
-# not image:
-# bad pic url:
-# caption no:
-# caption yes
+# no conf dir: OK
+# No log file: OK
+# FIXME: No cfg: doesn't delete old file if no cfg
+# put image in folder, next download, delete all contents of folder
+# then put new image in folder before setting picture-uri
+# bad cfg: OK
+# FIXME: key missing: meh, might not delete old file (see above)
+# delete everything in .config that isn't spaceoddit.cfg or spaceoddity.log
+# not enabled: OK
+# bad apod url: OK
+# no internet: OK
+# not image with TEST_IAMGE = 1: OK
+# not image with TEST_IAMGE = 0: OK
+# bad pic url: OK
+# caption no: OK
+# caption yes:
+
 # TODO: show date
 # TODO: white line on right of image (oversizing doesn't help)
-# TODO: some imagemagick python binding
+# TODO: some imagemagick python binding (wand?)
 
 # NB: requires:
 # pygobject
@@ -78,12 +84,11 @@ class Main:
         self.conf_dict_def = {
             'options': {
                 'enabled':          1,
-                # TODO: set this back to 1 after testing
-                'show_caption':     0,
+                'show_caption':     1,
                 'show_title':       1,
                 'show_copyright':   1,
                 'show_explanation': 1,
-                'font':             'Sans Regular 12',
+                'font_size':        12,
                 'font_r':           1.0,
                 'font_g':           1.0,
                 'font_b':           1.0,
@@ -108,6 +113,7 @@ class Main:
                 'explanation':      ''
             },
             'caption': {
+                'height':           0,
                 'pic_w':            0,
                 'pic_h':            0,
                 'screen_w':         0,
@@ -151,15 +157,12 @@ class Main:
         if options['enabled']:
 
             # call each step in the process
-            self.__download_apod_dict()
-            self.__download_image()
-            self.__resize_image()
-
-            if options['show_caption']:
-                self.__make_caption()
-
-            self.__set_image()
-            self.__delete_old_image()
+            self.download_apod_dict()
+            self.download_image()
+            self.resize_image()
+            self.make_caption()
+            self.set_image()
+            self.delete_old_image()
 
         else:
 
@@ -167,7 +170,7 @@ class Main:
             logging.debug('main script disabled')
 
         # exit gracefully
-        self.__exit()
+        self.do_exit()
 
     # --------------------------------------------------------------------------
     # Steps
@@ -176,7 +179,7 @@ class Main:
     # --------------------------------------------------------------------------
     # Get json from api.nasa.gov
     # --------------------------------------------------------------------------
-    def __download_apod_dict(self):
+    def download_apod_dict(self):
 
         # the url to load json from
         apod_url = 'https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY'
@@ -199,7 +202,7 @@ class Main:
             self.conf_dict['apod'] = apod_dict
 
             # log success
-            logging.debug('get data from server')
+            logging.debug('get data from server: %s', apod_dict)
 
         except urllib.error.URLError as error:
 
@@ -208,12 +211,12 @@ class Main:
             logging.error('could not get data from server')
 
             # this is a fatal error
-            self.__exit()
+            self.do_exit()
 
     # --------------------------------------------------------------------------
     # Get image from api.nasa.gov
     # --------------------------------------------------------------------------
-    def __download_image(self):
+    def download_image(self):
 
         # make sure it's an image (sometimes it's a video)
         apod_dict = self.conf_dict['apod']
@@ -232,7 +235,7 @@ class Main:
     # --------------------------------------------------------------------------
     # Resize image to fill screen
     # --------------------------------------------------------------------------
-    def __resize_image(self):
+    def resize_image(self):
 
         # get path to downloaded image
         files_dict = self.conf_dict['files']
@@ -300,7 +303,7 @@ class Main:
     # --------------------------------------------------------------------------
     # Run caption script
     # --------------------------------------------------------------------------
-    def __make_caption(self):
+    def make_caption(self):
 
         # save cofig dict for caption script
         self.__save_conf()
@@ -314,10 +317,12 @@ class Main:
         cmd_array = shlex.split(cmd)
         subprocess.call(cmd_array)
 
+        logging.debug('make _caption')
+
     # --------------------------------------------------------------------------
     # Set the wallpaper
     # --------------------------------------------------------------------------
-    def __set_image(self):
+    def set_image(self):
 
         # get path to downloaded image
         files_dict = self.conf_dict['files']
@@ -328,11 +333,10 @@ class Main:
 
         # convert pic_path to variant
         glib_value_uri = GLib.Variant('s', pic_path)
-        glib_value_uri_dark = GLib.Variant('s', pic_path)
 
         # set variant for both light and dark themes
         settings.set_value('picture-uri', glib_value_uri)
-        settings.set_value('picture-uri-dark', glib_value_uri_dark)
+        settings.set_value('picture-uri-dark', glib_value_uri)
 
         # log success
         logging.debug('set image: %s', pic_path)
@@ -340,7 +344,7 @@ class Main:
     # --------------------------------------------------------------------------
     # Delete old image
     # --------------------------------------------------------------------------
-    def __delete_old_image(self):
+    def delete_old_image(self):
 
         # get previous path name
         files_dict = self.conf_dict['files']
@@ -350,10 +354,12 @@ class Main:
         if os.path.exists(old_image):
             os.remove(old_image)
 
+        logging.debug('remove old image: %s', old_image)
+
     # --------------------------------------------------------------------------
     # Gracefully exit the script when we are done or on failure
     # --------------------------------------------------------------------------
-    def __exit(self):
+    def do_exit(self):
 
         # save config dict to file
         self.__save_conf()
@@ -407,7 +413,7 @@ class Main:
                 files_dict['old_filepath'] = files_dict['filepath']
 
                 # log success
-                logging.debug('load conf file: %s', self.conf_path)
+                logging.debug('load conf file: %s', self.conf_dict)
 
             except json.JSONDecodeError as error:
 
@@ -428,7 +434,7 @@ class Main:
             json.dump(self.conf_dict, file, indent=4)
 
         # log success
-        logging.debug('save conf file: %s', self.conf_path)
+        logging.debug('save conf file: %s', self.conf_dict)
 
     # --------------------------------------------------------------------------
     # Get the image when it is an actual image
@@ -436,7 +442,7 @@ class Main:
     def __apod_is_image(self):
 
         # get the url to the actual image
-        pic_url = self.__get_pic_url()
+        pic_url = ''  # self.__get_pic_url()
 
         # create a download path
         now = datetime.now()
@@ -465,14 +471,14 @@ class Main:
             logging.error('could not download image')
 
             # this is a fatal error
-            self.__exit()
+            self.do_exit()
 
     # --------------------------------------------------------------------------
     # Set some fake data when debugging and APOD is not an image
     # --------------------------------------------------------------------------
     def __apod_is_not_image(self):
 
-        # NB: HOLY SHIRTBALLS THIS IS AN UGLY HACK!!!
+        # NB: HOLY FORKING SHIRTBALLS THIS IS AN UGLY HACK!!!
         # but I can't afford to go 24 hours without testing
 
         if TEST_IMAGE:
@@ -523,7 +529,7 @@ class Main:
             files_dict['filepath'] = pic_path
 
             # log success
-            logging.debug('make fake image')
+            logging.debug('make fake image: %s', files_dict)
 
         else:
 
@@ -531,7 +537,7 @@ class Main:
             logging.debug('apod is not an image')
 
             # nothing left to do
-            self.__exit()
+            self.do_exit()
 
     # --------------------------------------------------------------------------
     # Get the most appropriate url to the full size image

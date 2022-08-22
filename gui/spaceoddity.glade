@@ -397,7 +397,6 @@
                     <property name="margin-start">10</property>
                     <property name="margin-end">20</property>
                     <property name="margin-top">10</property>
-                    <property name="hexpand">True</property>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
@@ -462,7 +461,9 @@
                     <property name="margin-bottom">20</property>
                     <property name="adjustment">adj_colors_bg_transparency</property>
                     <property name="fill-level">100</property>
-                    <property name="value-pos">left</property>
+                    <property name="round-digits">1</property>
+                    <property name="digits">0</property>
+                    <property name="value-pos">right</property>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
@@ -476,9 +477,11 @@
                     <property name="margin-start">10</property>
                     <property name="margin-end">20</property>
                     <property name="margin-top">20</property>
+                    <property name="hexpand">True</property>
                     <property name="adjustment">adj_layout_font_size</property>
                     <property name="round-digits">1</property>
-                    <property name="value-pos">left</property>
+                    <property name="digits">0</property>
+                    <property name="value-pos">right</property>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
@@ -531,6 +534,7 @@
                 <child>
                   <object class="GtkComboBoxText" id="combo_position">
                     <property name="name">combo_position</property>
+                    <property name="width-request">200</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="margin-start">10</property>
@@ -565,7 +569,8 @@
                     <property name="margin-top">10</property>
                     <property name="adjustment">adj_layout_width</property>
                     <property name="round-digits">1</property>
-                    <property name="value-pos">left</property>
+                    <property name="digits">0</property>
+                    <property name="value-pos">right</property>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
@@ -597,7 +602,8 @@
                     <property name="margin-top">10</property>
                     <property name="adjustment">adj_layout_corner_radius</property>
                     <property name="round-digits">1</property>
-                    <property name="value-pos">left</property>
+                    <property name="digits">0</property>
+                    <property name="value-pos">right</property>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
@@ -629,7 +635,8 @@
                     <property name="margin-top">10</property>
                     <property name="adjustment">adj_layout_border_padding</property>
                     <property name="round-digits">1</property>
-                    <property name="value-pos">left</property>
+                    <property name="digits">0</property>
+                    <property name="value-pos">right</property>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
@@ -661,7 +668,8 @@
                     <property name="margin-top">10</property>
                     <property name="adjustment">adj_layout_top_padding</property>
                     <property name="round-digits">1</property>
-                    <property name="value-pos">left</property>
+                    <property name="digits">0</property>
+                    <property name="value-pos">right</property>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
@@ -693,7 +701,8 @@
                     <property name="margin-top">10</property>
                     <property name="adjustment">adj_layout_bottom_padding</property>
                     <property name="round-digits">1</property>
-                    <property name="value-pos">left</property>
+                    <property name="digits">0</property>
+                    <property name="value-pos">right</property>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
@@ -727,7 +736,8 @@
                     <property name="margin-bottom">20</property>
                     <property name="adjustment">adj_layout_side_padding</property>
                     <property name="round-digits">1</property>
-                    <property name="value-pos">left</property>
+                    <property name="digits">0</property>
+                    <property name="value-pos">right</property>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
