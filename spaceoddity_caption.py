@@ -8,6 +8,12 @@
 # -----------------------------------------------------------------------------#
 
 # TODO: test all options
+
+# FIXME: caption length must be relative to font size (size limit on image)
+#   at 12 points, limit as about 1000
+#   this may have to do with giving the convert only one dimension so it
+#   assumes a square image - how to fix this?
+
 # TODO: some imagemagick python binding (wand?)
 
 # ------------------------------------------------------------------------------
