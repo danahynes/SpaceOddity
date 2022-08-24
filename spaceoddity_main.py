@@ -11,11 +11,11 @@
 # no conf dir: OK
 # No log file: OK
 # FIXME: No cfg: doesn't delete old file if no cfg
-# put image in folder, next download, delete all contents of folder
-# then put new image in folder before setting picture-uri
+#   put image in folder, next download, delete all contents of folder
+#   then put new image in folder before setting picture-uri
+#   or delete everything in .config that isn't spaceoddit.cfg or spaceoddity.log
 # bad cfg: OK
-# FIXME: key missing: meh, might not delete old file (see above)
-# delete everything in .config that isn't spaceoddit.cfg or spaceoddity.log
+# FIXME: old filepath key missing: meh, might not delete old file (see above)
 # not enabled: OK
 # bad apod url: OK
 # no internet: OK
@@ -25,9 +25,12 @@
 # caption no: OK
 # caption yes:
 
-# TODO: show date
-# TODO: white line on right of image (oversizing doesn't help)
+# FIXME: white line on right of image (oversizing doesn't help)
+# FIXME: caption length must be relative to font size (size limit on image)
+#   at 12 points, limit as about 1000
+
 # TODO: some imagemagick python binding (wand?)
+# TODO: show date
 
 # NB: requires:
 # pygobject
@@ -442,7 +445,7 @@ class Main:
     def __apod_is_image(self):
 
         # get the url to the actual image
-        pic_url = ''  # self.__get_pic_url()
+        pic_url = self.__get_pic_url()
 
         # create a download path
         now = datetime.now()
@@ -487,16 +490,17 @@ class Main:
             # NB: this is for testing on days when the APOD is not an image
             fake_url = '/home/dana/Documents/Projects/SpaceOddity/static/'
             fake_url += 'test.jpg'
-            str_exp = 'Lorem ipsum dolor sit amet, consectetur adipiscing '
-            str_exp += 'elit, sed do eiusmod tempor incididunt ut labore '
-            str_exp += 'et dolore magna aliqua. Ut enim ad minim veniam, '
-            str_exp += 'quis nostrud exercitation ullamco laboris nisi ut '
-            str_exp += 'aliquip ex ea commodo consequat. Duis aute irure '
-            str_exp += 'dolor in reprehenderit in voluptate velit esse '
-            str_exp += 'cillum dolore eu fugiat nulla pariatur. Excepteur '
-            str_exp += 'sint occaecat cupidatat non proident, sunt in '
-            str_exp += 'culpa qui officia deserunt mollit anim id est '
-            str_exp += 'laborum.'
+
+            fake_exp = 'Lorem ipsum dolor sit amet, consectetur adipiscing '
+            fake_exp += 'elit, sed do eiusmod tempor incididunt ut labore '
+            fake_exp += 'et dolore magna aliqua. Ut enim ad minim veniam, '
+            fake_exp += 'quis nostrud exercitation ullamco laboris nisi ut '
+            fake_exp += 'aliquip ex ea commodo consequat. Duis aute irure '
+            fake_exp += 'dolor in reprehenderit in voluptate velit esse '
+            fake_exp += 'cillum dolore eu fugiat nulla pariatur. Excepteur '
+            fake_exp += 'sint occaecat cupidatat non proident, sunt in '
+            fake_exp += 'culpa qui officia deserunt mollit anim id est '
+            fake_exp += 'laborum.'
 
             apod_dict = self.conf_dict['apod']
             apod_dict['media_type'] = 'image'
@@ -504,7 +508,7 @@ class Main:
             apod_dict['url'] = fake_url
             apod_dict['title'] = 'Dummy Title'
             apod_dict['copyright'] = 'Dummy Copyright'
-            apod_dict['explanation'] = str_exp
+            apod_dict['explanation'] = fake_exp
 
             # get the url to the actual image
             pic_url = self.__get_pic_url()
