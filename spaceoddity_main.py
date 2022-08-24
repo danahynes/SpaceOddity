@@ -26,8 +26,6 @@
 # caption yes:
 
 # FIXME: white line on right of image (oversizing doesn't help)
-# FIXME: caption length must be relative to font size (size limit on image)
-#   at 12 points, limit as about 1000
 
 # TODO: some imagemagick python binding (wand?)
 # TODO: show date
