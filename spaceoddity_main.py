@@ -25,8 +25,9 @@
 # caption no: OK
 # caption yes:
 
-# FIXME: white line on right of image (oversizing doesn't help)
+# FIXME: white line on right of image sometimes (oversizing doesn't help)
 
+# TODO: redirect imagemagick call output (error) to log file
 # TODO: some imagemagick python binding (wand?)
 # TODO: show date
 
