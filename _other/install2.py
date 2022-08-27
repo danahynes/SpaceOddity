@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# cron:
+# 46      *       *       *       *       env DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus /usr/bin/python3 /home/dana/Documents/Projects/SpaceOddity/spaceoddity_main.py
+
 import os
 
 prog_name = 'spaceoddity'
