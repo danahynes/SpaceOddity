@@ -1,23 +1,15 @@
 #!/usr/bin/env python3
-#------------------------------------------------------------------------------#
+# -----------------------------------------------------------------------------#
 # Filename: install.py                                           /          \  #
 # Project : SpaceOddity                                         |     ()     | #
 # Date    : 07/17/2022                                          |            | #
 # Author  : Dana Hynes                                          |   \____/   | #
 # License : WTFPLv2                                              \          /  #
-#------------------------------------------------------------------------------#
+# -----------------------------------------------------------------------------#
 
-# TODO: cron
-
-#-------------------------------------------------------------------------------
-# imports
+# TODO: make this a class with __init__, run, preflight, postflight
 
 # TODO: learn more about setup.py and can we use it to install
-
-import getpass
-import os
-import shutil
-import subprocess
 
 # TODO: files and folders created during this session wil have owner/group set
 # to root b/c script was called by sudo. NEED TO FIX THIS
@@ -25,6 +17,10 @@ import subprocess
 '''
 {
     user: {
+        requires: {
+            cmd1,
+            cmd2
+        }
         mkdirs: [
             dir1,
             dir2
@@ -39,6 +35,10 @@ import subprocess
         }
     },
     sudo: {
+        requires: {
+            cmd1,
+            cmd2
+        }
         mkdirs: [
             dir1,
             dir2
@@ -54,13 +54,24 @@ import subprocess
     }
 '''
 
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# imports
+
+from crontab import CronTab
+import getpass
+import os
+import shlex
+import shutil
+import subprocess
+
+# ------------------------------------------------------------------------------
 # define the main function to run
+
 
 def main():
 
-#-------------------------------------------------------------------------------
-# required - DO NOT CHANGE
+    # --------------------------------------------------------------------------
+    # required - DO NOT CHANGE
 
     # fixed
     curr_user = os.getlogin()
@@ -70,11 +81,12 @@ def main():
 
     # var
     prog_name = ''
-    run_as_root = True
+    run_as_root = False
     run_after_install = False
     run_cmd = ''
 
     # var
+    requires = []
     create_dirs = []
     create_files = {}
     copy_files = {}
@@ -84,32 +96,33 @@ def main():
     # print('home_dir:', home_dir)
     # print('scpt_dir:', scpt_dir)
 
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # preflight
 
     prog_name = 'spaceoddity'
-    #run_as_root = True # Default
+    # run_as_root = False  # Default
     run_after_install = True
-    run_cmd = os.path.join('/usr/bin', f'{prog_name}_d.py')
 
     conf_dir = os.path.join(home_dir, '.config', prog_name)
+    prog_dir = os.path.join(home_dir, f'.{prog_name}')
+
+    run_cmd = os.path.join(prog_dir, f'{prog_name}_main.py')
 
     # absolute paths
     create_dirs = [
-        conf_dir
+        conf_dir,
+        prog_dir
     ]
 
     # file name : absolute path
     create_files = {
-        f'{prog_name}.log' : conf_dir
+        f'{prog_name}.log': conf_dir
     }
 
     # relative file name : absolute path
     copy_files = {
-        f'{prog_name}_orig.conf' : conf_dir,
-        f'{prog_name}.conf' : conf_dir,
-        f'{prog_name}_d.py' : '/usr/bin',
-        'uninstall.py' : conf_dir
+        f'{prog_name}_main.py': prog_dir,
+        'LICENSE.txt': prog_dir
     }
 
     # print('prog_name:', prog_name)
@@ -131,18 +144,18 @@ def main():
     # #     # insert line for spaceoddity
     # #     print()
 
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # required - DO NOT CHANGE
 
     if run_as_root and scpt_user != 'root':
         print('This script needs to be run as root. Try \'sudo ./install.py\'')
-        exit(1)
+        exit()
     elif not run_as_root and scpt_user == 'root':
-        print ('This script should not be run as root. Try \'./install.py\'')
-        exit(1)
+        print('This script should not be run as root. Try \'./install.py\'')
+        exit()
 
-    #print('success')
-    # exit(0)
+    # print('success')
+    # exit()
 
     print(f'Installing {prog_name}...')
     print('For license info see the LICENSE.txt file in this directory')
@@ -169,13 +182,35 @@ def main():
     if run_after_install:
         print(f'Running {prog_name}')
         print("run:", run_cmd)
-        run_cmd_array = run_cmd.split()
+        run_cmd_array = shlex.split(run_cmd)
         subprocess.call(run_cmd_array)
 
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # postflight
 
-#-------------------------------------------------------------------------------
+    my_cron = CronTab(user=curr_user)
+
+    found = False
+    for job in my_cron:
+        if job.comment == f'{prog_name}':
+            found = True
+            job.hour.every(1)
+            job.minute.on(1)
+
+    if not found:
+        job = my_cron.new(command=f'env \
+        DISPLAY=:0 \
+        DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus \
+        /usr/bin/python3 \
+        {run_cmd}',
+                          comment={prog_name})
+        job.hour.every(1)
+        job.minute.on(1)
+
+    my_cron.write()
+
+
+# ------------------------------------------------------------------------------
 # Run the main function if we are not an import
 if __name__ == '__main__':
     main()
