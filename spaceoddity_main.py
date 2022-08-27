@@ -44,6 +44,7 @@ import json
 import logging
 import os
 import shlex
+import shutil
 import subprocess
 import urllib.request
 
@@ -161,7 +162,7 @@ class Main:
             # call each step in the process
             self.download_apod_dict()
             self.download_image()
-            self.resize_image()
+            # self.resize_image()
             # self.make_caption()
             self.set_image()
             self.delete_old_image()
@@ -354,8 +355,9 @@ class Main:
         glib_value_uri = GLib.Variant('s', pic_path)
 
         # set variant for both light and dark themes
-        settings.set_value('picture-uri', glib_value_uri)
+        # NB: this only seems to work consistenly if we set dark first
         settings.set_value('picture-uri-dark', glib_value_uri)
+        settings.set_value('picture-uri', glib_value_uri)
 
         # log success
         logging.debug('set image: %s', pic_path)
@@ -537,12 +539,13 @@ class Main:
             pic_path = os.path.join(self.conf_dir, pic_name)
 
             # copy test image (simulates downloading)
-            cmd = \
-                f'cp \
-                {pic_url} \
-                {pic_path}'
-            cmd_array = shlex.split(cmd)
-            subprocess.call(cmd_array)
+            # cmd = \
+            #     f'cp \
+            #     {pic_url} \
+            #     {pic_path}'
+            # cmd_array = shlex.split(cmd)
+            # subprocess.call(cmd_array)
+            shutil.copy(pic_url, pic_path)
 
             # set pathname
             files_dict = self.conf_dict['files']

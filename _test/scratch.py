@@ -1,40 +1,25 @@
-import shlex
-import subprocess
+import os
+from crontab import CronTab
 
-pic_path = '/home/dana/Documents/Projects/SpaceOddity/_static/test.jpg'
+curr_user = os.getlogin()
 
+my_cron = CronTab(user=curr_user)
 
-cmd = \
-    f'identify \
-    -format %w \
-    {pic_path}'
-cmd_array = shlex.split(cmd)
+found = False
+for job in my_cron:
+    if job.comment == 'spaceoddity':
+        found = True
+        job.hour.every(1)
+        job.minute.on(1)
 
-# proc = subprocess.Popen(cmd_array, stdout=subprocess.PIPE,
-#                         stderr=subprocess.PIPE)
-# str_out, str_err = proc.communicate()
+if not found:
+    job = my_cron.new(command='env \
+    DISPLAY=:0 \
+    DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus \
+    /usr/bin/python3 \
+    /home/dana/Documents/Projects/SpaceOddity/spaceoddity_main.py',
+                      comment='spaceoddity')
 
-# print('out:', str_out.decode())
-# print('err:', str_err.decode())
+    job.hour.every(2)
 
-# proc = subprocess.run(cmd_array, capture_output=True)
-# out = proc.stdout.decode()
-# err = proc.stderr.decode()
-# if err is not None:
-#     print('ERROR')
-
-# print('out:', out)
-# print('err:', err)
-
-try:
-    proc = subprocess.run(cmd_array, check=True, capture_output=True)
-
-    print('ret:', proc.returncode)
-    print('out:', proc.stdout.decode())
-    print('err:', proc.stderr.decode())
-
-except subprocess.CalledProcessError as e:
-
-    print('err ret:', e.returncode)
-    print('err out:', e.stdout.decode())
-    print('err err:', e.stderr.decode())
+my_cron.write()
