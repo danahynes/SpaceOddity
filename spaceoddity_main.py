@@ -8,7 +8,7 @@
 # -----------------------------------------------------------------------------#
 
 # TODO: test all conditions (no internet, bad url, etc)
-# no conf dir: OK
+# no conf dir: OKf
 # No log file: OK
 # FIXME: No cfg: doesn't delete old file if no cfg
 #   put image in folder, next download, delete all contents of folder
@@ -27,8 +27,6 @@
 
 # FIXME: white line on right of image sometimes (oversizing doesn't help)
 
-# TODO: redirect imagemagick call output (error) to log file
-# TODO: some imagemagick python binding (wand?)
 # TODO: show date
 
 # NB: requires:
@@ -40,6 +38,8 @@
 # ------------------------------------------------------------------------------
 
 from datetime import datetime
+from wand.image import Image
+
 import json
 import logging
 import os
@@ -162,7 +162,7 @@ class Main:
             self.download_apod_dict()
             self.download_image()
             self.resize_image()
-            self.make_caption()
+            # self.make_caption()
             self.set_image()
             self.delete_old_image()
 
@@ -244,22 +244,34 @@ class Main:
         pic_path = files_dict['filepath']
 
         # get original width
-        cmd = \
-            f'identify \
-            -format %w \
-            {pic_path}'
-        cmd_array = shlex.split(cmd)
-        out = subprocess.check_output(cmd_array)
-        old_w = int(out)
+        # cmd = \
+        #     f'identify \
+        #     -format %w \
+        #     {pic_path}'
+        # cmd_array = shlex.split(cmd)
+        # try:
+        #     proc = subprocess.run(cmd_array, check=True, capture_output=True)
+        #     old_w = int(proc.stdout.decode())
+        # except subprocess.CalledProcessError as error:
+        #     logging.error(error.stderr.decode())
+        #     self.__exit()
 
-        # get original height
-        cmd = \
-            f'identify \
-            -format %h \
-            {pic_path}'
-        cmd_array = shlex.split(cmd)
-        out = subprocess.check_output(cmd_array)
-        old_h = int(out)
+        # # get original height
+        # cmd = \
+        #     f'identify \
+        #     -format %h \
+        #     {pic_path}'
+        # cmd_array = shlex.split(cmd)
+        # try:
+        #     proc = subprocess.run(cmd_array, check=True, capture_output=True)
+        #     old_h = int(proc.stdout.decode())
+        # except subprocess.CalledProcessError as error:
+        #     logging.error(error.stderr.decode())
+        #     self.__exit()
+
+        old_img = Image(filename=pic_path)
+        old_w = old_img.width
+        old_h = old_img.height
 
         # get screen size
         display = Gdk.Display.get_default()
@@ -284,13 +296,18 @@ class Main:
         new_w = int(old_w / scale)
         new_h = int(old_h / scale)
 
-        cmd = \
-            f'convert \
-            {pic_path} \
-            -resize {new_w}x{new_h} \
-            {pic_path}'
-        cmd_array = shlex.split(cmd)
-        subprocess.call(cmd_array)
+        # cmd = \
+        #     f'convert \
+        #     {pic_path} \
+        #     -resize {new_w}x{new_h} \
+        #     {pic_path}'
+        # cmd_array = shlex.split(cmd)
+        # try:
+        #     subprocess.run(cmd_array, check=True, capture_output=True)
+        # except subprocess.CalledProcessError as error:
+        #     logging.error(error.stderr.decode())
+        #     self.__exit()
+        old_img.resize(new_w, new_h)
 
         # save sizes to user dict for caption script
         capt_dict = self.conf_dict['caption']
