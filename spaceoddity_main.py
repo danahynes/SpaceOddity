@@ -351,13 +351,10 @@ class Main:
         # get system settings
         settings = Gio.Settings.new('org.gnome.desktop.background')
 
-        # convert pic_path to variant
-        glib_value_uri = GLib.Variant('s', pic_path)
-
         # set variant for both light and dark themes
-        # NB: this only seems to work consistenly if we set dark first
-        settings.set_value('picture-uri-dark', glib_value_uri)
-        settings.set_value('picture-uri', glib_value_uri)
+        settings.set_string('picture-uri', pic_path)
+        settings.set_string('picture-uri-dark', pic_path)
+        settings.apply()
 
         # log success
         logging.debug('set image: %s', pic_path)
