@@ -1,0 +1,55 @@
+create snapshot of first install
+
+
+
+
+
+
+
+download files from git
+    sudo apt-get install git
+    cd ~/downloads
+    git clone https://github.com/danahynes/SpaceOddity.git
+    
+copy files:
+    spaceoddity_main.py to ~/.spaceodiity
+    
+    
+    
+    
+    
+get reqs:
+    sudo apt-get install python3-pip
+    
+    
+    
+    
+    
+    imagemagick
+    crontab
+    wand
+    
+add to crontab:
+    
+    my_cron = CronTab(user=curr_user)
+    found = False
+    
+    for job in my_cron:
+        if job.comment == 'spaceoddity:
+            found = True
+            job.hour.every(1)
+            job.minute.on(1)
+
+    if not found:
+        job = my_cron.new(command='env \
+        DISPLAY=:0 \
+        DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus \
+        /usr/bin/python3 \
+        {run_cmd}',
+        comment={prog_name})
+        
+        job.hour.every(1)
+        job.minute.on(1)
+
+    my_cron.write()
+    

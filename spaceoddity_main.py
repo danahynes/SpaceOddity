@@ -506,7 +506,7 @@ class Main:
             print('not an image, making fake data')
 
             # NB: this is for testing on days when the APOD is not an image
-            fake_url = '/home/dana/Documents/Projects/SpaceOddity/static/'
+            fake_url = '/home/dana/Documents/Projects/SpaceOddity/_static/'
             fake_url += 'test.jpg'
 
             fake_exp = 'Lorem ipsum dolor sit amet, consectetur adipiscing '
