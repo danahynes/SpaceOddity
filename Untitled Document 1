@@ -1,10 +1,8 @@
+install ubuntu
+sudo apt update
+sudo apt upgrade
+
 create snapshot of first install
-
-
-
-
-
-
 
 download files from git
     sudo apt-get install git
@@ -12,22 +10,20 @@ download files from git
     git clone https://github.com/danahynes/SpaceOddity.git
     
 copy files:
-    spaceoddity_main.py to ~/.spaceodiity
-    
-    
-    
-    
+    mkdir -p  ~/.spaceoddity
+    cp spaceoddity_main.py to ~/.spaceodiity
     
 get reqs:
-    sudo apt-get install python3-pip
+    sudo apt install python3-pip
+    pip install wand
+    sudo apt install imagemagick
     
     
-    
-    
-    
-    imagemagick
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
     crontab
-    wand
     
 add to crontab:
     
