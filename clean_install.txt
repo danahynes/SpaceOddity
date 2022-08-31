@@ -5,25 +5,23 @@ sudo apt upgrade
 create snapshot of first install
 
 download files from git
-    sudo apt-get install git
-    cd ~/downloads
-    git clone https://github.com/danahynes/SpaceOddity.git
+    $ sudo apt install git
+    $ cd ~/Downloads
+    $ git clone https://github.com/danahynes/SpaceOddity.git
     
 copy files:
-    mkdir -p  ~/.spaceoddity
-    cp spaceoddity_main.py to ~/.spaceodiity
+    $ cd ~/Downloads/SpaceOddity
+    $ mkdir -p  ~/.spaceoddity
+    $ cp spaceoddity_main.py ~/.spaceodiity
     
 get reqs:
-    sudo apt install python3-pip
-    pip install wand
-    sudo apt install imagemagick
-    
-    
+    $ sudo apt install python3-pip
+    $ sudo apt install imagemagick
+    $ pip install wand
+
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-
-
-    crontab
+    $ pip install crontab
     
 add to crontab:
     
@@ -33,8 +31,6 @@ add to crontab:
     for job in my_cron:
         if job.comment == 'spaceoddity:
             found = True
-            job.hour.every(1)
-            job.minute.on(1)
 
     if not found:
         job = my_cron.new(command='env \

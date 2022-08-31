@@ -2,217 +2,93 @@
 # -----------------------------------------------------------------------------#
 # Filename: install.py                                           /          \  #
 # Project : SpaceOddity                                         |     ()     | #
-# Date    : 07/17/2022                                          |            | #
+# Date    : 08/31/2022                                          |            | #
 # Author  : Dana Hynes                                          |   \____/   | #
 # License : WTFPLv2                                              \          /  #
 # -----------------------------------------------------------------------------#
 
-# TODO: make this a class with __init__, run, preflight, postflight
-
-# TODO: learn more about setup.py and can we use it to install
-
-# TODO: files and folders created during this session wil have owner/group set
-# to root b/c script was called by sudo. NEED TO FIX THIS
-
-'''
-{
-    user: {
-        requires: {
-            cmd1,
-            cmd2
-        }
-        mkdirs: [
-            dir1,
-            dir2
-        ],
-        mkfiles: [
-            file1,
-            file2
-        ]
-        cp: {
-            file1: dst1,
-            file2: dst2,
-        }
-    },
-    sudo: {
-        requires: {
-            cmd1,
-            cmd2
-        }
-        mkdirs: [
-            dir1,
-            dir2
-        ],
-        mkfiles: [
-            file1,
-            file2
-        ]
-        cp: {
-            file1: dst1,
-            file2: dst2,
-        }
-    }
-'''
-
-# ------------------------------------------------------------------------------
-# imports
-
-from crontab import CronTab
-import getpass
 import os
 import shlex
 import shutil
 import subprocess
 
-# ------------------------------------------------------------------------------
-# define the main function to run
-
-
-def main():
-
-    # --------------------------------------------------------------------------
-    # required - DO NOT CHANGE
-
-    # fixed
-    curr_user = os.getlogin()
-    scpt_user = getpass.getuser()
-    home_dir = os.path.expanduser(f'~{curr_user}')
-    scpt_dir = os.path.dirname(os.path.abspath(__file__))
-
-    # var
-    prog_name = ''
-    run_as_root = False
-    run_after_install = False
-    run_cmd = ''
-
-    # var
-    requires = []
-    create_dirs = []
-    create_files = {}
-    copy_files = {}
-
-    # print('curr_user:', curr_user)
-    # print('scpt_user:', scpt_user)
-    # print('home_dir:', home_dir)
-    # print('scpt_dir:', scpt_dir)
+home_dir = os.path.expanduser('~')
 
 # ------------------------------------------------------------------------------
-# preflight
 
-    prog_name = 'spaceoddity'
-    # run_as_root = False  # Default
-    run_after_install = True
+# the program name
+prog_name = 'spaceoddity'
+app_dir = os.path.join(home_dir, f'.{prog_name}')
 
-    conf_dir = os.path.join(home_dir, '.config', prog_name)
-    prog_dir = os.path.join(home_dir, f'.{prog_name}')
+apt_reqs = [
+    'python3-pip',
+    'imagemagick'
+]
 
-    run_cmd = os.path.join(prog_dir, f'{prog_name}_main.py')
+pip_reqs = [
+    'wand'
+]
 
-    # absolute paths
-    create_dirs = [
-        conf_dir,
-        prog_dir
-    ]
+mk_dirs = [
+    f'{app_dir}'
+]
 
-    # file name : absolute path
-    create_files = {
-        f'{prog_name}.log': conf_dir
-    }
+copy_files = {
+    f'{prog_name}_main.py': f'{app_dir}'
+}
 
-    # relative file name : absolute path
-    copy_files = {
-        f'{prog_name}_main.py': prog_dir,
-        'LICENSE.txt': prog_dir
-    }
-
-    # print('prog_name:', prog_name)
-    # print('run_as_root:', run_as_root)
-    # print('run_after_install:', run_after_install)
-    # print('run_cmd:', run_cmd)
-    # print('conf_dir:', conf_dir)
-    # print('create_dirs:', create_dirs)
-    # print('create_files:', create_files)
-    # print('copy_files:', copy_files)
-
-    # # cmd = 'sudo cp spaceoddity_d.py /usr/bin'
-    # # subprocess.call(cmd.split())
-
-    # # cmd = 'crontab -e'
-    # # subprocess.call(cmd.split())
-
-    # # with open(f'/var/spool/cron/crontabs/{user}'):
-    # #     # insert line for spaceoddity
-    # #     print()
+run_path = os.path.join(app_dir, f'{prog_name}_main.py')
 
 # ------------------------------------------------------------------------------
-# required - DO NOT CHANGE
 
-    if run_as_root and scpt_user != 'root':
-        print('This script needs to be run as root. Try \'sudo ./install.py\'')
-        exit()
-    elif not run_as_root and scpt_user == 'root':
-        print('This script should not be run as root. Try \'./install.py\'')
-        exit()
+# get all requirements
+print('Installing requirements...')
 
-    # print('success')
-    # exit()
+# get system requirements
+for item in apt_reqs:
+    print(f'Installing {item}...')
+    cmd = f'sudo apt-get install {item}'
+    cmd_array = shlex.split(cmd)
+    try:
+        subprocess.run(cmd_array)
+    except subprocess.CalledProcessError as error:
+        print(error.stderr.decode())
 
-    print(f'Installing {prog_name}...')
-    print('For license info see the LICENSE.txt file in this directory')
+# get python requirements
+for item in pip_reqs:
+    print(f'Installing {item}...')
+    cmd = f'pip install {item}'
+    cmd_array = shlex.split(cmd)
+    try:
+        subprocess.run(cmd_array)
+    except subprocess.CalledProcessError as error:
+        print(error.stderr.decode())
 
-    print('Creating directories...')
-    for item in create_dirs:
-        print('making dirs:', item)
-        os.makedirs(item, exist_ok=True)
+# set up folders
+print('Setting up folders...')
 
-    print('Creating files...')
-    for key, val in create_files.items():
-        a_path = os.path.join(val, key)
-        print('opening:', a_path, 'wb')
-        open(a_path, 'wb')
+for item in mk_dirs:
+    print(f'Making directory {item}...')
+    os.makedirs(item, exist_ok=True)
 
-    print('Copying files...')
-    for key, val in copy_files.items():
-        a_key = os.path.join(scpt_dir, key)
-        print('copying:', a_key, val)
-        shutil.copy(a_key, val)
+# copy files
+print('Copying files...')
 
-    print(f'{prog_name} installed.')
+# copy files
+for key, value in copy_files.items():
+    print(f'Copying {key} to {value}...')
+    shutil.copy(key, value)
 
-    if run_after_install:
-        print(f'Running {prog_name}')
-        print("run:", run_cmd)
-        run_cmd_array = shlex.split(run_cmd)
-        subprocess.call(run_cmd_array)
-
-# ------------------------------------------------------------------------------
-# postflight
-
-    my_cron = CronTab(user=curr_user)
-
-    found = False
-    for job in my_cron:
-        if job.comment == f'{prog_name}':
-            found = True
-            job.hour.every(1)
-            job.minute.on(1)
-
-    if not found:
-        job = my_cron.new(command=f'env \
-        DISPLAY=:0 \
-        DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus \
-        /usr/bin/python3 \
-        {run_cmd}',
-                          comment={prog_name})
-        job.hour.every(1)
-        job.minute.on(1)
-
-    my_cron.write()
-
+# run program now
+print('Running program now...')
+cmd_array = shlex.split(run_path)
+try:
+    subprocess.run(cmd_array)
+except subprocess.CalledProcessError as error:
+    print(error.stderr.decode())
 
 # ------------------------------------------------------------------------------
-# Run the main function if we are not an import
-if __name__ == '__main__':
-    main()
+
+# from crontab import CronTab
 
 # -)
