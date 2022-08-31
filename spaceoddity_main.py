@@ -354,6 +354,7 @@ class Main:
 
         # save settings
         settings.apply()
+        # NB: installer doesn't work without this
         settings.sync()
 
         # log success
