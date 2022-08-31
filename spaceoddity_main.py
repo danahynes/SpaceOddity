@@ -27,8 +27,6 @@
 
 # FIXME: white line on right of image sometimes (oversizing doesn't help)
 
-# TODO: show date
-
 # NB: requires:
 # pygobject
 # imagemagick
@@ -50,7 +48,7 @@ import urllib.request
 
 import gi
 gi.require_version('Gdk', '3.0')
-from gi.repository import Gdk, Gio, GLib  # noqa: E402 (ignore import order)
+from gi.repository import Gdk, Gio  # noqa: E402 (ignore import order)
 
 # ------------------------------------------------------------------------------
 # Constants
@@ -132,8 +130,7 @@ class Main:
         self.conf_dict = self.conf_dict_def.copy()
 
         # create config folder if it does not exist
-        if not os.path.exists(self.conf_dir):
-            os.makedirs(self.conf_dir)
+        os.makedirs(self.conf_dir, exist_ok=True)
 
         # remove old log file
         if os.path.exists(log_path):
@@ -354,7 +351,10 @@ class Main:
         # set variant for both light and dark themes
         settings.set_string('picture-uri', pic_path)
         settings.set_string('picture-uri-dark', pic_path)
+
+        # save settings
         settings.apply()
+        settings.sync()
 
         # log success
         logging.debug('set image: %s', pic_path)
