@@ -66,10 +66,10 @@ class Installer:
             self.prog_dir
         ]
 
-        # copy files to dests
         # TODO: gonna have to deal with relative paths to abs paths
         # these should be 'rel/to/inst/dir: /rel/to/prog/dir"
-
+        
+        # copy files to dests
         self.copy_files = {
             f'{self.prog_name}_main.py': self.prog_dir,
             'LICENSE':  self.prog_dir,
@@ -86,7 +86,7 @@ class Installer:
 
         # show some text
         print(f'Installing {self.prog_name}...')
-        print('For license info see the LICENSE.txt file in this directory')
+        print('For license info see the LICENSE file in this directory')
 
         # do the steps in order
         self.__do_reqs()
