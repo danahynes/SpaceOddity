@@ -48,7 +48,7 @@ import urllib.request
 
 import gi
 gi.require_version('Gdk', '3.0')
-from gi.repository import Gdk, Gio  # noqa: E402 (ignore import order)
+from gi.repository import Gdk, Gio # noqa: E402 (ignore import order)
 
 # ------------------------------------------------------------------------------
 # Constants
@@ -148,6 +148,9 @@ class Main:
     # Run the script
     # --------------------------------------------------------------------------
     def run(self):
+
+        # print the about info
+        self.__print_about()
 
         # init the config dict from user settings
         self.__load_conf()
@@ -393,6 +396,10 @@ class Main:
     # --------------------------------------------------------------------------
     # Helpers
     # --------------------------------------------------------------------------
+
+    def __print_about(self):
+        # TODO: fill this out with program name/copyright/license/version
+        pass
 
     # --------------------------------------------------------------------------
     # Load dictionary data from a file
