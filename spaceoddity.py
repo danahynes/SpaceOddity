@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -----------------------------------------------------------------------------#
-# Filename: spaceoddity_main.py                                  /          \  #
+# Filename: spaceoddity.py                                       /          \  #
 # Project : SpaceOddity                                         |     ()     | #
 # Date    : 07/17/2022                                          |            | #
 # Author  : Dana Hynes                                          |   \____/   | #
@@ -24,6 +24,8 @@
 # bad pic url: OK
 # caption no: OK
 # caption yes:
+
+# TODO: check url - if same, ignore
 
 # FIXME: white line on right of image sometimes (oversizing doesn't help)
 
@@ -510,7 +512,6 @@ class Main:
         if TEST_IMAGE:
             print('not an image, making fake data')
 
-            # NB: this is for testing on days when the APOD is not an image
             fake_url = '/home/dana/Documents/Projects/SpaceOddity/_static/'
             fake_url += 'test.jpg'
 
