@@ -9,7 +9,8 @@
 
 # NEXT: run at screen unlock
 # https://unix.stackexchange.com/questions/28181/how-to-run-a-script-on-screen-lock-unlock
-# this means we don't need a cron job, except maybe just after midnight
+# cron job would only be every hour
+# NEXT: run every hour
 
 # ------------------------------------------------------------------------------
 # Imports
@@ -19,9 +20,6 @@ import os
 import shlex
 import shutil
 import subprocess
-
-# NEXT: run every hour
-# NEXT: check date intead or url
 
 # ------------------------------------------------------------------------------
 # Define the main class
@@ -137,10 +135,13 @@ class Installer:
         # copy files to dests
         # NB: key is relative to src_dir, value is absolute
         self.copy_files = {
-            f'{self.prog_name}.py': dst_dir,
+            'install.py': dst_dir,
             'LICENSE':  dst_dir,
-            'VERSION': dst_dir,
-            'README.md': dst_dir
+            'README.md': dst_dir,
+            'screenshot.jpg': dst_dir,
+            f'{self.prog_name}.py': dst_dir,
+            'uninstall.py': dst_dir,
+            'VERSION': dst_dir
         }
 
         # the program to run after install

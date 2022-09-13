@@ -30,18 +30,10 @@ class Uninstaller:
     # --------------------------------------------------------------------------
     def __init__(self):
 
-        # get current user's home dir
-        # self.home_dir = os.path.expanduser('~')
-
-        # get current dir
-        # self.src_dir = os.path.dirname(os.path.abspath(__file__))
-
         # these are the values to set in preflight
         self.prog_name = ''
         self.run_as_root = False
 
-        # self.sys_reqs = []
-        # self.pip_reqs = []
         self.del_dirs = []
 
     # --------------------------------------------------------------------------
@@ -89,21 +81,6 @@ class Uninstaller:
         # the program name
         self.prog_name = 'spaceoddity'
 
-        # set run vars
-        # self.run_as_root = False # Default
-
-        # system requirements
-        # self.sys_reqs = [
-        #     'python3-pip',
-        #     'imagemagick'
-        # ]
-
-        # # python requirements
-        # self.pip_reqs = [
-        #     'wand',
-        #     'python-crontab'
-        # ]
-
         # get some dirs
         dst_dir = os.path.join(self.home_dir, f'.{self.prog_name}')
         cfg_dir = os.path.join(self.home_dir, '.config', {self.prog_name})
@@ -114,44 +91,6 @@ class Uninstaller:
             dst_dir,
             cfg_dir
         ]
-
-    # --------------------------------------------------------------------------
-    # Remove prerequisites
-    # --------------------------------------------------------------------------
-    # def __do_reqs(self):
-
-    #     # show some text
-    #     print('Removing requirements')
-
-    #     # remove system requirements
-    #     for item in self.sys_reqs:
-
-    #         # show that we are doing something
-    #         print(f'Removing {item}')
-
-    #         # iunnstall apt reqs
-    #         cmd = f'sudo apt-get remove {item}'
-    #         cmd_array = shlex.split(cmd)
-    #         try:
-    #             subprocess.run(cmd_array)
-    #         except Exception as error:
-    #             print(f'Could not remove {item}:', error.stderr.decode())
-    #             exit()
-
-    #     # remove python requirements
-    #     for item in self.pip_reqs:
-
-    #         # show that we are doing something
-    #         print(f'Removing {item}')
-
-    #         # uninstall pip reqs
-    #         cmd = f'pip remove {item}'
-    #         cmd_array = shlex.split(cmd)
-    #         try:
-    #             subprocess.run(cmd_array)
-    #         except Exception as error:
-    #             print(f'Could not remove {item}:', error.stderr.decode())
-    #             exit()
 
     # --------------------------------------------------------------------------
     # Remove any necessary directories

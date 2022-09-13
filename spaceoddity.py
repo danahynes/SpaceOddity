@@ -2,6 +2,7 @@
 # -----------------------------------------------------------------------------#
 # Filename: spaceoddity.py                                       /          \  #
 # Project : SpaceOddity                                         |     ()     | #
+# Date    : 09/13/2022                                          |            | #
 # Author  : Dana Hynes                                          |   \____/   | #
 # License : WTFPLv2                                              \          /  #
 # -----------------------------------------------------------------------------#
@@ -27,9 +28,7 @@
 # NEXT: white line on right of image sometimes (oversizing doesn't help)
 # NEXT: print version number in log and terminal
 # NEXT: print all log messages also to terminal
-# NEXT: If we find a job and it's disabled then delete it and create a new job
-# with the same name
-# Or just re-enable it and make sure it matches our parameters
+# NEXT: check date instead of url
 
 # NB: requires:
 # imagemagick (apt)
@@ -190,7 +189,7 @@ class Main:
         try:
 
             # get the current apod dict
-            copy_apod_dict = self.conf_dict['apod'].copy()
+            old_apod_dict = self.conf_dict['apod'].copy()
 
             # get json from url
             response = urllib.request.urlopen(apod_url)
@@ -210,7 +209,7 @@ class Main:
             logging.debug('get data from server: %s', apod_dict)
 
             # check if url is the same
-            if self.__check_same_url(copy_apod_dict):
+            if self.__check_same_url(old_apod_dict):
 
                 # same url, do nothing
                 logging.debug('the apod picture has not changed')
@@ -331,6 +330,7 @@ class Main:
 
         # save settings
         settings.apply()
+
         # NB: running from installer doesn't work without this
         settings.sync()
 
@@ -408,6 +408,7 @@ class Main:
 
                 # if config file error, set defaults and save to file
                 self.conf_dict = self.conf_dict_def.copy()
+                self.__save_conf()
 
                 # log error
                 logging.error('could not load config file, load defaults')
@@ -548,21 +549,21 @@ class Main:
     # --------------------------------------------------------------------------
     # Check if new URL is same as old URL
     # --------------------------------------------------------------------------
-    def __check_same_url(self, new_dict):
+    def __check_same_url(self, old_dict):
 
         # default return result
         same_url = False
 
         # get current apod dict
-        apod_dict = self.conf_dict['apod']
+        curr_dict = self.conf_dict['apod']
 
         # check if the url is the same
-        if 'hdurl' in new_dict.keys():
-            if new_dict['hdurl'] == apod_dict['hdurl']:
+        if 'hdurl' in old_dict.keys() and 'hdurl' in curr_dict.keys():
+            if old_dict['hdurl'] == curr_dict['hdurl']:
                 same_url = True
 
-        elif 'url' in new_dict.keys():
-            if new_dict['url'] == apod_dict['url']:
+        elif 'url' in old_dict.keys() and 'url' in curr_dict.keys():
+            if old_dict['url'] == curr_dict['url']:
                 same_url = True
 
         # return the result
