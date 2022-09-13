@@ -31,10 +31,10 @@ class Uninstaller:
     def __init__(self):
 
         # get current user's home dir
-        self.home_dir = os.path.expanduser('~')
+        # self.home_dir = os.path.expanduser('~')
 
         # get current dir
-        self.src_dir = os.path.dirname(os.path.abspath(__file__))
+        # self.src_dir = os.path.dirname(os.path.abspath(__file__))
 
         # these are the values to set in preflight
         self.prog_name = ''
@@ -121,7 +121,7 @@ class Uninstaller:
         # show some text
         print('Removing requirements')
 
-        # get system requirements
+        # remove system requirements
         for item in self.sys_reqs:
 
             # show that we are doing something
@@ -136,7 +136,7 @@ class Uninstaller:
                 print(f'Could not remove {item}:', error.stderr.decode())
                 exit()
 
-        # get python requirements
+        # remove python requirements
         for item in self.pip_reqs:
 
             # show that we are doing something
