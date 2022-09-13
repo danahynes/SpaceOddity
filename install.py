@@ -2,6 +2,7 @@
 # -----------------------------------------------------------------------------#
 # Filename: install.py                                           /          \  #
 # Project : SpaceOddity                                         |     ()     | #
+# Date    : 09/13/2022                                          |            | #
 # Author  : Dana Hynes                                          |   \____/   | #
 # License : WTFPLv2                                              \          /  #
 # -----------------------------------------------------------------------------#
@@ -19,7 +20,7 @@ import shlex
 import shutil
 import subprocess
 
-# NEXT: run every hour,
+# NEXT: run every hour
 # NEXT: check date intead or url
 
 # ------------------------------------------------------------------------------
@@ -74,11 +75,13 @@ class Installer:
             print(msg)
             exit()
 
-        # show some text
-        print(f'Installing {self.prog_name}')
-
         # do the steps in order
         self.__do_preflight()
+
+        # show some text
+        # NB: must be done after preflight to get self.prog_name
+        print(f'Installing {self.prog_name}')
+
         self.__do_reqs()
         self.__make_dirs()
         self.__copy_files()
@@ -162,7 +165,7 @@ class Installer:
             cmd_array = shlex.split(cmd)
             try:
                 subprocess.run(cmd_array)
-            except subprocess.CalledProcessError as error:
+            except Exception as error:
                 print(f'Could not install {item}:', error.stderr.decode())
                 exit()
 
@@ -177,7 +180,7 @@ class Installer:
             cmd_array = shlex.split(cmd)
             try:
                 subprocess.run(cmd_array)
-            except subprocess.CalledProcessError as error:
+            except Exception as error:
                 print(f'Could not install {item}:', error.stderr.decode())
                 exit()
 
@@ -198,7 +201,7 @@ class Installer:
             # make the folder(s)
             try:
                 os.makedirs(item, exist_ok=True)
-            except OSError as error:
+            except Exception as error:
                 print(f'Could not create directory {item}:', error)
                 exit()
 
@@ -222,7 +225,7 @@ class Installer:
             # copy the file
             try:
                 shutil.copy(abs_key, val)
-            except OSError as error:
+            except Exception as error:
                 print(f'Could not copy file {abs_key}:', error)
                 exit()
 
@@ -253,25 +256,29 @@ class Installer:
         for job in my_cron:
             if job.comment == f'{self.prog_name} every':
                 my_job = job
-                my_job.enable()
 
         # # create new job if neccesary
         if my_job is None:
             my_job = my_cron.new(command=cron_cmd,
                                  comment=f'{self.prog_name} every')
-            my_job.minute.every(10)
+            
+        # set job time
+        my_job.enable()
+        my_job.minute.every(10)
 
         # find 'reboot' job
         my_job = None
         for job in my_cron:
             if job.comment == f'{self.prog_name} reboot':
                 my_job = job
-                my_job.enable()
 
         # # create new job if neccesary
         if my_job is None:
             my_job = my_cron.new(command=cron_cmd,
                                  comment=f'{self.prog_name} reboot')
+
+            # set job time
+            my_job.enable()
             my_job.every_reboot()
 
         # save job parameters
@@ -289,7 +296,7 @@ class Installer:
         cmd_array = shlex.split(self.run_cmd)
         try:
             subprocess.run(cmd_array)
-        except subprocess.CalledProcessError as error:
+        except Exception as error:
             print(f'Could not run {self.prog_name}:', error.stderr.decode())
             exit()
 

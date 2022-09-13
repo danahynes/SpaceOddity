@@ -2,6 +2,7 @@
 # -----------------------------------------------------------------------------#
 # Filename: uninstall.py                                         /          \  #
 # Project : SpaceOddity                                         |     ()     | #
+# Date    : 09/13/2022                                          |            | #
 # Author  : Dana Hynes                                          |   \____/   | #
 # License : WTFPLv2                                              \          /  #
 # -----------------------------------------------------------------------------#
@@ -12,6 +13,7 @@
 
 import os
 import shlex
+import shutil
 import subprocess
 
 # ------------------------------------------------------------------------------
@@ -40,9 +42,9 @@ class Uninstaller:
         self.prog_name = ''
         self.run_as_root = False
 
-        self.sys_reqs = []
-        self.pip_reqs = []
-        self.make_dirs = []
+        # self.sys_reqs = []
+        # self.pip_reqs = []
+        self.del_dirs = []
 
     # --------------------------------------------------------------------------
     # Run the script
@@ -53,22 +55,24 @@ class Uninstaller:
         run_root = (os.geteuid() == 0)
         if self.run_as_root and not run_root:
             msg = 'This script needs to be run as root. '
-            msg += 'Try \'sudo ./install.py\''
+            msg += 'Try \'sudo ./uninstall.py\''
             print(msg)
             exit()
         elif not self.run_as_root and run_root:
             msg = 'This script should not be run as root. '
-            msg += 'Try \'./install.py\''
+            msg += 'Try \'./uninstall.py\''
             print(msg)
             exit()
 
-        # show some text
-        print(f'Uninstalling {self.prog_name}')
-
         # do the steps in order
         self.__do_preflight()
-        self.__do_reqs()
-        self.__make_dirs()
+
+        # show some text
+        # NB: must be done after preflight to get self.prog_name
+        print(f'Uninstalling {self.prog_name}')
+
+        # self.__do_reqs()
+        self.__del_dirs()
         self.__do_postflight()
 
         # done uninstalling
@@ -91,16 +95,16 @@ class Uninstaller:
         # self.run_as_root = False # Default
 
         # system requirements
-        self.sys_reqs = [
-            'python3-pip',
-            'imagemagick'
-        ]
+        # self.sys_reqs = [
+        #     'python3-pip',
+        #     'imagemagick'
+        # ]
 
-        # python requirements
-        self.pip_reqs = [
-            'wand',
-            'python-crontab'
-        ]
+        # # python requirements
+        # self.pip_reqs = [
+        #     'wand',
+        #     'python-crontab'
+        # ]
 
         # get some dirs
         dst_dir = os.path.join(self.home_dir, f'.{self.prog_name}')
@@ -108,7 +112,7 @@ class Uninstaller:
 
         # make dirs
         # NB: these should be absolute paths
-        self.make_dirs = [
+        self.del_dirs = [
             dst_dir,
             cfg_dir
         ]
@@ -116,61 +120,60 @@ class Uninstaller:
     # --------------------------------------------------------------------------
     # Remove prerequisites
     # --------------------------------------------------------------------------
-    def __do_reqs(self):
+    # def __do_reqs(self):
 
-        # show some text
-        print('Removing requirements')
+    #     # show some text
+    #     print('Removing requirements')
 
-        # remove system requirements
-        for item in self.sys_reqs:
+    #     # remove system requirements
+    #     for item in self.sys_reqs:
 
-            # show that we are doing something
-            print(f'Removing {item}')
+    #         # show that we are doing something
+    #         print(f'Removing {item}')
 
-            # iunnstall apt reqs
-            cmd = f'sudo apt-get remove {item}'
-            cmd_array = shlex.split(cmd)
-            try:
-                subprocess.run(cmd_array)
-            except subprocess.CalledProcessError as error:
-                print(f'Could not remove {item}:', error.stderr.decode())
-                exit()
+    #         # iunnstall apt reqs
+    #         cmd = f'sudo apt-get remove {item}'
+    #         cmd_array = shlex.split(cmd)
+    #         try:
+    #             subprocess.run(cmd_array)
+    #         except Exception as error:
+    #             print(f'Could not remove {item}:', error.stderr.decode())
+    #             exit()
 
-        # remove python requirements
-        for item in self.pip_reqs:
+    #     # remove python requirements
+    #     for item in self.pip_reqs:
 
-            # show that we are doing something
-            print(f'Removing {item}')
+    #         # show that we are doing something
+    #         print(f'Removing {item}')
 
-            # uninstall pip reqs
-            cmd = f'pip remove {item}'
-            cmd_array = shlex.split(cmd)
-            try:
-                subprocess.run(cmd_array)
-            except subprocess.CalledProcessError as error:
-                print(f'Could not remove {item}:', error.stderr.decode())
-                exit()
+    #         # uninstall pip reqs
+    #         cmd = f'pip remove {item}'
+    #         cmd_array = shlex.split(cmd)
+    #         try:
+    #             subprocess.run(cmd_array)
+    #         except Exception as error:
+    #             print(f'Could not remove {item}:', error.stderr.decode())
+    #             exit()
 
     # --------------------------------------------------------------------------
     # Remove any necessary directories
     # --------------------------------------------------------------------------
-    def __make_dirs(self):
+    def __del_dirs(self):
 
         # show some text
         print('Removing directories')
 
         # for each folder we need to make
-        for item in self.make_dirs:
+        for item in self.del_dirs:
 
             # show that we are doing something
             print(f'Removing directory {item}')
 
             # remove the folder(s)
             try:
-                os.remove(item)
-            except OSError as error:
+                shutil.rmtree(item)
+            except Exception as error:
                 print(f'Could not remove directory {item}:', error)
-                exit()
 
     # --------------------------------------------------------------------------
     # Remove crontab for changing wallpaper
