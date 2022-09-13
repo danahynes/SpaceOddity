@@ -30,6 +30,9 @@ class Uninstaller:
     # --------------------------------------------------------------------------
     def __init__(self):
 
+        # get current user's home dir
+        self.home_dir = os.path.expanduser('~')
+
         # these are the values to set in preflight
         self.prog_name = ''
         self.run_as_root = False
@@ -83,7 +86,7 @@ class Uninstaller:
 
         # get some dirs
         dst_dir = os.path.join(self.home_dir, f'.{self.prog_name}')
-        cfg_dir = os.path.join(self.home_dir, '.config', {self.prog_name})
+        cfg_dir = os.path.join(self.home_dir, '.config', f'{self.prog_name}')
 
         # make dirs
         # NB: these should be absolute paths
