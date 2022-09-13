@@ -9,7 +9,6 @@
 # NEXT: run at screen unlock
 # https://unix.stackexchange.com/questions/28181/how-to-run-a-script-on-screen-lock-unlock
 # this means we don't need a cron job, except maybe just after midnight
-# also make cron job run every 10 minutes
 
 # ------------------------------------------------------------------------------
 # Imports
@@ -20,7 +19,6 @@ import shlex
 import shutil
 import subprocess
 
-# TODO: an uninstaller that removes cron jobs
 # NEXT: run every hour,
 # NEXT: check date intead or url
 

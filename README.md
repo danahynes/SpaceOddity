@@ -32,7 +32,15 @@ You can download the
 [latest release](http://github.com/danahynes/SpaceOddity/releases/latest), 
 unzip it, and run the *uninstall.py* file from there.
 
-You can remove the files manually:
+You can also clone the git repo:
+```bash
+foo@bar:~$ cd ~/Downloads
+foo@bar:~$ git clone https://github.com/danahynes/SpaceOddity
+foo@bar: $ cd SpaceOddity
+foo@bar:~$ ./install.py
+```
+
+Or you can remove the files manually:
 ``` bash
 foo@bar:~$ sudo rm -rf "~/.spacoddity"
 foo@bar:~$ sudo rm -rf "~/.config/spaceoddity"
