@@ -1,6 +1,7 @@
 <!----------------------------------------------------------------------------->
 <!-- Filename: README.md                                       /          \  -->
 <!-- Project : SpaceOddity                                    |     ()     | -->
+<!-- Date    : 09/13/2022                                     |            | -->
 <!-- Author  : Dana Hynes                                     |   \____/   | -->
 <!-- License : WTFPLv2                                         \          /  -->
 <!----------------------------------------------------------------------------->
@@ -37,13 +38,13 @@ You can also clone the git repo:
 foo@bar:~$ cd ~/Downloads
 foo@bar:~$ git clone https://github.com/danahynes/SpaceOddity
 foo@bar: $ cd SpaceOddity
-foo@bar:~$ ./install.py
+foo@bar:~$ ./uninstall.py
 ```
 
 Or you can remove the files manually:
 ``` bash
-foo@bar:~$ sudo rm -rf "~/.spacoddity"
-foo@bar:~$ sudo rm -rf "~/.config/spaceoddity"
+foo@bar:~$ rm -rf "~/.spacoddity"
+foo@bar:~$ rm -rf "~/.config/spaceoddity"
 ```
 
 # -)
