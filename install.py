@@ -123,7 +123,7 @@ class Installer:
 
         # get some dirs
         dst_dir = os.path.join(self.home_dir, f'.{self.prog_name}')
-        cfg_dir = os.path.join(self.home_dir, '.config', {self.prog_name})
+        cfg_dir = os.path.join(self.home_dir, '.config', f'{self.prog_name}')
 
         # make dirs
         # NB: these should be absolute paths
