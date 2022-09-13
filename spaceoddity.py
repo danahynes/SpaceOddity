@@ -2,44 +2,45 @@
 # -----------------------------------------------------------------------------#
 # Filename: spaceoddity.py                                       /          \  #
 # Project : SpaceOddity                                         |     ()     | #
-# Date    : 07/17/2022                                          |            | #
 # Author  : Dana Hynes                                          |   \____/   | #
 # License : WTFPLv2                                              \          /  #
 # -----------------------------------------------------------------------------#
 
 # TODO: test all conditions (no internet, bad url, etc)
-# no conf dir: OKf
+# no conf dir: OK
 # No log file: OK
-# FIXME: No cfg: doesn't delete old file if no cfg
+# NEXT: No cfg: doesn't delete old file if no cfg
 #   put image in folder, next download, delete all contents of folder
 #   then put new image in folder before setting picture-uri
 #   or delete everything in .config that isn't spaceoddit.cfg or spaceoddity.log
 # bad cfg: OK
-# FIXME: old filepath key missing: meh, might not delete old file (see above)
+# NEXT: old filepath key missing: meh, might not delete old file (see above)
 # not enabled: OK
 # bad apod url: OK
 # no internet: OK
 # not image with TEST_IAMGE = 1: OK
 # not image with TEST_IAMGE = 0: OK
 # bad pic url: OK
-# caption no: OK
-# caption yes:
+# caption no: NA
+# caption yes: NA
 
-# TODO: check url - if same, ignore
-
-# FIXME: white line on right of image sometimes (oversizing doesn't help)
+# NEXT: white line on right of image sometimes (oversizing doesn't help)
+# NEXT: print version number in log and terminal
+# NEXT: print all log messages also to terminal
+# NEXT: If we find a job and it's disabled then delete it and create a new job
+# with the same name
+# Or just re-enable it and make sure it matches our parameters
 
 # NB: requires:
-# pygobject
-# imagemagick
+# imagemagick (apt)
+# wand (pip)
 
 # ------------------------------------------------------------------------------
 # Imports
 # ------------------------------------------------------------------------------
 
+# regular imports
 from datetime import datetime
-from wand.image import Image
-
 import json
 import logging
 import os
@@ -52,11 +53,14 @@ import gi
 gi.require_version('Gdk', '3.0')
 from gi.repository import Gdk, Gio # noqa: E402 (ignore import order)
 
+# added imports
+from wand.image import Image as wand_image # noqa: E402 (ignore import order)
+
 # ------------------------------------------------------------------------------
 # Constants
 # ------------------------------------------------------------------------------
 
-TEST_IMAGE = 1
+TEST_IMAGE = 0
 
 # ------------------------------------------------------------------------------
 # Define the main class
@@ -151,9 +155,6 @@ class Main:
     # --------------------------------------------------------------------------
     def run(self):
 
-        # print the about info
-        self.__print_about()
-
         # init the config dict from user settings
         self.__load_conf()
 
@@ -164,8 +165,8 @@ class Main:
             # call each step in the process
             self.download_apod_dict()
             self.download_image()
-            # self.resize_image()
-            # self.make_caption()
+            # NEXT: self.resize_image()
+            # NEXT: self.make_caption()
             self.set_image()
             self.delete_old_image()
 
@@ -175,7 +176,7 @@ class Main:
             logging.debug('main script disabled')
 
         # exit gracefully
-        self.do_exit()
+        self.__do_exit()
 
     # --------------------------------------------------------------------------
     # Steps
@@ -191,6 +192,9 @@ class Main:
 
         # get the json and format it
         try:
+
+            # get the current apod dict
+            copy_apod_dict = self.conf_dict['apod'].copy()
 
             # get json from url
             response = urllib.request.urlopen(apod_url)
@@ -209,14 +213,21 @@ class Main:
             # log success
             logging.debug('get data from server: %s', apod_dict)
 
+            # check if url is the same
+            if self.__check_same_url(copy_apod_dict):
+
+                # same url, do nothing
+                logging.debug('the apod picture has not changed')
+                self.__do_exit()
+
         except urllib.error.URLError as error:
 
             # log error
-            logging.error(error)
             logging.error('could not get data from server')
+            logging.error(error)
 
             # this is a fatal error
-            self.do_exit()
+            self.__do_exit()
 
     # --------------------------------------------------------------------------
     # Get image from api.nasa.gov
@@ -246,33 +257,8 @@ class Main:
         files_dict = self.conf_dict['files']
         pic_path = files_dict['filepath']
 
-        # get original width
-        # cmd = \
-        #     f'identify \
-        #     -format %w \
-        #     {pic_path}'
-        # cmd_array = shlex.split(cmd)
-        # try:
-        #     proc = subprocess.run(cmd_array, check=True, capture_output=True)
-        #     old_w = int(proc.stdout.decode())
-        # except subprocess.CalledProcessError as error:
-        #     logging.error(error.stderr.decode())
-        #     self.__exit()
-
-        # # get original height
-        # cmd = \
-        #     f'identify \
-        #     -format %h \
-        #     {pic_path}'
-        # cmd_array = shlex.split(cmd)
-        # try:
-        #     proc = subprocess.run(cmd_array, check=True, capture_output=True)
-        #     old_h = int(proc.stdout.decode())
-        # except subprocess.CalledProcessError as error:
-        #     logging.error(error.stderr.decode())
-        #     self.__exit()
-
-        old_img = Image(filename=pic_path)
+        # get original width/height
+        old_img = wand_image(filename=pic_path)
         old_w = old_img.width
         old_h = old_img.height
 
@@ -299,17 +285,7 @@ class Main:
         new_w = int(old_w / scale)
         new_h = int(old_h / scale)
 
-        # cmd = \
-        #     f'convert \
-        #     {pic_path} \
-        #     -resize {new_w}x{new_h} \
-        #     {pic_path}'
-        # cmd_array = shlex.split(cmd)
-        # try:
-        #     subprocess.run(cmd_array, check=True, capture_output=True)
-        # except subprocess.CalledProcessError as error:
-        #     logging.error(error.stderr.decode())
-        #     self.__exit()
+        # resize the image
         old_img.resize(new_w, new_h)
 
         # save sizes to user dict for caption script
@@ -359,7 +335,7 @@ class Main:
 
         # save settings
         settings.apply()
-        # NB: installer doesn't work without this
+        # NB: running from installer doesn't work without this
         settings.sync()
 
         # log success
@@ -376,32 +352,21 @@ class Main:
 
         # if it exists, delete it
         if os.path.exists(old_image):
-            os.remove(old_image)
+            try:
+                os.remove(old_image)
 
-        logging.debug('remove old image: %s', old_image)
+                # log success
+                logging.debug('remove old image: %s', old_image)
 
-    # --------------------------------------------------------------------------
-    # Gracefully exit the script when we are done or on failure
-    # --------------------------------------------------------------------------
-    def do_exit(self):
+            except OSError as error:
 
-        # save config dict to file
-        self.__save_conf()
-
-        # log that we are finished with script
-        logging.debug('exit main script')
-        logging.debug('-------------------------------------------------------')
-
-        # quit script
-        exit()
+                # log error
+                logging.error('could not remove old image')
+                logging.error(error)
 
     # --------------------------------------------------------------------------
     # Helpers
     # --------------------------------------------------------------------------
-
-    def __print_about(self):
-        # TODO: fill this out with program name/copyright/license/version
-        pass
 
     # --------------------------------------------------------------------------
     # Load dictionary data from a file
@@ -449,8 +414,8 @@ class Main:
                 self.conf_dict = self.conf_dict_def.copy()
 
                 # log error
-                logging.error(error)
                 logging.error('could not load config file, load defaults')
+                logging.error(error)
 
     # --------------------------------------------------------------------------
     # Save dictionary data to a file
@@ -492,14 +457,14 @@ class Main:
             # log success
             logging.debug('download image')
 
-        except ValueError as error:
+        except urllib.error.URLError as error:
 
             # log error
-            logging.error(error)
             logging.error('could not download image')
+            logging.error(error)
 
             # this is a fatal error
-            self.do_exit()
+            self.__do_exit()
 
     # --------------------------------------------------------------------------
     # Set some fake data when debugging and APOD is not an image
@@ -510,7 +475,6 @@ class Main:
         # but I can't afford to go 24 hours without testing
 
         if TEST_IMAGE:
-            print('not an image, making fake data')
 
             fake_url = '/home/dana/Documents/Projects/SpaceOddity/_static/'
             fake_url += 'test.jpg'
@@ -545,12 +509,6 @@ class Main:
             pic_path = os.path.join(self.conf_dir, pic_name)
 
             # copy test image (simulates downloading)
-            # cmd = \
-            #     f'cp \
-            #     {pic_url} \
-            #     {pic_path}'
-            # cmd_array = shlex.split(cmd)
-            # subprocess.call(cmd_array)
             shutil.copy(pic_url, pic_path)
 
             # set pathname
@@ -566,21 +524,64 @@ class Main:
             logging.debug('apod is not an image')
 
             # nothing left to do
-            self.do_exit()
+            self.__do_exit()
 
     # --------------------------------------------------------------------------
     # Get the most appropriate url to the full size image
     # --------------------------------------------------------------------------
     def __get_pic_url(self):
 
+        # default return result
         pic_url = ''
+
+        # get current apod dict
         apod_dict = self.conf_dict['apod']
+
+        # get most appropriate URL
         if 'hdurl' in apod_dict.keys():
             pic_url = apod_dict['hdurl']
         elif 'url' in apod_dict.keys():
             pic_url = apod_dict['url']
 
         return pic_url
+
+    # --------------------------------------------------------------------------
+    # Check if new URL is same as old URL
+    # --------------------------------------------------------------------------
+    def __check_same_url(self, new_dict):
+
+        # default return result
+        same_url = False
+
+        # get current apod dict
+        apod_dict = self.conf_dict['apod']
+
+        # check if the url is the same
+        if 'hdurl' in new_dict.keys():
+            if new_dict['hdurl'] == apod_dict['hdurl']:
+                same_url = True
+
+        elif 'url' in new_dict.keys():
+            if new_dict['url'] == apod_dict['url']:
+                same_url = True
+
+        # return the result
+        return same_url
+
+    # --------------------------------------------------------------------------
+    # Gracefully exit the script when we are done or on failure
+    # --------------------------------------------------------------------------
+    def __do_exit(self):
+
+        # save config dict to file
+        self.__save_conf()
+
+        # log that we are finished with script
+        logging.debug('exit main script')
+        logging.debug('-------------------------------------------------------')
+
+        # quit script
+        exit()
 
 
 # ------------------------------------------------------------------------------
