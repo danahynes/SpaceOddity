@@ -177,7 +177,7 @@ class Installer:
             print(f'Installing {item}')
 
             # install pip reqs
-            cmd = f'pip install {item}'
+            cmd = f'pip3 install {item}'
             cmd_array = shlex.split(cmd)
             try:
                 subprocess.run(cmd_array)
