@@ -261,7 +261,7 @@ class Installer:
         if my_job is None:
             my_job = my_cron.new(command=cron_cmd,
                                  comment=f'{self.prog_name} every')
-            
+
         # set job time
         my_job.enable()
         my_job.minute.every(10)

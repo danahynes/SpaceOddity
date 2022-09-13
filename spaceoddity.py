@@ -57,12 +57,6 @@ from gi.repository import Gdk, Gio # noqa: E402 (ignore import order)
 from wand.image import Image as wand_image # noqa: E402 (ignore import order)
 
 # ------------------------------------------------------------------------------
-# Constants
-# ------------------------------------------------------------------------------
-
-TEST_IMAGE = 0
-
-# ------------------------------------------------------------------------------
 # Define the main class
 # ------------------------------------------------------------------------------
 
@@ -91,22 +85,24 @@ class Main:
         self.conf_dict_def = {
             'options': {
                 'enabled':          1,
-                'show_caption':     1,
+                'show_caption':     1
+            },
+            'caption_options': {
                 'show_title':       1,
                 'show_copyright':   1,
                 'show_explanation': 1,
-                'font_size':        12,
                 'font_r':           1.0,
                 'font_g':           1.0,
                 'font_b':           1.0,
+                'font_size':        12,
                 'bg_r':             0.0,
                 'bg_g':             0.0,
                 'bg_b':             0.0,
                 'bg_a':             75,
                 'position':         8,
                 'width':            500,
-                'corner_radius':    10,
-                'border_padding':   20,
+                'radius':           10,
+                'border_padding':   10,
                 'top_padding':      50,
                 'bottom_padding':   10,
                 'side_padding':     10
@@ -119,17 +115,17 @@ class Main:
                 'copyright':        '',
                 'explanation':      ''
             },
-            'caption': {
-                'height':           0,
+            'files': {
+                'timestamp':        '',
+                'old_filepath':     '',
+                'filepath':         ''
+            },
+            'caption_transfer': {
                 'pic_w':            0,
                 'pic_h':            0,
                 'screen_w':         0,
                 'screen_h':         0
-            },
-            'files': {
-                'old_filepath':     '',
-                'filepath':         ''
-            },
+            }
         }
 
         # user config dict
@@ -220,7 +216,7 @@ class Main:
                 logging.debug('the apod picture has not changed')
                 self.__do_exit()
 
-        except urllib.error.URLError as error:
+        except Exception as error:
 
             # log error
             logging.error('could not get data from server')
@@ -358,7 +354,7 @@ class Main:
                 # log success
                 logging.debug('remove old image: %s', old_image)
 
-            except OSError as error:
+            except Exception as error:
 
                 # log error
                 logging.error('could not remove old image')
@@ -408,7 +404,7 @@ class Main:
                 # log success
                 logging.debug('load conf file: %s', self.conf_dict)
 
-            except json.JSONDecodeError as error:
+            except Exception as error:
 
                 # if config file error, set defaults and save to file
                 self.conf_dict = self.conf_dict_def.copy()
@@ -457,7 +453,7 @@ class Main:
             # log success
             logging.debug('download image')
 
-        except urllib.error.URLError as error:
+        except Exception as error:
 
             # log error
             logging.error('could not download image')
@@ -474,9 +470,13 @@ class Main:
         # NB: HOLY FORKING SHIRTBALLS THIS IS AN UGLY HACK!!!
         # but I can't afford to go 24 hours without testing
 
-        if TEST_IMAGE:
+        # first check if we are running in dev or production
+        fake_url = '/home/dana/Documents/Projects/SpaceOddity/_test/'
+        fake_url += 'test.jpg'
 
-            fake_url = '/home/dana/Documents/Projects/SpaceOddity/_static/'
+        if os._exists(fake_url):
+
+            fake_url = '/home/dana/Documents/Projects/SpaceOddity/_test/'
             fake_url += 'test.jpg'
 
             fake_exp = 'Lorem ipsum dolor sit amet, consectetur adipiscing '
