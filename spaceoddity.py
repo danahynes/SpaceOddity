@@ -87,6 +87,25 @@ class Main:
                 'enabled':          1,
                 'show_caption':     1
             },
+            'apod': {
+                'media_type':       '',
+                'hdurl':            '',
+                'url':              '',
+                'title':            '',
+                'copyright':        '',
+                'explanation':      ''
+            },
+            'files': {
+                'timestamp':        '',
+                'old_filepath':     '',
+                'filepath':         ''
+            },
+            'caption_transfer': {
+                'pic_w':            0,
+                'pic_h':            0,
+                'screen_w':         0,
+                'screen_h':         0
+            },
             'caption_options': {
                 'show_title':       1,
                 'show_copyright':   1,
@@ -106,25 +125,6 @@ class Main:
                 'top_padding':      50,
                 'bottom_padding':   10,
                 'side_padding':     10
-            },
-            'apod': {
-                'media_type':       '',
-                'hdurl':            '',
-                'url':              '',
-                'title':            '',
-                'copyright':        '',
-                'explanation':      ''
-            },
-            'files': {
-                'timestamp':        '',
-                'old_filepath':     '',
-                'filepath':         ''
-            },
-            'caption_transfer': {
-                'pic_w':            0,
-                'pic_h':            0,
-                'screen_w':         0,
-                'screen_h':         0
             }
         }
 
