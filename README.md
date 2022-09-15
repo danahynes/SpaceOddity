@@ -16,11 +16,7 @@ Day.
 
 # Installing
 
-You can download the
-[latest release](http://github.com/danahynes/SpaceOddity/releases/latest), 
-unzip it, and run the *install.py* file from there.
-
-You can also clone the git repo:
+You can clone the git repo:
 ```bash
 foo@bar:~$ cd ~/Downloads
 foo@bar:~$ git clone https://github.com/danahynes/SpaceOddity
@@ -28,18 +24,28 @@ foo@bar: $ cd SpaceOddity
 foo@bar:~$ ./install.py
 ```
 
-# Uninstalling
-You can download the
+You can also download the
 [latest release](http://github.com/danahynes/SpaceOddity/releases/latest), 
-unzip it, and run the *uninstall.py* file from there.
+unzip it, and run the *install.py* file from there.
 
-You can also clone the git repo:
+# Uninstalling
+
+You can run the uninstaller:
+```bash
+foo@bar:~$ cd .spaceoddity
+foo@bar:~/.spaeoddity$ ./uninstall.py
+```
+
+You can clone the git repo:
 ```bash
 foo@bar:~$ cd ~/Downloads
 foo@bar:~$ git clone https://github.com/danahynes/SpaceOddity
 foo@bar: $ cd SpaceOddity
 foo@bar:~$ ./uninstall.py
 ```
+You can also download the
+[latest release](http://github.com/danahynes/SpaceOddity/releases/latest), 
+unzip it, and run the *uninstall.py* file from there.
 
 Or you can remove the files manually:
 ``` bash

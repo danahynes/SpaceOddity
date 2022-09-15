@@ -260,56 +260,6 @@ class Installer:
     # --------------------------------------------------------------------------
     def __do_postflight(self):
 
-        # # get crontab library
-        # from crontab import CronTab
-
-        # # show some text
-        # print('Creating cron job')
-
-        # # set the job command
-        # uid = os.getuid()
-        # cron_cmd = 'env '
-        # cron_cmd += 'DISPLAY=:0 '
-        # cron_cmd += f'DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/{uid}/bus '
-        # cron_cmd += '/usr/bin/python3 '
-        # cron_cmd += f'{self.run_cmd}'
-
-        # # get current user's crontab
-        # my_cron = CronTab(user=True)
-
-        # # find 'every' job
-        # my_job = None
-        # for job in my_cron:
-        #     if job.comment == f'{self.prog_name} every':
-        #         my_job = job
-
-        # # # create new job if neccesary
-        # if my_job is None:
-        #     my_job = my_cron.new(command=cron_cmd,
-        #                          comment=f'{self.prog_name} every')
-
-        # # set job time
-        # my_job.enable()
-        # my_job.minute.every(10)
-
-        # # find 'reboot' job
-        # my_job = None
-        # for job in my_cron:
-        #     if job.comment == f'{self.prog_name} reboot':
-        #         my_job = job
-
-        # # # create new job if neccesary
-        # if my_job is None:
-        #     my_job = my_cron.new(command=cron_cmd,
-        #                          comment=f'{self.prog_name} reboot')
-
-        #     # set job time
-        #     my_job.enable()
-        #     my_job.every_reboot()
-
-        # # save job parameters
-        # my_cron.write()
-
         # run cron installer
         cron_cmd = './install-cron.py'
         cmd_array = shlex.split(cron_cmd)
