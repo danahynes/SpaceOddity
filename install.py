@@ -60,6 +60,9 @@ class Installer:
     # --------------------------------------------------------------------------
     def run(self):
 
+        # do the steps in order
+        self.__do_preflight()
+
         # check for run as root/need to run as root
         run_root = (os.geteuid() == 0)
         if self.run_as_root and not run_root:
@@ -72,9 +75,6 @@ class Installer:
             msg += 'Try \'./install.py\''
             print(msg)
             exit()
-
-        # do the steps in order
-        self.__do_preflight()
 
         # show some text
         # NB: must be done after preflight to get self.prog_name
@@ -259,55 +259,64 @@ class Installer:
     # --------------------------------------------------------------------------
     def __do_postflight(self):
 
-        # get crontab library
-        from crontab import CronTab
+        # # get crontab library
+        # from crontab import CronTab
 
-        # show some text
-        print('Creating cron job')
+        # # show some text
+        # print('Creating cron job')
 
-        # set the job command
-        uid = os.getuid()
-        cron_cmd = 'env '
-        cron_cmd += 'DISPLAY=:0 '
-        cron_cmd += f'DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/{uid}/bus '
-        cron_cmd += '/usr/bin/python3 '
-        cron_cmd += f'{self.run_cmd}'
+        # # set the job command
+        # uid = os.getuid()
+        # cron_cmd = 'env '
+        # cron_cmd += 'DISPLAY=:0 '
+        # cron_cmd += f'DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/{uid}/bus '
+        # cron_cmd += '/usr/bin/python3 '
+        # cron_cmd += f'{self.run_cmd}'
 
-        # get current user's crontab
-        my_cron = CronTab(user=True)
+        # # get current user's crontab
+        # my_cron = CronTab(user=True)
 
-        # find 'every' job
-        my_job = None
-        for job in my_cron:
-            if job.comment == f'{self.prog_name} every':
-                my_job = job
+        # # find 'every' job
+        # my_job = None
+        # for job in my_cron:
+        #     if job.comment == f'{self.prog_name} every':
+        #         my_job = job
 
-        # # create new job if neccesary
-        if my_job is None:
-            my_job = my_cron.new(command=cron_cmd,
-                                 comment=f'{self.prog_name} every')
+        # # # create new job if neccesary
+        # if my_job is None:
+        #     my_job = my_cron.new(command=cron_cmd,
+        #                          comment=f'{self.prog_name} every')
 
-        # set job time
-        my_job.enable()
-        my_job.minute.every(10)
+        # # set job time
+        # my_job.enable()
+        # my_job.minute.every(10)
 
-        # find 'reboot' job
-        my_job = None
-        for job in my_cron:
-            if job.comment == f'{self.prog_name} reboot':
-                my_job = job
+        # # find 'reboot' job
+        # my_job = None
+        # for job in my_cron:
+        #     if job.comment == f'{self.prog_name} reboot':
+        #         my_job = job
 
-        # # create new job if neccesary
-        if my_job is None:
-            my_job = my_cron.new(command=cron_cmd,
-                                 comment=f'{self.prog_name} reboot')
+        # # # create new job if neccesary
+        # if my_job is None:
+        #     my_job = my_cron.new(command=cron_cmd,
+        #                          comment=f'{self.prog_name} reboot')
 
-            # set job time
-            my_job.enable()
-            my_job.every_reboot()
+        #     # set job time
+        #     my_job.enable()
+        #     my_job.every_reboot()
 
-        # save job parameters
-        my_cron.write()
+        # # save job parameters
+        # my_cron.write()
+
+        # run cron installer
+        cron_cmd = './install-cron.py'
+        cmd_array = shlex.split(cron_cmd)
+        try:
+            subprocess.run(cmd_array)
+        except Exception as error:
+            print(f'Could not run {cron_cmd}:', error.decode())
+            exit()
 
     # --------------------------------------------------------------------------
     # Run the program after install
