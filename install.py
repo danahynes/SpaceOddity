@@ -136,6 +136,7 @@ class Installer:
         # NB: key is relative to src_dir, value is absolute
         self.copy_files = {
             'install.py': dst_dir,
+            'install-cron.py', dst_dir,
             'LICENSE':  dst_dir,
             'README.md': dst_dir,
             'screenshot.jpg': dst_dir,
@@ -156,7 +157,7 @@ class Installer:
         try:
             subprocess.run(cmd_array)
         except Exception as error:
-            print('Could not update:', error.stderr.decode())
+            print('Could not update:', error)
             exit()
 
         # show some text
@@ -168,7 +169,7 @@ class Installer:
         try:
             subprocess.run(cmd_array)
         except Exception as error:
-            print('Could not upgrade:', error.stderr.decode())
+            print('Could not upgrade:', error)
             exit()
 
     # --------------------------------------------------------------------------
@@ -191,7 +192,7 @@ class Installer:
             try:
                 subprocess.run(cmd_array)
             except Exception as error:
-                print(f'Could not install {item}:', error.stderr.decode())
+                print(f'Could not install {item}:', error)
                 exit()
 
         # get python requirements
@@ -206,7 +207,7 @@ class Installer:
             try:
                 subprocess.run(cmd_array)
             except Exception as error:
-                print(f'Could not install {item}:', error.stderr.decode())
+                print(f'Could not install {item}:', error)
                 exit()
 
     # --------------------------------------------------------------------------
@@ -315,7 +316,7 @@ class Installer:
         try:
             subprocess.run(cmd_array)
         except Exception as error:
-            print(f'Could not run {cron_cmd}:', error.decode())
+            print(f'Could not run {cron_cmd}:', error)
             exit()
 
     # --------------------------------------------------------------------------
@@ -331,7 +332,7 @@ class Installer:
         try:
             subprocess.run(cmd_array)
         except Exception as error:
-            print(f'Could not run {self.prog_name}:', error.stderr.decode())
+            print(f'Could not run {self.prog_name}:', error)
             exit()
 
 
