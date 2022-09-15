@@ -13,6 +13,7 @@
 
 import os
 import shutil
+from crontab import CronTab
 
 # ------------------------------------------------------------------------------
 # Define the main class
@@ -119,9 +120,6 @@ class Uninstaller:
     # Remove crontab for changing wallpaper
     # --------------------------------------------------------------------------
     def __do_postflight(self):
-
-        # get crontab library
-        from crontab import CronTab
 
         # show some text
         print('Removing cron job')
