@@ -44,6 +44,9 @@ class Uninstaller:
     # --------------------------------------------------------------------------
     def run(self):
 
+        # do the steps in order
+        self.__do_preflight()
+
         # check for run as root/need to run as root
         run_root = (os.geteuid() == 0)
         if self.run_as_root and not run_root:
@@ -56,9 +59,6 @@ class Uninstaller:
             msg += 'Try \'./uninstall.py\''
             print(msg)
             exit()
-
-        # do the steps in order
-        self.__do_preflight()
 
         # show some text
         # NB: must be done after preflight to get self.prog_name

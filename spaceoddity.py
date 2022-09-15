@@ -29,6 +29,7 @@
 # NEXT: print version number in log and terminal
 # NEXT: print all log messages also to terminal
 # NEXT: check date instead of url
+# NEXT: put everything in one folder ~/.spaceoddity
 
 # NB: requires:
 # imagemagick (apt)
