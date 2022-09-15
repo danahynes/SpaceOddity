@@ -136,7 +136,7 @@ class Installer:
         # NB: key is relative to src_dir, value is absolute
         self.copy_files = {
             'install.py': dst_dir,
-            'install-cron.py', dst_dir,
+            'install-cron.py': dst_dir,
             'LICENSE':  dst_dir,
             'README.md': dst_dir,
             'screenshot.jpg': dst_dir,
