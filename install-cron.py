@@ -72,9 +72,9 @@ class CronInstaller:
             print(msg)
             exit()
 
-    #     # show some text
-    #     # NB: must be done after preflight to get self.prog_name
-    #     print(f'Installing {self.prog_name}')
+        # show some text
+        # NB: must be done after preflight to get self.prog_name
+        print(f'Installing cron job')
 
     #     self.__do_reqs()
     #     self.__make_dirs()
