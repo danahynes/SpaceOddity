@@ -145,30 +145,6 @@ class Installer:
         # the program to run after install
         self.run_cmd = os.path.join(dst_dir, f'{self.prog_name}.py')
 
-        # show some text
-        print('Running update')
-
-        # do update
-        cmd = 'sudo apt-get update'
-        cmd_array = shlex.split(cmd)
-        try:
-            subprocess.run(cmd_array)
-        except Exception as error:
-            print('Could not update:', error)
-            exit()
-
-        # show some text
-        print('Running upgrade')
-
-        # do upgrade
-        cmd = 'sudo apt-get upgrade'
-        cmd_array = shlex.split(cmd)
-        try:
-            subprocess.run(cmd_array)
-        except Exception as error:
-            print('Could not upgrade:', error)
-            exit()
-
     # --------------------------------------------------------------------------
     # Install prerequisites
     # --------------------------------------------------------------------------
