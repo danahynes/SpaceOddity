@@ -473,13 +473,9 @@ class Main:
         # but I can't afford to go 24 hours without testing
 
         # first check if we are running in dev or production
-        fake_url = '/home/dana/Documents/Projects/SpaceOddity/_test/'
-        fake_url += 'test.jpg'
+        fake_url = '/home/dana/Documents/Projects/SpaceOddity/_test/test.jpg'
 
         if os._exists(fake_url):
-
-            fake_url = '/home/dana/Documents/Projects/SpaceOddity/_test/'
-            fake_url += 'test.jpg'
 
             fake_exp = 'Lorem ipsum dolor sit amet, consectetur adipiscing '
             fake_exp += 'elit, sed do eiusmod tempor incididunt ut labore '
