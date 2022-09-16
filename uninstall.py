@@ -13,7 +13,6 @@
 
 import os
 import shutil
-from crontab import CronTab
 
 # ------------------------------------------------------------------------------
 # Define the main class
@@ -45,21 +44,22 @@ class Uninstaller:
     # --------------------------------------------------------------------------
     def run(self):
 
-        # do the steps in order
-        self.__do_preflight()
-
         # check for run as root/need to run as root
+        file_name = os.path.basename(__file__)
         run_root = (os.geteuid() == 0)
         if self.run_as_root and not run_root:
-            msg = 'This script needs to be run as root. '
-            msg += 'Try \'sudo ./uninstall.py\''
+            msg = 'This script needs to be run as root.'
+            msg += f'Try \'sudo ./{file_name}\''
             print(msg)
             exit()
         elif not self.run_as_root and run_root:
-            msg = 'This script should not be run as root. '
-            msg += 'Try \'./uninstall.py\''
+            msg = 'This script should not be run as root.'
+            msg += f'Try \'./{file_name}\''
             print(msg)
             exit()
+
+        # do the steps in order
+        self.__do_preflight()
 
         # show some text
         # NB: must be done after preflight to get self.prog_name
@@ -120,6 +120,9 @@ class Uninstaller:
     # Remove crontab for changing wallpaper
     # --------------------------------------------------------------------------
     def __do_postflight(self):
+
+        # import the crontab module
+        from crontab import CronTab
 
         # show some text
         print('Removing cron job')

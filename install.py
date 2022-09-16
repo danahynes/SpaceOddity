@@ -60,21 +60,22 @@ class Installer:
     # --------------------------------------------------------------------------
     def run(self):
 
-        # do the steps in order
-        self.__do_preflight()
-
         # check for run as root/need to run as root
+        file_name = os.path.basename(__file__)
         run_root = (os.geteuid() == 0)
         if self.run_as_root and not run_root:
-            msg = 'This script needs to be run as root. '
-            msg += 'Try \'sudo ./install.py\''
+            msg = 'This script needs to be run as root.'
+            msg += f'Try \'sudo ./{file_name}\''
             print(msg)
             exit()
         elif not self.run_as_root and run_root:
-            msg = 'This script should not be run as root. '
-            msg += 'Try \'./install.py\''
+            msg = 'This script should not be run as root.'
+            msg += f'Try \'./{file_name}\''
             print(msg)
             exit()
+
+        # do the steps in order
+        self.__do_preflight()
 
         # show some text
         # NB: must be done after preflight to get self.prog_name
@@ -135,13 +136,9 @@ class Installer:
         # copy files to dests
         # NB: key is relative to src_dir, value is absolute
         self.copy_files = {
-            'install.py': dst_dir,
-            'install-cron.py': dst_dir,
-            'LICENSE':  dst_dir,
-            'README.md': dst_dir,
-            'screenshot.jpg': dst_dir,
             f'{self.prog_name}.py': dst_dir,
             'uninstall.py': dst_dir,
+            'LICENSE': dst_dir,
             'VERSION': dst_dir
         }
 
