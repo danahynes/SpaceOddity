@@ -252,12 +252,12 @@ class Installer:
     def __do_postflight(self):
 
         # run cron installer
-        cron_cmd = './install-cron.py'
-        cmd_array = shlex.split(cron_cmd)
+        cmd = './install-cron.py'
+        cmd_array = shlex.split(cmd)
         try:
             subprocess.run(cmd_array)
         except Exception as error:
-            print(f'Could not run {cron_cmd}:', error)
+            print(f'Could not run {cmd}:', error)
             exit()
 
     # --------------------------------------------------------------------------
