@@ -238,9 +238,9 @@ class Installer:
             my_job = my_cron.new(command=cron_cmd,
                                  comment=f'{self.prog_name} reboot')
 
-            # set job time
-            my_job.enable()
-            my_job.every_reboot()
+        # set job time
+        my_job.enable()
+        my_job.every_reboot()
 
         # save job parameters
         my_cron.write()
