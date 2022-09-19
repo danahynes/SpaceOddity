@@ -145,23 +145,23 @@ class Installer:
         # the program to run after install
         self.run_cmd = os.path.join(dst_dir, f'{self.prog_name}.py')
 
-        # do update
-        cron_cmd = 'sudo apt update'
-        cmd_array = shlex.split(cron_cmd)
-        try:
-            subprocess.run(cmd_array)
-        except Exception as error:
-            print(f'Could not run {cron_cmd}:', error)
-            exit()
+#        # do update
+#        cron_cmd = 'sudo apt update'
+#        cmd_array = shlex.split(cron_cmd)
+#        try:
+#            subprocess.run(cmd_array)
+#        except Exception as error:
+#            print(f'Could not run {cron_cmd}:', error)
+#            exit()
 
-        # do upgrade
-        cron_cmd = 'sudo apt upgrade'
-        cmd_array = shlex.split(cron_cmd)
-        try:
-            subprocess.run(cmd_array)
-        except Exception as error:
-            print(f'Could not run {cron_cmd}:', error)
-            exit()
+#        # do upgrade
+#        cron_cmd = 'sudo apt upgrade'
+#        cmd_array = shlex.split(cron_cmd)
+#        try:
+#            subprocess.run(cmd_array)
+#        except Exception as error:
+#            print(f'Could not run {cron_cmd}:', error)
+#            exit()
 
     # --------------------------------------------------------------------------
     # Install prerequisites
