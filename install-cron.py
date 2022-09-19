@@ -99,7 +99,7 @@ class Installer:
     def __do_preflight(self):
 
         # the program name
-        self.prog_name = 'spaceoddity'
+        self.prog_name = 'spaceoddity-cron'
 
     # --------------------------------------------------------------------------
     # Install prerequisites
