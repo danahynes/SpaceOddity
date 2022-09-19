@@ -12,7 +12,7 @@
 A program that changes your wallpaper to NASA's Astronomy Picture of the 
 Day.
 
-![](screenshot.jpg)
+![](readme_screenshot.jpg)
 
 # Installing
 
