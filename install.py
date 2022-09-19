@@ -7,11 +7,6 @@
 # License : WTFPLv2                                              \          /  #
 # -----------------------------------------------------------------------------#
 
-# NEXT: run at screen unlock
-# https://unix.stackexchange.com/questions/28181/how-to-run-a-script-on-screen-lock-unlock
-# cron job would only be every hour
-# NEXT: run every hour
-
 # ------------------------------------------------------------------------------
 # Imports
 # ------------------------------------------------------------------------------

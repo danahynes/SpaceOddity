@@ -31,6 +31,11 @@
 # NEXT: check date instead of url
 # NEXT: put everything in one folder ~/.spaceoddity
 
+# NEXT: run at screen unlock
+# https://unix.stackexchange.com/questions/28181/how-to-run-a-script-on-screen-lock-unlock
+# cron job would only be every hour
+# NEXT: run every hour
+
 # NB: requires:
 # imagemagick (apt)
 # wand (pip)
