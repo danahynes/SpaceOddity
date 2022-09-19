@@ -1,5 +1,5 @@
-# TODO: integrate into README
-# TODO also screenshot and flowchart
+# NEXT: integrate into README
+# NEXT also flowchart
 
 # Update
 
@@ -72,10 +72,6 @@ accordingly, but as I said I don't have any other working Linux setups right
 now, so if this app doesn't work for you, feel free to fork it, change it, and
 send a pull request or a DM and I'll look into it.
 
-Here is a flowchart of what the various scripts do:
-
-![](apod_linux_flow.jpg)
-
-TODO:
-
-1. 
+# NEXT: Here is a flowchart of what the various scripts do:
+# NEXT: ![](apod_linux_flow.jpg)
+ 
