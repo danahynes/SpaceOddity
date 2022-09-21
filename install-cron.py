@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -----------------------------------------------------------------------------#
-# Filename: install.py                                           /          \  #
+# Filename: install-cron.py                                      /          \  #
 # Project : SpaceOddity                                         |     ()     | #
 # Date    : 09/13/2022                                          |            | #
 # Author  : Dana Hynes                                          |   \____/   | #
@@ -99,46 +99,7 @@ class Installer:
     def __do_preflight(self):
 
         # the program name
-        self.prog_name = 'spaceoddity'
-
-        # set run vars
-        # self.run_as_root = False # Default
-        self.run_after_install = True
-
-        # system requirements
-        self.sys_reqs = [
-            'python3-pip',
-            'imagemagick'
-        ]
-
-        # python requirements
-        self.pip_reqs = [
-            'wand',
-            'python-crontab'
-        ]
-
-        # get some dirs
-        dst_dir = os.path.join(self.home_dir, f'.{self.prog_name}')
-        cfg_dir = os.path.join(self.home_dir, '.config', f'{self.prog_name}')
-
-        # make dirs
-        # NB: these should be absolute paths
-        self.make_dirs = [
-            dst_dir,
-            cfg_dir
-        ]
-
-        # copy files to dests
-        # NB: key is relative to src_dir, value is absolute
-        self.copy_files = {
-            f'{self.prog_name}.py': dst_dir,
-            'uninstall.py': dst_dir,
-            'LICENSE': dst_dir,
-            'VERSION': dst_dir
-        }
-
-        # the program to run after install
-        self.run_cmd = os.path.join(dst_dir, f'{self.prog_name}.py')
+        self.prog_name = 'spaceoddity-cron'
 
     # --------------------------------------------------------------------------
     # Install prerequisites
@@ -228,14 +189,61 @@ class Installer:
     # --------------------------------------------------------------------------
     def __do_postflight(self):
 
-        # run cron installer
-        cmd = './install-cron.py'
-        cmd_array = shlex.split(cmd)
-        try:
-            subprocess.run(cmd_array)
-        except Exception as error:
-            print(f'Could not run {cmd}:', error)
-            exit()
+        # import the crontab module
+        from crontab import CronTab
+
+        # show some text
+        print('Creating cron job')
+
+        # # get some dirs
+        dst_dir = os.path.join(self.home_dir, f'.{self.prog_name}')
+
+        # # the program to run after install
+        run_cmd = os.path.join(dst_dir, f'{self.prog_name}.py')
+
+        # set the job command
+        uid = os.getuid()
+        cron_cmd = 'env '
+        cron_cmd += 'DISPLAY=:0 '
+        cron_cmd += f'DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/{uid}/bus '
+        cron_cmd += '/usr/bin/python3 '
+        cron_cmd += f'{run_cmd}'
+
+        # get current user's crontab
+        my_cron = CronTab(user=True)
+
+        # find 'every' job
+        my_job = None
+        for job in my_cron:
+            if job.comment == f'{self.prog_name} every':
+                my_job = job
+
+        # # create new job if neccesary
+        if my_job is None:
+            my_job = my_cron.new(command=cron_cmd,
+                                 comment=f'{self.prog_name} every')
+
+        # set job time
+        my_job.enable()
+        my_job.minute.every(10)
+
+        # find 'reboot' job
+        my_job = None
+        for job in my_cron:
+            if job.comment == f'{self.prog_name} reboot':
+                my_job = job
+
+        # # create new job if neccesary
+        if my_job is None:
+            my_job = my_cron.new(command=cron_cmd,
+                                 comment=f'{self.prog_name} reboot')
+
+        # set job time
+        my_job.enable()
+        my_job.every_reboot()
+
+        # save job parameters
+        my_cron.write()
 
     # --------------------------------------------------------------------------
     # Run the program after install

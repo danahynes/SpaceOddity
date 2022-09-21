@@ -1,77 +1,154 @@
-
-    #!/usr/bin/env python3
-#------------------------------------------------------------------------------#
+#!/usr/bin/env python3
+# -----------------------------------------------------------------------------#
 # Filename: uninstall.py                                         /          \  #
 # Project : SpaceOddity                                         |     ()     | #
-# Date    : 07/17/2022                                          |            | #
+# Date    : 09/13/2022                                          |            | #
 # Author  : Dana Hynes                                          |   \____/   | #
 # License : WTFPLv2                                              \          /  #
-#------------------------------------------------------------------------------#
+# -----------------------------------------------------------------------------#
 
-# TODO: cron
-
-#-------------------------------------------------------------------------------
-# imports
+# ------------------------------------------------------------------------------
+# Imports
+# ------------------------------------------------------------------------------
 
 import os
 import shutil
-import subprocess
 
-#-------------------------------------------------------------------------------
-# define the main function to run
+# ------------------------------------------------------------------------------
+# Define the main class
+# ------------------------------------------------------------------------------
 
-def main():
 
-#-------------------------------------------------------------------------------
-# required - DO NOT CHANGE
+class Uninstaller:
 
-    prog_name = ''
+    # --------------------------------------------------------------------------
+    # Methods
+    # --------------------------------------------------------------------------
 
-    delete_dirs = []
-    delete_files = {}
+    # --------------------------------------------------------------------------
+    # Initialize the class
+    # --------------------------------------------------------------------------
+    def __init__(self):
 
-    home_dir = os.path.expanduser('~')
+        # get current user's home dir
+        self.home_dir = os.path.expanduser('~')
 
-#-------------------------------------------------------------------------------
-# preflight
+        # these are the values to set in preflight
+        self.prog_name = ''
+        self.run_as_root = False
 
-    prog_name = 'SpaceOddity'
+        self.del_dirs = []
 
-    conf_dir = os.path.join(home_dir, '.config', prog_name)
+    # --------------------------------------------------------------------------
+    # Run the script
+    # --------------------------------------------------------------------------
+    def run(self):
 
-    delete_dirs = [
-        conf_dir
-    ]
+        # check for run as root/need to run as root
+        file_name = os.path.basename(__file__)
+        run_root = (os.geteuid() == 0)
+        if self.run_as_root and not run_root:
+            msg = 'This script needs to be run as root.'
+            msg += f'Try \'sudo ./{file_name}\''
+            print(msg)
+            exit()
+        elif not self.run_as_root and run_root:
+            msg = 'This script should not be run as root.'
+            msg += f'Try \'./{file_name}\''
+            print(msg)
+            exit()
 
-    cmd = 'sudo rm /usr/bin/spaceoddity_d.py'
-    subprocess.call(cmd.split())
+        # do the steps in order
+        self.__do_preflight()
 
-    with open(f'/var/spool/cron/crontabs/{user}'):
-        # remove line for spaceoddity
-        print()
+        # show some text
+        # NB: must be done after preflight to get self.prog_name
+        print(f'Uninstalling {self.prog_name}')
 
-#-------------------------------------------------------------------------------
-# required - DO NOT CHANGE
+        # self.__do_reqs()
+        self.__del_dirs()
+        self.__do_postflight()
 
-    print(f'Uninstalling {prog_name}...')
+        # done uninstalling
+        print(f'{self.prog_name} uninstalled')
 
-    print('Removing files...')
-    for key, val in delete_files.items():
-        a_path = os.path.join(val.lower(), key.lower())
-        os.remove(a_path.lower())
+    # --------------------------------------------------------------------------
+    # Steps
+    # --------------------------------------------------------------------------
 
-    print('Removing directories...')
-    for a_dir in delete_dirs:
-        shutil.rmtree(a_dir.lower())
+    # --------------------------------------------------------------------------
+    # Preflight - setup all variables from init
+    # --------------------------------------------------------------------------
 
-    print(f'{prog_name} uninstalled.')
+    def __do_preflight(self):
 
-#-------------------------------------------------------------------------------
-# postflight
+        # the program name
+        self.prog_name = 'spaceoddity'
 
-#-------------------------------------------------------------------------------
-# Run the main function if we are not an import
+        # get some dirs
+        dst_dir = os.path.join(self.home_dir, f'.{self.prog_name}')
+        cfg_dir = os.path.join(self.home_dir, '.config', f'{self.prog_name}')
+
+        # make dirs
+        # NB: these should be absolute paths
+        self.del_dirs = [
+            dst_dir,
+            cfg_dir
+        ]
+
+    # --------------------------------------------------------------------------
+    # Remove any necessary directories
+    # --------------------------------------------------------------------------
+    def __del_dirs(self):
+
+        # show some text
+        print('Removing directories')
+
+        # for each folder we need to make
+        for item in self.del_dirs:
+
+            # show that we are doing something
+            print(f'Removing directory {item}')
+
+            # remove the folder(s)
+            try:
+                shutil.rmtree(item)
+            except Exception as error:
+                print(f'Could not remove directory {item}:', error)
+
+    # --------------------------------------------------------------------------
+    # Remove crontab for changing wallpaper
+    # --------------------------------------------------------------------------
+    def __do_postflight(self):
+
+        # import the crontab module
+        from crontab import CronTab
+
+        # show some text
+        print('Removing cron job')
+
+        # get current user's crontab
+        my_cron = CronTab(user=True)
+
+        # remove 'every' job
+        for job in my_cron:
+            if job.comment == f'{self.prog_name} every':
+                my_cron.remove(job)
+
+        # remove 'reboot' job
+        for job in my_cron:
+            if job.comment == f'{self.prog_name} reboot':
+                my_cron.remove(job)
+
+        # save job parameters
+        my_cron.write()
+
+
+# ------------------------------------------------------------------------------
+# Run the main class if we are not an import
+# ------------------------------------------------------------------------------
 if __name__ == '__main__':
-    main()
+    uninstaller = Uninstaller()
+    uninstaller.run()
 
 # -)
