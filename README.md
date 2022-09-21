@@ -19,11 +19,10 @@ Day.
 You can clone the git repo:
 ```bash
 foo@bar:~$ cd ~/Downloads
-foo@bar:~$ git clone https://github.com/danahynes/SpaceOddity
-foo@bar: $ cd SpaceOddity
-foo@bar:~$ ./install.py
+foo@bar:~/Downloads$ git clone https://github.com/danahynes/SpaceOddity
+foo@bar: /Downloads$ cd SpaceOddity
+foo@bar:~/Downloads/SpaceOddity$ ./install.py
 ```
-
 You can also download the
 [latest release](http://github.com/danahynes/SpaceOddity/releases/latest), 
 unzip it, and run the *install.py* file from there.
@@ -35,13 +34,12 @@ You can run the uninstaller:
 foo@bar:~$ cd .spaceoddity
 foo@bar:~/.spaeoddity$ ./uninstall.py
 ```
-
 You can clone the git repo:
 ```bash
 foo@bar:~$ cd ~/Downloads
-foo@bar:~$ git clone https://github.com/danahynes/SpaceOddity
-foo@bar: $ cd SpaceOddity
-foo@bar:~$ ./uninstall.py
+foo@bar:~/Downloads$ git clone https://github.com/danahynes/SpaceOddity
+foo@bar: /Downloads$ cd SpaceOddity
+foo@bar:~/Downloads/SpaceOddity$ ./uninstall.py
 ```
 You can also download the
 [latest release](http://github.com/danahynes/SpaceOddity/releases/latest), 
