@@ -18,6 +18,9 @@ import subprocess
 
 # TODO: check results of apt and pip install
 
+# NB: requires:
+# python3-pip (apt)
+
 # ------------------------------------------------------------------------------
 # Define the main class
 # ------------------------------------------------------------------------------
