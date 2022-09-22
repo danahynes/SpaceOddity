@@ -16,6 +16,9 @@ import shlex
 import shutil
 import subprocess
 
+# NB: requires:
+# python-crontab (pip)
+
 # ------------------------------------------------------------------------------
 # Define the main class
 # ------------------------------------------------------------------------------
