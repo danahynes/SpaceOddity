@@ -1,0 +1,8 @@
+TODO: create an install-latest script that formats current VERSION number, downloads,
+    unzips, and runs installer
+    https://gitbub.com/danahynes/SpaceOddity/archive/refs/tags/v0.1.0.zip
+
+TODO: add to project notes in drive:
+    do not change version number until ready for new release (breaks 
+    install-latest script)
+
