@@ -16,6 +16,8 @@ import shlex
 import shutil
 import subprocess
 
+# TODO: check results of apt and pip install
+
 # ------------------------------------------------------------------------------
 # Define the main class
 # ------------------------------------------------------------------------------
