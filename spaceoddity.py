@@ -54,12 +54,13 @@ import shutil
 import subprocess
 import urllib.request
 
+# special imports
 import gi
 gi.require_version('Gdk', '3.0')
-from gi.repository import Gdk, Gio # noqa: E402 (ignore import order)
+from gi.repository import Gdk, Gio          # noqa: E402 (ignore import order)
 
 # added imports
-from wand.image import Image as wand_image # noqa: E402 (ignore import order)
+from wand.image import Image as wand_image  # noqa: E402 (ignore import order)
 
 # ------------------------------------------------------------------------------
 # Define the main class
@@ -474,60 +475,56 @@ class Main:
     # --------------------------------------------------------------------------
     def __apod_is_not_image(self):
 
+        # log failure
+        logging.debug('apod is not an image')
+
+        # nothing left to do
+        self.__do_exit()
+
         # NB: HOLY FORKING SHIRTBALLS THIS IS AN UGLY HACK!!!
         # but I can't afford to go 24 hours without testing
 
-        # first check if we are running in dev or production
-        fake_url = '/home/dana/Documents/Projects/SpaceOddity/_test/test.jpg'
+        # fake_url = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+        #                         '_test/test.jpg')
 
-        if os._exists(fake_url):
+        # fake_exp = 'Lorem ipsum dolor sit amet, consectetur adipiscing '
+        # fake_exp += 'elit, sed do eiusmod tempor incididunt ut labore '
+        # fake_exp += 'et dolore magna aliqua. Ut enim ad minim veniam, '
+        # fake_exp += 'quis nostrud exercitation ullamco laboris nisi ut '
+        # fake_exp += 'aliquip ex ea commodo consequat. Duis aute irure '
+        # fake_exp += 'dolor in reprehenderit in voluptate velit esse '
+        # fake_exp += 'cillum dolore eu fugiat nulla pariatur. Excepteur '
+        # fake_exp += 'sint occaecat cupidatat non proident, sunt in '
+        # fake_exp += 'culpa qui officia deserunt mollit anim id est '
+        # fake_exp += 'laborum.'
 
-            fake_exp = 'Lorem ipsum dolor sit amet, consectetur adipiscing '
-            fake_exp += 'elit, sed do eiusmod tempor incididunt ut labore '
-            fake_exp += 'et dolore magna aliqua. Ut enim ad minim veniam, '
-            fake_exp += 'quis nostrud exercitation ullamco laboris nisi ut '
-            fake_exp += 'aliquip ex ea commodo consequat. Duis aute irure '
-            fake_exp += 'dolor in reprehenderit in voluptate velit esse '
-            fake_exp += 'cillum dolore eu fugiat nulla pariatur. Excepteur '
-            fake_exp += 'sint occaecat cupidatat non proident, sunt in '
-            fake_exp += 'culpa qui officia deserunt mollit anim id est '
-            fake_exp += 'laborum.'
+        # apod_dict = self.conf_dict['apod']
+        # apod_dict['media_type'] = 'image'
+        # apod_dict['hdurl'] = fake_url
+        # apod_dict['url'] = fake_url
+        # apod_dict['title'] = 'Dummy Title'
+        # apod_dict['copyright'] = 'Dummy Copyright'
+        # apod_dict['explanation'] = fake_exp
 
-            apod_dict = self.conf_dict['apod']
-            apod_dict['media_type'] = 'image'
-            apod_dict['hdurl'] = fake_url
-            apod_dict['url'] = fake_url
-            apod_dict['title'] = 'Dummy Title'
-            apod_dict['copyright'] = 'Dummy Copyright'
-            apod_dict['explanation'] = fake_exp
+        # # get the url to the actual image
+        # pic_url = self.__get_pic_url()
 
-            # get the url to the actual image
-            pic_url = self.__get_pic_url()
+        # # create a download path
+        # now = datetime.now()
+        # str_now = now.strftime('%Y%m%d%H%M%S')
+        # file_ext = pic_url.split('.')[-1]
+        # pic_name = f'{self.prog_name}_{str_now}.{file_ext}'
+        # pic_path = os.path.join(self.conf_dir, pic_name)
 
-            # create a download path
-            now = datetime.now()
-            str_now = now.strftime('%Y%m%d%H%M%S')
-            file_ext = pic_url.split('.')[-1]
-            pic_name = f'{self.prog_name}_{str_now}.{file_ext}'
-            pic_path = os.path.join(self.conf_dir, pic_name)
+        # # copy test image (simulates downloading)
+        # shutil.copy(pic_url, pic_path)
 
-            # copy test image (simulates downloading)
-            shutil.copy(pic_url, pic_path)
+        # # set pathname
+        # files_dict = self.conf_dict['files']
+        # files_dict['filepath'] = pic_path
 
-            # set pathname
-            files_dict = self.conf_dict['files']
-            files_dict['filepath'] = pic_path
-
-            # log success
-            logging.debug('make fake image: %s', files_dict)
-
-        else:
-
-            # log failure
-            logging.debug('apod is not an image')
-
-            # nothing left to do
-            self.__do_exit()
+        # # log success
+        # logging.debug('make fake image: %s', files_dict)
 
     # --------------------------------------------------------------------------
     # Get the most appropriate url to the full size image
