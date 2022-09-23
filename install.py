@@ -16,6 +16,11 @@ import shlex
 import shutil
 import subprocess
 
+# TODO: check results of apt and pip install
+
+# NB: requires:
+# python3-pip (apt)
+
 # ------------------------------------------------------------------------------
 # Define the main class
 # ------------------------------------------------------------------------------
@@ -148,6 +153,11 @@ class Installer:
         # show some text
         print('Installing requirements')
 
+        # ask for sudo password before printing any other lines
+        cmd = 'sudo echo'
+        cmd_array = shlex.split(cmd)
+        subprocess.run(cmd_array)
+
         # get system requirements
         for item in self.sys_reqs:
 
@@ -170,7 +180,7 @@ class Installer:
             print(f'Installing {item}')
 
             # install pip reqs
-            cmd = f'pip install {item}'
+            cmd = f'pip3 install {item}'
             cmd_array = shlex.split(cmd)
             try:
                 subprocess.run(cmd_array)
@@ -229,7 +239,7 @@ class Installer:
     def __do_postflight(self):
 
         # run cron installer
-        cmd = './install-cron.py'
+        cmd = './cron-install.py'
         cmd_array = shlex.split(cmd)
         try:
             subprocess.run(cmd_array)
