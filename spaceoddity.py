@@ -50,7 +50,7 @@ import json
 import logging
 import os
 import shlex
-import shutil
+# import shutil
 import subprocess
 import urllib.request
 
