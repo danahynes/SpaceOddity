@@ -7,6 +7,8 @@
 # License : WTFPLv2                                              \          /  #
 # -----------------------------------------------------------------------------#
 
+# TODO: make switch in header for 'enabled' and remove first tab page
+# TODO: update options to match main script
 # TODO: show date
 # TODO: show values for sliders
 # TODO: doesn't delete old image when apply after loading defaults
@@ -25,22 +27,22 @@
 # TODO: object names as constants
 # TODO: remove DEBUG
 
-# NEXT: GUI: blocks on call to apod_linux.py when clicking "apply"
-# NEXT: GUI: localize labels/buttons
-# NEXT: GUI: localize apod_linux.desktop
-# NEXT: GUI: desktop file (put in ~/.local/share/applications for current user
+# NEXT: blocks on call to apod_linux.py when clicking "apply"
+# NEXT: localize labels/buttons
+# NEXT: localize apod_linux.desktop
+# NEXT: desktop file (put in ~/.local/share/applications for current user
 #       or /usr/share/applications for all)
-# NEXT: GUI: update README for gui
-# NEXT: GUI: icon
-# NEXT: GUI: better icon for dock
-# NEXT: GUI: make pages for text color/bg color/other
+# NEXT: update README for gui
+# NEXT: icon
+# NEXT: better icon for dock
+# NEXT: make pages for text color/bg color/other
 #       or back to R/G/B/A spins
 #       wider not taller
-# NEXT: GUI: single instance
-# NEXT: GUI: icon not working in .desktop file(works in dock, not in app menu)
+# NEXT: single instance
+# NEXT: icon not working in .desktop file(works in dock, not in app menu)
 # NEXT: bottom space between text and background is too big (extra line?)
 #       side padding is 0, but top/bottom is still like 5px (cant get rid of it)
-# NEXT: NEXT: GUI: run from applications menu: shows up twice in plank
+# NEXT: run from applications menu: shows up twice in plank
 #       first is labeled "APOD_Linux" goes away after a minute, one labeled
 #       "APOD_Linux config" stays until window closed
 #       first is for python launcher, second is for window?
@@ -98,7 +100,8 @@ class Gui:
 
         # set up logging
         logging.basicConfig(filename=log_path, level=logging.DEBUG,
-                            format='%(asctime)s - %(levelname)s - %(message)s')
+                            format='%(asctime)s %(levelname)-7s %(message)s',
+                            datefmt='%Y-%m-%d %I:%M:%S %p')
 
         # log start
         logging.debug('-------------------------------------------------------')

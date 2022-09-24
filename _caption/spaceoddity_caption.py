@@ -56,7 +56,8 @@ class Caption:
 
         # set up logging
         logging.basicConfig(filename=log_path, level=logging.DEBUG,
-                            format='%(asctime)s - %(levelname)s - %(message)s')
+                            format='%(asctime)s %(levelname)-7s %(message)s',
+                            datefmt='%Y-%m-%d %I:%M:%S %p')
 
         # log start
         logging.debug('-------------------------------------------------------')
