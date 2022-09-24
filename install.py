@@ -16,7 +16,8 @@ import shlex
 import shutil
 import subprocess
 
-# TODO: check results of apt and pip install
+# TODO: how to check results of apt and pip install
+# TODO: preflight should be scripts, move vars to json file
 
 # NB: requires:
 # python3-pip (apt)
