@@ -1,7 +1,3 @@
-hotfix for version number
-check instzlling new version over old
 
-function to log and print 
-trim options dict
-print version num and url
-
+check installing new version over old
+finish json converter
