@@ -248,6 +248,15 @@ class Installer:
             print(f'Could not run {cmd}:', error)
             exit()
 
+        # fix config format change
+        cmd = './convert-cfg.py'
+        cmd_array = shlex.split(cmd)
+        try:
+            subprocess.run(cmd_array)
+        except Exception as error:
+            print(f'Could not run {cmd}:', error)
+            exit()
+
     # --------------------------------------------------------------------------
     # Run the program after install
     # --------------------------------------------------------------------------

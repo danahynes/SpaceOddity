@@ -26,8 +26,6 @@
 # caption yes: NA
 
 # NEXT: white line on right of image sometimes (oversizing doesn't help)
-# NEXT: print version number in log and terminal
-# NEXT: print all log messages also to terminal
 # NEXT: check date instead of url
 # NEXT: put everything in one folder ~/.spaceoddity
 
@@ -35,6 +33,8 @@
 # https://unix.stackexchange.com/questions/28181/how-to-run-a-script-on-screen-lock-unlock
 # cron job would only be every hour
 # NEXT: run every hour
+
+# TODO: what to put in logi
 
 # NB: requires:
 # imagemagick (apt)
@@ -50,7 +50,7 @@ import json
 import logging
 import os
 import shlex
-# import shutil
+import shutil
 import subprocess
 import urllib.request
 
@@ -61,6 +61,12 @@ from gi.repository import Gdk, Gio          # noqa: E402 (ignore import order)
 
 # added imports
 from wand.image import Image as wand_image  # noqa: E402 (ignore import order)
+
+# ------------------------------------------------------------------------------
+# Constants
+# ------------------------------------------------------------------------------
+
+DEBUG = 0
 
 # ------------------------------------------------------------------------------
 # Define the main class
@@ -89,9 +95,8 @@ class Main:
 
         # set default config dict
         self.conf_dict_def = {
-            'options': {
-                'enabled':          1,
-                'show_caption':     1
+            'general': {
+                'enabled':          1
             },
             'apod': {
                 'media_type':       '',
@@ -105,36 +110,40 @@ class Main:
                 'timestamp':        '',
                 'old_filepath':     '',
                 'filepath':         ''
-            },
-            'caption_transfer': {
-                'pic_w':            0,
-                'pic_h':            0,
-                'screen_w':         0,
-                'screen_h':         0
-            },
-            'caption_options': {
-                'show_title':       1,
-                'show_copyright':   1,
-                'show_explanation': 1,
-                'font_r':           1.0,
-                'font_g':           1.0,
-                'font_b':           1.0,
-                'font_size':        12,
-                'bg_r':             0.0,
-                'bg_g':             0.0,
-                'bg_b':             0.0,
-                'bg_a':             75,
-                'position':         8,
-                'width':            500,
-                'radius':           10,
-                'border_padding':   10,
-                'top_padding':      50,
-                'bottom_padding':   10,
-                'side_padding':     10
             }
         }
+        # NEXT: options for caption
+        #     },
+        #     'caption_transfer': {
+        #         'pic_w':            0,
+        #         'pic_h':            0,
+        #         'screen_w':         0,
+        #         'screen_h':         0
+        #     },
+        #     'caption_options': {,
+        #         'show_caption':     1,
+        #         'show_title':       1,
+        #         'show_copyright':   1,
+        #         'show_explanation': 1,
+        #         'font_r':           1.0,
+        #         'font_g':           1.0,
+        #         'font_b':           1.0,
+        #         'font_size':        12,
+        #         'bg_r':             0.0,
+        #         'bg_g':             0.0,
+        #         'bg_b':             0.0,
+        #         'bg_a':             75,
+        #         'position':         8,
+        #         'width':            500,
+        #         'radius':           10,
+        #         'border_padding':   10,
+        #         'top_padding':      50,
+        #         'bottom_padding':   10,
+        #         'side_padding':     10
+        #     }
+        # }
 
-        # user config dict
+        # user config dict (set to defaults before trying to load file)
         self.conf_dict = self.conf_dict_def.copy()
 
         # create config folder if it does not exist
@@ -146,22 +155,26 @@ class Main:
 
         # set up logging
         logging.basicConfig(filename=log_path, level=logging.DEBUG,
-                            format='%(asctime)s - %(levelname)s - %(message)s')
-
-        # log start
-        logging.debug('=======================================================')
-        logging.debug('start main script')
+                            format='%(asctime)s %(levelname)-7s %(message)s',
+                            datefmt='%Y-%m-%d %I:%M:%S %p')
 
     # --------------------------------------------------------------------------
     # Run the script
     # --------------------------------------------------------------------------
     def run(self):
 
+        # print version number to terminal
+        self.__print_version()
+
+        # log start
+        self.__logi('=======================================================')
+        self.__logi('start main script')
+
         # init the config dict from user settings
         self.__load_conf()
 
         # check to see if we are enabled
-        options = self.conf_dict['options']
+        options = self.conf_dict['general']
         if options['enabled']:
 
             # call each step in the process
@@ -175,7 +188,7 @@ class Main:
         else:
 
             # log the enabled state
-            logging.debug('main script disabled')
+            self.__logi('main script disabled')
 
         # exit gracefully
         self.__do_exit()
@@ -213,20 +226,20 @@ class Main:
             self.conf_dict['apod'] = apod_dict
 
             # log success
-            logging.debug('get data from server: %s', apod_dict)
+            self.__logd(f'get data from server: {apod_dict}')
 
             # check if url is the same
             if self.__check_same_url(old_apod_dict):
 
                 # same url, do nothing
-                logging.debug('the apod picture has not changed')
+                self.__logi('the apod picture has not changed')
                 self.__do_exit()
 
         except Exception as error:
 
             # log error
-            logging.error('could not get data from server')
-            logging.error(error)
+            self.__loge('could not get data from server')
+            self.__loge(error)
 
             # this is a fatal error
             self.__do_exit()
@@ -298,7 +311,7 @@ class Main:
         capt_dict['screen_h'] = screen_h
 
         # log success
-        logging.debug('resize image')
+        self.__logi('resize image')
 
     # --------------------------------------------------------------------------
     # Run caption script
@@ -317,7 +330,7 @@ class Main:
         cmd_array = shlex.split(cmd)
         subprocess.call(cmd_array)
 
-        logging.debug('make _caption')
+        self.__logi('make caption')
 
     # --------------------------------------------------------------------------
     # Set the wallpaper
@@ -342,7 +355,7 @@ class Main:
         settings.sync()
 
         # log success
-        logging.debug('set image: %s', pic_path)
+        self.__logd(f'set image:{pic_path}')
 
     # --------------------------------------------------------------------------
     # Delete old image
@@ -359,13 +372,13 @@ class Main:
                 os.remove(old_image)
 
                 # log success
-                logging.debug('remove old image: %s', old_image)
+                self.__logd(f'remove old image: {old_image}')
 
             except Exception as error:
 
                 # log error
-                logging.error('could not remove old image')
-                logging.error(error)
+                self.__loge('could not remove old image')
+                self.__loge(error)
 
     # --------------------------------------------------------------------------
     # Helpers
@@ -409,7 +422,7 @@ class Main:
                 files_dict['old_filepath'] = files_dict['filepath']
 
                 # log success
-                logging.debug('load conf file: %s', self.conf_dict)
+                self.__logd(f'load conf file: {self.conf_dict}')
 
             except Exception as error:
 
@@ -418,8 +431,8 @@ class Main:
                 self.__save_conf()
 
                 # log error
-                logging.error('could not load config file, load defaults')
-                logging.error(error)
+                self.__loge('could not load config file, load defaults')
+                self.__loge(error)
 
     # --------------------------------------------------------------------------
     # Save dictionary data to a file
@@ -431,7 +444,7 @@ class Main:
             json.dump(self.conf_dict, file, indent=4)
 
         # log success
-        logging.debug('save conf file: %s', self.conf_dict)
+        self.__logd(f'save conf file: {self.conf_dict}')
 
     # --------------------------------------------------------------------------
     # Get the image when it is an actual image
@@ -459,13 +472,13 @@ class Main:
             files_dict['filepath'] = pic_path
 
             # log success
-            logging.debug('download image')
+            self.__logi('download image')
 
         except Exception as error:
 
             # log error
-            logging.error('could not download image')
-            logging.error(error)
+            self.__loge('could not download image')
+            self.__loge(error)
 
             # this is a fatal error
             self.__do_exit()
@@ -476,55 +489,59 @@ class Main:
     def __apod_is_not_image(self):
 
         # log failure
-        logging.debug('apod is not an image')
+        self.__logi('apod is not an image')
 
-        # nothing left to do
-        self.__do_exit()
+        if not DEBUG:
 
-        # NB: HOLY FORKING SHIRTBALLS THIS IS AN UGLY HACK!!!
-        # but I can't afford to go 24 hours without testing
+            # nothing left to do
+            self.__do_exit()
 
-        # fake_url = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-        #                         '_test/test.jpg')
+        else:
 
-        # fake_exp = 'Lorem ipsum dolor sit amet, consectetur adipiscing '
-        # fake_exp += 'elit, sed do eiusmod tempor incididunt ut labore '
-        # fake_exp += 'et dolore magna aliqua. Ut enim ad minim veniam, '
-        # fake_exp += 'quis nostrud exercitation ullamco laboris nisi ut '
-        # fake_exp += 'aliquip ex ea commodo consequat. Duis aute irure '
-        # fake_exp += 'dolor in reprehenderit in voluptate velit esse '
-        # fake_exp += 'cillum dolore eu fugiat nulla pariatur. Excepteur '
-        # fake_exp += 'sint occaecat cupidatat non proident, sunt in '
-        # fake_exp += 'culpa qui officia deserunt mollit anim id est '
-        # fake_exp += 'laborum.'
+            # NB: HOLY FORKING SHIRTBALLS THIS IS AN UGLY HACK!!!
+            # but I can't afford to go 24 hours without testing
 
-        # apod_dict = self.conf_dict['apod']
-        # apod_dict['media_type'] = 'image'
-        # apod_dict['hdurl'] = fake_url
-        # apod_dict['url'] = fake_url
-        # apod_dict['title'] = 'Dummy Title'
-        # apod_dict['copyright'] = 'Dummy Copyright'
-        # apod_dict['explanation'] = fake_exp
+            fake_url = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                    '_test/test.jpg')
 
-        # # get the url to the actual image
-        # pic_url = self.__get_pic_url()
+            fake_exp = 'Lorem ipsum dolor sit amet, consectetur adipiscing '
+            fake_exp += 'elit, sed do eiusmod tempor incididunt ut labore '
+            fake_exp += 'et dolore magna aliqua. Ut enim ad minim veniam, '
+            fake_exp += 'quis nostrud exercitation ullamco laboris nisi ut '
+            fake_exp += 'aliquip ex ea commodo consequat. Duis aute irure '
+            fake_exp += 'dolor in reprehenderit in voluptate velit esse '
+            fake_exp += 'cillum dolore eu fugiat nulla pariatur. Excepteur '
+            fake_exp += 'sint occaecat cupidatat non proident, sunt in '
+            fake_exp += 'culpa qui officia deserunt mollit anim id est '
+            fake_exp += 'laborum.'
 
-        # # create a download path
-        # now = datetime.now()
-        # str_now = now.strftime('%Y%m%d%H%M%S')
-        # file_ext = pic_url.split('.')[-1]
-        # pic_name = f'{self.prog_name}_{str_now}.{file_ext}'
-        # pic_path = os.path.join(self.conf_dir, pic_name)
+            apod_dict = self.conf_dict['apod']
+            apod_dict['media_type'] = 'image'
+            apod_dict['hdurl'] = fake_url
+            apod_dict['url'] = fake_url
+            apod_dict['title'] = 'Dummy Title'
+            apod_dict['copyright'] = 'Dummy Copyright'
+            apod_dict['explanation'] = fake_exp
 
-        # # copy test image (simulates downloading)
-        # shutil.copy(pic_url, pic_path)
+            # get the url to the actual image
+            pic_url = self.__get_pic_url()
 
-        # # set pathname
-        # files_dict = self.conf_dict['files']
-        # files_dict['filepath'] = pic_path
+            # create a download path
+            now = datetime.now()
+            str_now = now.strftime('%Y%m%d%H%M%S')
+            file_ext = pic_url.split('.')[-1]
+            pic_name = f'{self.prog_name}_{str_now}.{file_ext}'
+            pic_path = os.path.join(self.conf_dir, pic_name)
 
-        # # log success
-        # logging.debug('make fake image: %s', files_dict)
+            # copy test image (simulates downloading)
+            shutil.copy(pic_url, pic_path)
+
+            # set pathname
+            files_dict = self.conf_dict['files']
+            files_dict['filepath'] = pic_path
+
+            # log success
+            self.__logd(f'make fake image: {files_dict}')
 
     # --------------------------------------------------------------------------
     # Get the most appropriate url to the full size image
@@ -569,6 +586,52 @@ class Main:
         return same_url
 
     # --------------------------------------------------------------------------
+    # Print debug message to log file and terminal
+    # --------------------------------------------------------------------------
+    def __logd(self, msg):
+        logging.debug(msg)
+        if DEBUG:
+            print(msg)
+
+    # --------------------------------------------------------------------------
+    # Print error message to log file and terminal
+    # --------------------------------------------------------------------------
+    def __loge(self, msg):
+        logging.error(msg)
+        print(msg)
+
+    # --------------------------------------------------------------------------
+    # Print info message to log file and terminal
+    # --------------------------------------------------------------------------
+    def __logi(self, msg):
+        logging.info(msg)
+        print(msg)
+
+    # --------------------------------------------------------------------------
+    # Print version number to terminal
+    # --------------------------------------------------------------------------
+    def __print_version(self):
+
+        # get current dir
+        src_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # get VERSION file
+        ver_path = os.path.join(src_dir, 'VERSION')
+
+        # read version number
+        with open(ver_path, 'r') as file:
+            try:
+                ver_num = file.readline()
+                ver_str = f'{self.prog_name} version {ver_num}'
+                self.__logi(ver_str)
+
+            except Exception as error:
+
+                # log error
+                self.__loge('could not load VERSION file')
+                self.__loge(error)
+
+    # --------------------------------------------------------------------------
     # Gracefully exit the script when we are done or on failure
     # --------------------------------------------------------------------------
     def __do_exit(self):
@@ -577,8 +640,8 @@ class Main:
         self.__save_conf()
 
         # log that we are finished with script
-        logging.debug('exit main script')
-        logging.debug('-------------------------------------------------------')
+        self.__logi('exit main script')
+        self.__logi('-------------------------------------------------------')
 
         # quit script
         exit()
