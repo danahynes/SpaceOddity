@@ -105,36 +105,39 @@ class Main:
                 'timestamp':        '',
                 'old_filepath':     '',
                 'filepath':         ''
-            },
-            'caption_transfer': {
-                'pic_w':            0,
-                'pic_h':            0,
-                'screen_w':         0,
-                'screen_h':         0
-            },
-            'caption_options': {
-                'show_title':       1,
-                'show_copyright':   1,
-                'show_explanation': 1,
-                'font_r':           1.0,
-                'font_g':           1.0,
-                'font_b':           1.0,
-                'font_size':        12,
-                'bg_r':             0.0,
-                'bg_g':             0.0,
-                'bg_b':             0.0,
-                'bg_a':             75,
-                'position':         8,
-                'width':            500,
-                'radius':           10,
-                'border_padding':   10,
-                'top_padding':      50,
-                'bottom_padding':   10,
-                'side_padding':     10
             }
         }
+        # NEXT: options for caption
+        #     },
+        #     'caption_transfer': {
+        #         'pic_w':            0,
+        #         'pic_h':            0,
+        #         'screen_w':         0,
+        #         'screen_h':         0
+        #     },
+        #     'caption_options': {
+        #         'show_title':       1,
+        #         'show_copyright':   1,
+        #         'show_explanation': 1,
+        #         'font_r':           1.0,
+        #         'font_g':           1.0,
+        #         'font_b':           1.0,
+        #         'font_size':        12,
+        #         'bg_r':             0.0,
+        #         'bg_g':             0.0,
+        #         'bg_b':             0.0,
+        #         'bg_a':             75,
+        #         'position':         8,
+        #         'width':            500,
+        #         'radius':           10,
+        #         'border_padding':   10,
+        #         'top_padding':      50,
+        #         'bottom_padding':   10,
+        #         'side_padding':     10
+        #     }
+        # }
 
-        # user config dict
+        # user config dict (set to defaults before trying to load file)
         self.conf_dict = self.conf_dict_def.copy()
 
         # create config folder if it does not exist
@@ -148,14 +151,14 @@ class Main:
         logging.basicConfig(filename=log_path, level=logging.DEBUG,
                             format='%(asctime)s - %(levelname)s - %(message)s')
 
-        # log start
-        logging.debug('=======================================================')
-        logging.debug('start main script')
-
     # --------------------------------------------------------------------------
     # Run the script
     # --------------------------------------------------------------------------
     def run(self):
+
+        # log start
+        self.__logd('=======================================================')
+        self.__logd('start main script')
 
         # init the config dict from user settings
         self.__load_conf()
@@ -175,7 +178,7 @@ class Main:
         else:
 
             # log the enabled state
-            logging.debug('main script disabled')
+            self.__logd('main script disabled')
 
         # exit gracefully
         self.__do_exit()
@@ -213,20 +216,20 @@ class Main:
             self.conf_dict['apod'] = apod_dict
 
             # log success
-            logging.debug('get data from server: %s', apod_dict)
+            self.__logd(f'get data from server: {apod_dict}')
 
             # check if url is the same
             if self.__check_same_url(old_apod_dict):
 
                 # same url, do nothing
-                logging.debug('the apod picture has not changed')
+                self.__logd('the apod picture has not changed')
                 self.__do_exit()
 
         except Exception as error:
 
             # log error
-            logging.error('could not get data from server')
-            logging.error(error)
+            self.__loge('could not get data from server')
+            self.__loge(error)
 
             # this is a fatal error
             self.__do_exit()
@@ -298,7 +301,7 @@ class Main:
         capt_dict['screen_h'] = screen_h
 
         # log success
-        logging.debug('resize image')
+        self.__logd('resize image')
 
     # --------------------------------------------------------------------------
     # Run caption script
@@ -317,7 +320,7 @@ class Main:
         cmd_array = shlex.split(cmd)
         subprocess.call(cmd_array)
 
-        logging.debug('make _caption')
+        self.__logd('make _caption')
 
     # --------------------------------------------------------------------------
     # Set the wallpaper
@@ -342,7 +345,7 @@ class Main:
         settings.sync()
 
         # log success
-        logging.debug('set image: %s', pic_path)
+        self.__logd(f'set image:{pic_path}')
 
     # --------------------------------------------------------------------------
     # Delete old image
@@ -359,13 +362,13 @@ class Main:
                 os.remove(old_image)
 
                 # log success
-                logging.debug('remove old image: %s', old_image)
+                self.__logd(f'remove old image: {old_image}')
 
             except Exception as error:
 
                 # log error
-                logging.error('could not remove old image')
-                logging.error(error)
+                self.__loge('could not remove old image')
+                self.__loge(error)
 
     # --------------------------------------------------------------------------
     # Helpers
@@ -409,7 +412,7 @@ class Main:
                 files_dict['old_filepath'] = files_dict['filepath']
 
                 # log success
-                logging.debug('load conf file: %s', self.conf_dict)
+                self.__logd(f'load conf file: {self.conf_dict}')
 
             except Exception as error:
 
@@ -418,8 +421,8 @@ class Main:
                 self.__save_conf()
 
                 # log error
-                logging.error('could not load config file, load defaults')
-                logging.error(error)
+                self.__loge('could not load config file, load defaults')
+                self.__loge(error)
 
     # --------------------------------------------------------------------------
     # Save dictionary data to a file
@@ -431,7 +434,7 @@ class Main:
             json.dump(self.conf_dict, file, indent=4)
 
         # log success
-        logging.debug('save conf file: %s', self.conf_dict)
+        self.__logd(f'save conf file: {self.conf_dict}')
 
     # --------------------------------------------------------------------------
     # Get the image when it is an actual image
@@ -459,13 +462,13 @@ class Main:
             files_dict['filepath'] = pic_path
 
             # log success
-            logging.debug('download image')
+            self.__logd('download image')
 
         except Exception as error:
 
             # log error
-            logging.error('could not download image')
-            logging.error(error)
+            self.__loge('could not download image')
+            self.__loge(error)
 
             # this is a fatal error
             self.__do_exit()
@@ -476,7 +479,7 @@ class Main:
     def __apod_is_not_image(self):
 
         # log failure
-        logging.debug('apod is not an image')
+        self.__logd('apod is not an image')
 
         # nothing left to do
         self.__do_exit()
@@ -524,7 +527,7 @@ class Main:
         # files_dict['filepath'] = pic_path
 
         # # log success
-        # logging.debug('make fake image: %s', files_dict)
+        # self.__logd(f'make fake image: {files_dict}')
 
     # --------------------------------------------------------------------------
     # Get the most appropriate url to the full size image
@@ -569,6 +572,20 @@ class Main:
         return same_url
 
     # --------------------------------------------------------------------------
+    # Print debug message to log file and terminal
+    # --------------------------------------------------------------------------
+    def __logd(self, msg):
+        logging.debug(msg)
+        print(msg)
+
+    # --------------------------------------------------------------------------
+    # Print error message to log file and terminal
+    # --------------------------------------------------------------------------
+    def __loge(self, msg):
+        logging.error(msg)
+        print(msg)
+
+    # --------------------------------------------------------------------------
     # Gracefully exit the script when we are done or on failure
     # --------------------------------------------------------------------------
     def __do_exit(self):
@@ -577,8 +594,8 @@ class Main:
         self.__save_conf()
 
         # log that we are finished with script
-        logging.debug('exit main script')
-        logging.debug('-------------------------------------------------------')
+        self.__logd('exit main script')
+        self.__logd('-------------------------------------------------------')
 
         # quit script
         exit()
