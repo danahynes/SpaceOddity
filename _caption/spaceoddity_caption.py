@@ -26,6 +26,9 @@ import os
 import shlex
 import subprocess
 
+# NB: requires:
+# imagemagick (apt)
+
 # ------------------------------------------------------------------------------
 # Define the main class
 # ------------------------------------------------------------------------------
@@ -348,7 +351,6 @@ class Caption:
             str_caption = show_has_title + '\n\n' + show_has_copyright + \
                 '\n\n' + show_has_explanation
 
-        # NB: ImageMagick limit on caption is ~1000 cahracters
         str_caption = str_caption[:1000]
 
         # log success

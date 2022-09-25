@@ -47,9 +47,6 @@
 #       "APOD_Linux config" stays until window closed
 #       first is for python launcher, second is for window?
 
-# NB: requires:
-# pygobject
-
 # ------------------------------------------------------------------------------
 # Imports
 # ------------------------------------------------------------------------------
