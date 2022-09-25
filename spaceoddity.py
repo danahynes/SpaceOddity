@@ -150,8 +150,13 @@ class Main:
         os.makedirs(self.conf_dir, exist_ok=True)
 
         # remove old log file
+        # NB: don't log anything here, just print to terminal
         if os.path.exists(log_path):
-            os.remove(log_path)
+            try:
+                os.remove(log_path)
+            except Exception as error:
+                print('could not remove old log file')
+                print(error)
 
         # set up logging
         logging.basicConfig(filename=log_path, level=logging.DEBUG,
@@ -328,9 +333,17 @@ class Main:
         # set cmd for running caption
         cmd = capt_path
         cmd_array = shlex.split(cmd)
-        subprocess.call(cmd_array)
+        try:
+            subprocess.run(cmd_array)
 
-        self.__logi('make caption')
+            # log success
+            self.__logi('make caption')
+
+        except Exception as error:
+
+            # log error
+            self.__loge(f'Could not run {cmd}')
+            self.__loge(error)
 
     # --------------------------------------------------------------------------
     # Set the wallpaper
