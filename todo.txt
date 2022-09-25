@@ -1,6 +1,10 @@
 
-check installing new version over old
-finish json converter
+TODO: check installing new version over old
+TODO: finish json converter
+
+NEXT: create an install-latest script that formats current VERSION number, downloads,
+    unzips, and runs installer
+    https://gitbub.com/danahynes/SpaceOddity/archive/refs/tags/v0.1.0.zip
 
 files:
 install.py DONE

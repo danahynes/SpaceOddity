@@ -7,7 +7,6 @@
 # License : WTFPLv2                                              \          /  #
 # -----------------------------------------------------------------------------#
 
-# TODO: move cron stuff to seperate file
 # NEXT: less output, only print step name and ... Done
 # NEXT: pre/postflight exit codes
 # NEXT: load_conf should load vars from json file

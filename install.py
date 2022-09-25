@@ -7,8 +7,8 @@
 # License : WTFPLv2                                              \          /  #
 # -----------------------------------------------------------------------------#
 
-# TODO: take out run_after and run_cmd, make postflight for prog_name
-# TODO: how to check results of apt and pip install
+# NEXT: take out run_after and run_cmd, make postflight for prog_name
+# NEXT: how to check results of apt and pip install
 #       use subprocess.call and check result - see main script
 # NEXT: less output, only print step name and ... Done
 # NEXT: redirect apt and pip to /dev/null to reduce messages
