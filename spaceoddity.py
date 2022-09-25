@@ -34,8 +34,6 @@
 # cron job would only be every hour
 # NEXT: run every hour
 
-# TODO: what to put in logi
-
 # NB: requires:
 # imagemagick (apt)
 # wand (pip)
