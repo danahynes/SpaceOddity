@@ -2,7 +2,7 @@
 # -----------------------------------------------------------------------------#
 # Filename: cron-install.py                                      /          \  #
 # Project : SpaceOddity                                         |     ()     | #
-# Date    : 09/13/2022                                          |            | #
+# Date    : 09/23/2022                                          |            | #
 # Author  : Dana Hynes                                          |   \____/   | #
 # License : WTFPLv2                                              \          /  #
 # -----------------------------------------------------------------------------#
@@ -49,10 +49,12 @@ class Installer:
         home_dir = os.path.expanduser('~')
         dst_dir = os.path.join(home_dir, f'.{prog_name}')
 
-        # # the program to run after install
+        # # the program to run from cron
         run_cmd = os.path.join(dst_dir, f'{prog_name}.py')
 
         # set the job command
+        # NB: the env is required to futz w/ the screen from cron
+        # (which technically runs headless)
         uid = os.getuid()
         cron_cmd = 'env '
         cron_cmd += 'DISPLAY=:0 '
