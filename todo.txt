@@ -1,3 +1,7 @@
 
 check installing new version over old
 finish json converter
+
+files:
+install.py DONE
+uninstall.py DONE
