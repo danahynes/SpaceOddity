@@ -5,3 +5,5 @@ finish json converter
 files:
 install.py DONE
 uninstall.py DONE
+cron-install.py DONE
+cron-ininstall.py DONE
