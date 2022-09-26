@@ -105,13 +105,13 @@ class Installer:
         file_name = os.path.basename(__file__)
         run_root = (os.geteuid() == 0)
         if self.run_as_root and not run_root:
-            msg = 'This script needs to be run as root.'
-            msg += f'Try \'sudo ./{file_name}\''
+            msg = 'This script needs to be run as root. '\
+                   f'Try \'sudo ./{file_name}\''
             print(msg)
             exit()
         elif not self.run_as_root and run_root:
-            msg = 'This script should not be run as root.'
-            msg += f'Try \'./{file_name}\''
+            msg = 'This script should not be run as root. '\
+                   f'Try \'./{file_name}\''
             print(msg)
             exit()
 
