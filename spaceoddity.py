@@ -35,37 +35,25 @@
 # cron job would only be every hour
 # NEXT: run every hour
 
-# NB: requires:
-# imagemagick (apt)
-# wand (pip)
-
 # ------------------------------------------------------------------------------
 # Imports
 # ------------------------------------------------------------------------------
 
 # regular imports
 from datetime import datetime
+from gi.repository import Gio
+from urllib import request
+
 import json
 import logging
 import os
-import shlex
 import shutil
-import subprocess
-import urllib.request
-
-# special imports
-import gi
-gi.require_version('Gdk', '3.0')
-from gi.repository import Gdk, Gio          # noqa: E402 (ignore import order)
-
-# added imports
-from wand.image import Image as wand_image  # noqa: E402 (ignore import order)
 
 # ------------------------------------------------------------------------------
 # Constants
 # ------------------------------------------------------------------------------
 
-DEBUG = 0
+DEBUG = 1
 
 # ------------------------------------------------------------------------------
 # Define the main class
@@ -101,55 +89,18 @@ class Main:
                 'media_type':       '',
                 'hdurl':            '',
                 'url':              '',
-                'title':            '',
-                'copyright':        '',
-                'explanation':      ''
             },
             'files': {
-                'timestamp':        '',
                 'old_filepath':     '',
                 'filepath':         ''
             }
         }
-        # NEXT: options for caption
-        #     },
-        #     'caption_transfer': {
-        #         'pic_w':            0,
-        #         'pic_h':            0,
-        #         'screen_w':         0,
-        #         'screen_h':         0
-        #     },
-        #     'caption_options': {,
-        #         'show_caption':     1,
-        #         'show_title':       1,
-        #         'show_copyright':   1,
-        #         'show_explanation': 1,
-        #         'font_r':           1.0,
-        #         'font_g':           1.0,
-        #         'font_b':           1.0,
-        #         'font_size':        12,
-        #         'bg_r':             0.0,
-        #         'bg_g':             0.0,
-        #         'bg_b':             0.0,
-        #         'bg_a':             75,
-        #         'position':         8,
-        #         'width':            500,
-        #         'radius':           10,
-        #         'border_padding':   10,
-        #         'top_padding':      50,
-        #         'bottom_padding':   10,
-        #         'side_padding':     10
-        #     }
-        # }
 
         # user config dict (set to defaults before trying to load file)
         self.conf_dict = self.conf_dict_def.copy()
 
-        # create config folder if it does not exist
-        os.makedirs(self.conf_dir, exist_ok=True)
-
         # remove old log file
-        # NB: don't log anything here, just print to terminal
+        # NB: don't log anything here, just print to terminal (no logger yet)
         if os.path.exists(log_path):
             try:
                 os.remove(log_path)
@@ -161,6 +112,17 @@ class Main:
         logging.basicConfig(filename=log_path, level=logging.DEBUG,
                             format='%(asctime)s %(levelname)-7s %(message)s',
                             datefmt='%Y-%m-%d %I:%M:%S %p')
+
+        # create config folder if it does not exist
+        try:
+            os.makedirs(self.conf_dir, exist_ok=True)
+        except Exception as error:
+
+            # log error
+            self.__loge(f'could not create conf dir: {error}')
+
+            # this is a fatal error
+            self.__do_exit()
 
     # --------------------------------------------------------------------------
     # Run the script
@@ -184,8 +146,6 @@ class Main:
             # call each step in the process
             self.download_apod_dict()
             self.download_image()
-            # NEXT: self.resize_image()
-            # NEXT: self.make_caption()
             self.set_image()
             self.delete_old_image()
 
@@ -216,15 +176,9 @@ class Main:
             old_apod_dict = self.conf_dict['apod'].copy()
 
             # get json from url
-            response = urllib.request.urlopen(apod_url)
+            response = request.urlopen(apod_url)
             response_text = response.read()
             apod_dict = json.loads(response_text)
-
-            # set defaults for any missing keys
-            apod_dict_def = self.conf_dict_def['apod']
-            for key in apod_dict_def:
-                if key not in apod_dict.keys():
-                    apod_dict[key] = apod_dict_def[key]
 
             # apply new dict to config
             self.conf_dict['apod'] = apod_dict
@@ -242,8 +196,7 @@ class Main:
         except Exception as error:
 
             # log error
-            self.__loge('could not get data from server')
-            self.__loge(error)
+            self.__loge(f'could not get data from server: {error}')
 
             # this is a fatal error
             self.__do_exit()
@@ -258,7 +211,7 @@ class Main:
         media_type = apod_dict['media_type']
 
         # check if today's apod is an image (sometimes it's a video)
-        if 'image' in media_type:
+        if media_type == 'image':
 
             # do the image stuff
             self.__apod_is_image()
@@ -266,83 +219,6 @@ class Main:
 
             # do the not image stuff
             self.__apod_is_not_image()
-
-    # --------------------------------------------------------------------------
-    # Resize image to fill screen
-    # --------------------------------------------------------------------------
-    def resize_image(self):
-
-        # get path to downloaded image
-        files_dict = self.conf_dict['files']
-        pic_path = files_dict['filepath']
-
-        # get original width/height
-        old_img = wand_image(filename=pic_path)
-        old_w = old_img.width
-        old_h = old_img.height
-
-        # get screen size
-        display = Gdk.Display.get_default()
-        monitor = display.get_primary_monitor()
-        geometry = monitor.get_geometry()
-        screen_w = geometry.width
-        screen_h = geometry.height
-
-        # get the scale factor for height and width
-        scale_w = old_w / screen_w
-        scale_h = old_h / screen_h
-
-        # use the smallest scale to get the biggest new dimension
-        scale = 0
-        if scale_w < scale_h:
-            scale = scale_w
-        else:
-            scale = scale_h
-
-        # get the scaled height/width and make sure it still fills the screen
-        # after rounding with an int cast
-        new_w = int(old_w / scale)
-        new_h = int(old_h / scale)
-
-        # resize the image
-        old_img.resize(new_w, new_h)
-
-        # save sizes to user dict for caption script
-        capt_dict = self.conf_dict['caption']
-        capt_dict['pic_w'] = new_w
-        capt_dict['pic_h'] = new_h
-        capt_dict['screen_w'] = screen_w
-        capt_dict['screen_h'] = screen_h
-
-        # log success
-        self.__logi('resize image')
-
-    # --------------------------------------------------------------------------
-    # Run caption script
-    # --------------------------------------------------------------------------
-    def make_caption(self):
-
-        # save cofig dict for caption script
-        self.__save_conf()
-
-        # get path to caption script
-        app_dir = os.path.dirname(os.path.realpath(__file__))
-        capt_path = os.path.join(app_dir, f'{self.prog_name}_caption.py')
-
-        # set cmd for running caption
-        cmd = capt_path
-        cmd_array = shlex.split(cmd)
-        try:
-            subprocess.run(cmd_array)
-
-            # log success
-            self.__logi('make caption')
-
-        except Exception as error:
-
-            # log error
-            self.__loge(f'Could not run {cmd}')
-            self.__loge(error)
 
     # --------------------------------------------------------------------------
     # Set the wallpaper
@@ -367,7 +243,7 @@ class Main:
         settings.sync()
 
         # log success
-        self.__logd(f'set image:{pic_path}')
+        self.__logd(f'set image: {pic_path}')
 
     # --------------------------------------------------------------------------
     # Delete old image
@@ -376,21 +252,20 @@ class Main:
 
         # get previous path name
         files_dict = self.conf_dict['files']
-        old_image = files_dict['old_filepath']
+        old_filepath = files_dict['old_filepath']
 
         # if it exists, delete it
-        if os.path.exists(old_image):
+        if os.path.exists(old_filepath):
             try:
-                os.remove(old_image)
+                os.remove(old_filepath)
 
                 # log success
-                self.__logd(f'remove old image: {old_image}')
+                self.__logd(f'remove old image: {old_filepath}')
 
             except Exception as error:
 
                 # log error
-                self.__loge('could not remove old image')
-                self.__loge(error)
+                self.__loge(f'could not remove old image: {error}')
 
     # --------------------------------------------------------------------------
     # Helpers
@@ -412,20 +287,32 @@ class Main:
                 self.conf_dict = json.load(file)
 
                 # NB: there is probably a better way to do this
-                # get dicts
+                # this is mainly to make sure no one futzed with the config
+                # file manually and deleted or mistyped a key
+                # also note we don't do any value type checking (i.e. string or
+                # int) and no value clamping/validation
+                # basically, DON'T EDIT THE FILE BY HAND!!!
+
+                # set defaults for any missing sections
+
+                # get two dicts (src and dst)
                 dict_def = self.conf_dict_def
                 dict_user = self.conf_dict
 
-                # set defaults for any missing sections
-                for key in dict_def:
+                # iterate over src, adding any missing keys to dst
+                for key in dict_def.keys():
                     if key not in dict_user.keys():
                         dict_user[key] = dict_def[key]
 
                 # do second-level kv defaults
-                for key in dict_def:
+                for key in dict_def.keys():
+
+                    # get two dicts (src and dst)
                     dict_def_2 = dict_def[key]
                     dict_user_2 = dict_user[key]
-                    for key in dict_def_2:
+
+                    # iterate over src, adding any missing keys to dst
+                    for key in dict_def_2.keys():
                         if key not in dict_user_2.keys():
                             dict_user_2[key] = dict_def_2[key]
 
@@ -443,8 +330,7 @@ class Main:
                 self.__save_conf()
 
                 # log error
-                self.__loge('could not load config file, load defaults')
-                self.__loge(error)
+                self.__loge(f'could not load config file: {error}')
 
     # --------------------------------------------------------------------------
     # Save dictionary data to a file
@@ -477,7 +363,7 @@ class Main:
         try:
 
             # download the hi-res image
-            urllib.request.urlretrieve(pic_url, pic_path)
+            request.urlretrieve(pic_url, pic_path)
 
             # set pathname
             files_dict = self.conf_dict['files']
@@ -489,8 +375,7 @@ class Main:
         except Exception as error:
 
             # log error
-            self.__loge('could not download image')
-            self.__loge(error)
+            self.__loge(f'could not download image: {error}')
 
             # this is a fatal error
             self.__do_exit()
@@ -513,27 +398,28 @@ class Main:
             # NB: HOLY FORKING SHIRTBALLS THIS IS AN UGLY HACK!!!
             # but I can't afford to go 24 hours without testing
 
+            # set picture url
             fake_url = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                     '_test/test.jpg')
 
-            fake_exp = 'Lorem ipsum dolor sit amet, consectetur adipiscing '
-            fake_exp += 'elit, sed do eiusmod tempor incididunt ut labore '
-            fake_exp += 'et dolore magna aliqua. Ut enim ad minim veniam, '
-            fake_exp += 'quis nostrud exercitation ullamco laboris nisi ut '
-            fake_exp += 'aliquip ex ea commodo consequat. Duis aute irure '
-            fake_exp += 'dolor in reprehenderit in voluptate velit esse '
-            fake_exp += 'cillum dolore eu fugiat nulla pariatur. Excepteur '
-            fake_exp += 'sint occaecat cupidatat non proident, sunt in '
-            fake_exp += 'culpa qui officia deserunt mollit anim id est '
-            fake_exp += 'laborum.'
+            # fake_exp = 'Lorem ipsum dolor sit amet, consectetur adipiscing '\
+            #            'elit, sed do eiusmod tempor incididunt ut labore '\
+            #            'et dolore magna aliqua. Ut enim ad minim veniam, '\
+            #            'quis nostrud exercitation ullamco laboris nisi ut '\
+            #            'aliquip ex ea commodo consequat. Duis aute irure '\
+            #            'dolor in reprehenderit in voluptate velit esse '\
+            #            'cillum dolore eu fugiat nulla pariatur. Excepteur '\
+            #            'sint occaecat cupidatat non proident, sunt in '\
+            #            'culpa qui officia deserunt mollit anim id est '\
+            #            'laborum.'
 
             apod_dict = self.conf_dict['apod']
             apod_dict['media_type'] = 'image'
             apod_dict['hdurl'] = fake_url
             apod_dict['url'] = fake_url
-            apod_dict['title'] = 'Dummy Title'
-            apod_dict['copyright'] = 'Dummy Copyright'
-            apod_dict['explanation'] = fake_exp
+            # apod_dict['title'] = 'Dummy Title'
+            # apod_dict['copyright'] = 'Dummy Copyright'
+            # apod_dict['explanation'] = fake_exp
 
             # get the url to the actual image
             pic_url = self.__get_pic_url()
@@ -572,6 +458,7 @@ class Main:
         elif 'url' in apod_dict.keys():
             pic_url = apod_dict['url']
 
+        # return the result
         return pic_url
 
     # --------------------------------------------------------------------------
@@ -635,13 +522,14 @@ class Main:
             try:
                 ver_num = file.readline()
                 ver_str = f'{self.prog_name} version {ver_num}'
+
+                # log success
                 self.__logi(ver_str)
 
             except Exception as error:
 
                 # log error
-                self.__loge('could not load VERSION file')
-                self.__loge(error)
+                self.__loge(f'could not load VERSION file: {error}')
 
     # --------------------------------------------------------------------------
     # Gracefully exit the script when we are done or on failure
