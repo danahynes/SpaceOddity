@@ -1,13 +1,27 @@
 
 TODO: check installing new version over old
+TODO: apod has not changed but user changed background manually
+        don't force our wallpaper if URL has not changed
+        but if enabled, want to put APOD in there
+        ???
+        download/set anyway even if url same
+        or check gsettings url and change if different
+        if we put our image in ~/.local/share/backgrounds, it will 
+        show up in settings and user can change back to it?
 TODO: finish json converter
+TODO: test on VM
 
 NEXT: create an install-latest script that formats current VERSION number, downloads,
     unzips, and runs installer
     https://gitbub.com/danahynes/SpaceOddity/archive/refs/tags/v0.1.0.zip
+NEXT: can we just put a file in  /etc/cron.d instead of all this python-crontab stuff?
+    TimeShift does it, why not us?
+NEXT: fix all vars to have type first (i.e. user_dict to dict_user)
 
 files:
 install.py DONE
 uninstall.py DONE
 cron-install.py DONE
 cron-ininstall.py DONE
+spaceoddity.py - 
+convert-cfg.py - 
