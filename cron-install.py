@@ -56,11 +56,11 @@ class Installer:
         # NB: the env is required to futz w/ the screen from cron
         # (which technically runs headless)
         uid = os.getuid()
-        cron_cmd = 'env '
-        cron_cmd += 'DISPLAY=:0 '
-        cron_cmd += f'DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/{uid}/bus '
-        cron_cmd += '/usr/bin/python3 '
-        cron_cmd += f'{run_cmd}'
+        cron_cmd = 'env '\
+                   'DISPLAY=:0 '\
+                   f'DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/{uid}/bus '\
+                   '/usr/bin/python3 '\
+                   f'{run_cmd}'
 
         # get current user's crontab
         my_cron = CronTab(user=True)
