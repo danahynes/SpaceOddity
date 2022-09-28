@@ -7,7 +7,6 @@
 # License : WTFPLv2                                              \          /  #
 # -----------------------------------------------------------------------------#
 
-# TODO: make sure we are using all option keys
 # TODO: test all conditions (no internet, bad url, etc)
 # no conf dir: OK
 # No log file: OK
@@ -402,24 +401,10 @@ class Main:
             fake_url = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                     '_test/test.jpg')
 
-            # fake_exp = 'Lorem ipsum dolor sit amet, consectetur adipiscing '\
-            #            'elit, sed do eiusmod tempor incididunt ut labore '\
-            #            'et dolore magna aliqua. Ut enim ad minim veniam, '\
-            #            'quis nostrud exercitation ullamco laboris nisi ut '\
-            #            'aliquip ex ea commodo consequat. Duis aute irure '\
-            #            'dolor in reprehenderit in voluptate velit esse '\
-            #            'cillum dolore eu fugiat nulla pariatur. Excepteur '\
-            #            'sint occaecat cupidatat non proident, sunt in '\
-            #            'culpa qui officia deserunt mollit anim id est '\
-            #            'laborum.'
-
             apod_dict = self.conf_dict['apod']
             apod_dict['media_type'] = 'image'
             apod_dict['hdurl'] = fake_url
             apod_dict['url'] = fake_url
-            # apod_dict['title'] = 'Dummy Title'
-            # apod_dict['copyright'] = 'Dummy Copyright'
-            # apod_dict['explanation'] = fake_exp
 
             # get the url to the actual image
             pic_url = self.__get_pic_url()
@@ -476,7 +461,6 @@ class Main:
         if 'hdurl' in old_dict.keys() and 'hdurl' in curr_dict.keys():
             if old_dict['hdurl'] == curr_dict['hdurl']:
                 same_url = True
-
         elif 'url' in old_dict.keys() and 'url' in curr_dict.keys():
             if old_dict['url'] == curr_dict['url']:
                 same_url = True
