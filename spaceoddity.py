@@ -23,6 +23,9 @@
 # not image with DEBUG = 0: OK
 # bad pic url: OK
 
+# NEXT: use rotating logger
+# NEXT: log same stuff to log file as console if DEBUG = 1
+# https://stackoverflow.com/questions/13733552/logger-configuration-to-log-to-file-and-print-to-stdout/46098711#46098711
 # NEXT: display prog name as capitalized for first line when run from terminal
 #   i.e. SpaceOddity (V/v)ersion 0.1.2
 # NEXT: white line on right of image sometimes (oversizing doesn't help)
@@ -119,7 +122,7 @@ class Main:
 
         # set up logging
         logging.basicConfig(filename=log_path, level=logging.DEBUG,
-                            format='%(asctime)s %(levelname)-7s %(message)s',
+                            format='%(asctime)s [%(levelname)-5.5s] %(message)s',
                             datefmt='%Y-%m-%d %I:%M:%S %p')
 
     # --------------------------------------------------------------------------
@@ -165,7 +168,8 @@ class Main:
     def download_apod_dict(self):
 
         # the url to load json from
-        apod_url = 'https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY'
+        apod_url = 'https://api.nasa.gov/planetary/apod?api_key='\
+            '2h4peiV1XvWqA0bHBxVK21D3QmyBgHtwIyRxo8dm'
 
         # get the json and format it
         try:
@@ -241,6 +245,7 @@ class Main:
         settings.sync()
 
         # log success
+        self.__logi('set image')
         self.__logd(f'set image: {pic_path}')
 
     # --------------------------------------------------------------------------
@@ -365,7 +370,7 @@ class Main:
             files_dict['filepath'] = pic_path
 
             # log success
-            self.__logi('download image')
+            self.__logd(f'download image: {pic_path}')
 
         except Exception as error:
 
@@ -474,21 +479,21 @@ class Main:
     def __logd(self, msg):
         logging.debug(msg)
         if DEBUG:
-            print(msg)
+            print('DEBUG:', msg)
 
     # --------------------------------------------------------------------------
     # Print error message to log file and terminal
     # --------------------------------------------------------------------------
     def __loge(self, msg):
         logging.error(msg)
-        print(msg)
+        print('ERROR:', msg)
 
     # --------------------------------------------------------------------------
     # Print info message to log file and terminal
     # --------------------------------------------------------------------------
     def __logi(self, msg):
         logging.info(msg)
-        print(msg)
+        print('INFO :', msg)
 
     # --------------------------------------------------------------------------
     # Print version number to terminal
