@@ -49,12 +49,7 @@ class Uninstaller:
 
         # remove 'every' job
         for job in my_cron:
-            if job.comment == f'{prog_name} every':
-                my_cron.remove(job)
-
-        # remove 'reboot' job
-        for job in my_cron:
-            if job.comment == f'{prog_name} reboot':
+            if job.comment == prog_name:
                 my_cron.remove(job)
 
         # save job parameters

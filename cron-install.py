@@ -68,32 +68,17 @@ class Installer:
         # find 'every' job
         my_job = None
         for job in my_cron:
-            if job.comment == f'{prog_name} every':
+            if job.comment == prog_name:
                 my_job = job
 
         # # create new job if neccesary
         if my_job is None:
             my_job = my_cron.new(command=cron_cmd,
-                                 comment=f'{prog_name} every')
+                                 comment=prog_name)
 
         # set job time
         my_job.enable()
         my_job.minute.every(10)
-
-        # find 'reboot' job
-        my_job = None
-        for job in my_cron:
-            if job.comment == f'{prog_name} reboot':
-                my_job = job
-
-        # # create new job if neccesary
-        if my_job is None:
-            my_job = my_cron.new(command=cron_cmd,
-                                 comment=f'{prog_name} reboot')
-
-        # set job time
-        my_job.enable()
-        my_job.every_reboot()
 
         # save job parameters
         my_cron.write()
