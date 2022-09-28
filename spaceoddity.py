@@ -19,12 +19,12 @@
 # not enabled: OK
 # bad apod url: OK
 # no internet: OK
-# not image with TEST_IAMGE = 1: OK
-# not image with TEST_IAMGE = 0: OK
+# not image with DEBUG = 1: OK
+# not image with DEBUG = 0: OK
 # bad pic url: OK
-# caption no: NA
-# caption yes: NA
 
+# NEXT: display prog name as capitalized for first line when run from terminal
+#   i.e. SpaceOddity (V/v)ersion 0.1.2
 # NEXT: white line on right of image sometimes (oversizing doesn't help)
 # NEXT: check date instead of url
 # NEXT: put everything in one folder ~/.spaceoddity
@@ -98,30 +98,29 @@ class Main:
         # user config dict (set to defaults before trying to load file)
         self.conf_dict = self.conf_dict_def.copy()
 
-        # remove old log file
-        # NB: don't log anything here, just print to terminal (no logger yet)
-        if os.path.exists(log_path):
-            try:
-                os.remove(log_path)
-            except Exception as error:
-                print('could not remove old log file')
-                print(error)
-
-        # set up logging
-        logging.basicConfig(filename=log_path, level=logging.DEBUG,
-                            format='%(asctime)s %(levelname)-7s %(message)s',
-                            datefmt='%Y-%m-%d %I:%M:%S %p')
-
         # create config folder if it does not exist
         try:
             os.makedirs(self.conf_dir, exist_ok=True)
         except Exception as error:
 
-            # log error
-            self.__loge(f'could not create conf dir: {error}')
+            # NB: don't log anything here, just print (no logger yet)
+            print(f'could not create conf dir: {error}')
 
             # this is a fatal error
             self.__do_exit()
+
+        # remove old log file
+        # NB: don't log anything here, just print (no logger yet)
+        if os.path.exists(log_path):
+            try:
+                os.remove(log_path)
+            except Exception as error:
+                print(f'could not remove old log file: {error}')
+
+        # set up logging
+        logging.basicConfig(filename=log_path, level=logging.DEBUG,
+                            format='%(asctime)s %(levelname)-7s %(message)s',
+                            datefmt='%Y-%m-%d %I:%M:%S %p')
 
     # --------------------------------------------------------------------------
     # Run the script
@@ -315,10 +314,6 @@ class Main:
                         if key not in dict_user_2.keys():
                             dict_user_2[key] = dict_def_2[key]
 
-                # move filepath for deletiom
-                files_dict = self.conf_dict['files']
-                files_dict['old_filepath'] = files_dict['filepath']
-
                 # log success
                 self.__logd(f'load conf file: {self.conf_dict}')
 
@@ -366,6 +361,7 @@ class Main:
 
             # set pathname
             files_dict = self.conf_dict['files']
+            files_dict['old_filepath'] = files_dict['filepath']
             files_dict['filepath'] = pic_path
 
             # log success
@@ -421,6 +417,7 @@ class Main:
 
             # set pathname
             files_dict = self.conf_dict['files']
+            files_dict['old_filepath'] = files_dict['filepath']
             files_dict['filepath'] = pic_path
 
             # log success
@@ -466,7 +463,10 @@ class Main:
                 same_url = True
 
         # return the result
-        return same_url
+        if not DEBUG:
+            return same_url
+        else:
+            return False
 
     # --------------------------------------------------------------------------
     # Print debug message to log file and terminal
