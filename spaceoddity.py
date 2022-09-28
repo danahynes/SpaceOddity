@@ -23,6 +23,7 @@
 # not image with DEBUG = 0: OK
 # bad pic url: OK
 
+# NEXT: make a flowchart of code paths and what text/level to log at each step
 # NEXT: use rotating logger
 # NEXT: log same stuff to log file as console if DEBUG = 1
 # https://stackoverflow.com/questions/13733552/logger-configuration-to-log-to-file-and-print-to-stdout/46098711#46098711
@@ -246,7 +247,6 @@ class Main:
 
         # log success
         self.__logi('set image')
-        self.__logd(f'set image: {pic_path}')
 
     # --------------------------------------------------------------------------
     # Delete old image
@@ -263,12 +263,12 @@ class Main:
                 os.remove(old_filepath)
 
                 # log success
-                self.__logd(f'remove old image: {old_filepath}')
+                self.__logd(f'delete old image: {old_filepath}')
 
             except Exception as error:
 
                 # log error
-                self.__loge(f'could not remove old image: {error}')
+                self.__loge(f'could not delete old image: {error}')
 
     # --------------------------------------------------------------------------
     # Helpers
