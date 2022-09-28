@@ -2,10 +2,9 @@
 
 TODO: check installing new version over old
 TODO: finish json converter
-TODO: test on VM
 
 NEXT: should all the other stuff (caption, gui) be seperate scripts or just 
-        imports?
+        import as modules?
 NEXT: apod has not changed but user changed background manually
         don't force our wallpaper if URL has not changed
         but if enabled, want to put APOD in there
