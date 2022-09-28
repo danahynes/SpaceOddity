@@ -7,6 +7,7 @@
 # License : WTFPLv2                                              \          /  #
 # -----------------------------------------------------------------------------#
 
+# TODO: test at reboot
 # TODO: test all conditions (no internet, bad url, etc)
 # no conf dir: OK
 # No log file: OK
