@@ -7,7 +7,7 @@
 # License : WTFPLv2                                              \          /  #
 # -----------------------------------------------------------------------------#
 
-# TODO: remove gui/caption code
+# TODO: make sure we are using all option keys
 # TODO: test all conditions (no internet, bad url, etc)
 # no conf dir: OK
 # No log file: OK
@@ -41,7 +41,7 @@
 
 # regular imports
 from datetime import datetime
-from gi.repository import Gio
+from gi.repository.Gio import Settings as gsettings
 from urllib import request
 
 import json
@@ -230,7 +230,7 @@ class Main:
         pic_path = files_dict['filepath']
 
         # get system settings
-        settings = Gio.Settings.new('org.gnome.desktop.background')
+        settings = gsettings.new('org.gnome.desktop.background')
 
         # set variant for both light and dark themes
         settings.set_string('picture-uri', pic_path)

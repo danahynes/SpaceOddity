@@ -1,6 +1,12 @@
 
+
 TODO: check installing new version over old
-TODO: apod has not changed but user changed background manually
+TODO: finish json converter
+TODO: test on VM
+
+NEXT: should all the other stuff (caption, gui) be seperate scripts or just 
+        imports?
+NEXT: apod has not changed but user changed background manually
         don't force our wallpaper if URL has not changed
         but if enabled, want to put APOD in there
         ???
@@ -8,9 +14,6 @@ TODO: apod has not changed but user changed background manually
         or check gsettings url and change if different
         if we put our image in ~/.local/share/backgrounds, it will 
         show up in settings and user can change back to it?
-TODO: finish json converter
-TODO: test on VM
-
 NEXT: create an install-latest script that formats current VERSION number, downloads,
     unzips, and runs installer
     https://gitbub.com/danahynes/SpaceOddity/archive/refs/tags/v0.1.0.zip
