@@ -7,6 +7,8 @@
 # License : WTFPLv2                                              \          /  #
 # -----------------------------------------------------------------------------#
 
+# NEXT: use apt-get or apt?
+# NEXT: unattended install to get rid of messages - need to select [Y/n]
 # NEXT: take out run_after and run_cmd, make postflight for prog_name
 # NEXT: how to check results of apt and pip install
 #       use subprocess.call and check result - see main script
@@ -106,12 +108,12 @@ class Installer:
         run_root = (os.geteuid() == 0)
         if self.run_as_root and not run_root:
             msg = 'This script needs to be run as root. '\
-                   f'Try \'sudo ./{file_name}\''
+                f'Try \'sudo ./{file_name}\''
             print(msg)
             exit()
         elif not self.run_as_root and run_root:
             msg = 'This script should not be run as root. '\
-                   f'Try \'./{file_name}\''
+                f'Try \'./{file_name}\''
             print(msg)
             exit()
 
@@ -327,12 +329,11 @@ class Installer:
 
         # system requirements
         self.sys_reqs = [
-            'imagemagick'
+            # default empty
         ]
 
         # python requirements
         self.py_reqs = [
-            'wand',
             'python-crontab'
         ]
 
