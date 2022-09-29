@@ -22,7 +22,7 @@ import os
 # ------------------------------------------------------------------------------
 
 
-class Installer:
+class Cron_Installer:
 
     # --------------------------------------------------------------------------
     # Methods
@@ -73,8 +73,7 @@ class Installer:
 
         # # create new job if neccesary
         if my_job is None:
-            my_job = my_cron.new(command=cron_cmd,
-                                 comment=prog_name)
+            my_job = my_cron.new(command=cron_cmd, comment=prog_name)
 
         # set job time
         my_job.enable()
@@ -88,7 +87,7 @@ class Installer:
 # Run the main class if we are not an import
 # ------------------------------------------------------------------------------
 if __name__ == '__main__':
-    installer = Installer()
+    installer = Cron_Installer()
     installer.run()
 
 # -)
