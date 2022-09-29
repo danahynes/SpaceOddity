@@ -7,8 +7,7 @@
 # License : WTFPLv2                                              \          /  #
 # -----------------------------------------------------------------------------#
 
-# TODO: test at reboot
-# TODO: test all conditions (no internet, bad url, etc)
+# NEXT: test all conditions (no internet, bad url, etc)
 # no conf dir: OK
 # No log file: OK
 # NEXT: No cfg: doesn't delete old file if no cfg
@@ -47,7 +46,6 @@
 from datetime import datetime
 from gi.repository.Gio import Settings as gsettings
 from urllib import request
-
 import json
 import logging
 import os
@@ -124,7 +122,7 @@ class Main:
 
         # set up logging
         logging.basicConfig(filename=log_path, level=logging.DEBUG,
-                            format='%(asctime)s [%(levelname)-5.5s] %(message)s',
+                            format='%(asctime)s [%(levelname)-5s] %(message)s',
                             datefmt='%Y-%m-%d %I:%M:%S %p')
 
     # --------------------------------------------------------------------------
