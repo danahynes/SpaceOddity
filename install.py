@@ -7,18 +7,16 @@
 # License : WTFPLv2                                              \          /  #
 # -----------------------------------------------------------------------------#
 
-# NEXT: use apt-get or apt?
+# NEXT: less output, only print step name and ... Done
+# NEXT: pre/postflight exit codes
+# NEXT: load_conf should load vars from json file
+
 # NEXT: unattended install to get rid of messages - need to select [Y/n]
-# NEXT: take out run_after and run_cmd, make postflight for prog_name
 # NEXT: how to check results of apt and pip install
 #       use subprocess.call and check result - see main script
-# NEXT: less output, only print step name and ... Done
 # NEXT: redirect apt and pip to /dev/null to reduce messages
-# NEXT: pre/postflight exit codes
-#       this means we can use echo -e with ellipsis and Done
 # NEXT: make a module with installer/uninstaller
 # NEXT: add version string to options and print at start of install
-# NEXT: load_conf should load vars from json file
 
 # ------------------------------------------------------------------------------
 # Imports
@@ -54,46 +52,17 @@ class Installer:
         # these are the values to set in set_options
         self.run_as_root = False
         self.prog_name = ''
+        self.disp_name = ''
 
         self.preflight = []
         self.sys_reqs = []
         self.py_reqs = []
-        self.make_dirs = []
-        self.copy_files = {}
+        self.dirs = []
+        self.files = {}
         self.postflight = []
 
         self.run_after_install = False
         self.run_cmd = ''
-
-        '''
-        {
-            'run_as_root': 0,
-            'prog_name': '',
-            'preflight': {
-                'script1'       # relative to ${SRC}
-            }
-            'sys_reqs': {
-                'lib1'
-            },
-            'py_reqs': {
-                'lib2'
-            },
-            'make_dirs': {
-                'dir1'          # absolute (use ${HOME})
-            },
-            'copy_files':{
-                'src1': 'dst1'  # src relative to ${SRC}, dst absolute (use ${HOME})
-            },
-            'postflight': {
-                'script2'       # relative
-            }
-            run_after_install': 0,
-            'run_cmd': ''       # absolute
-        }
-
-        ${HOME} - user's home dir
-        ${SRC} - current dir of install.py
-        '''
 
     # --------------------------------------------------------------------------
     # Run the script
@@ -117,19 +86,24 @@ class Installer:
             print(msg)
             exit()
 
+        # ask for sudo password now
+        cmd = 'sudo echo -n'
+        cmd_array = shlex.split(cmd)
+        subprocess.run(cmd_array)
+
         # show some text
-        print(f'Installing {self.prog_name}')
+        print(f'Installing {self.disp_name}')
 
         # do the steps in order
         self.do_preflight()
         self.do_sys_reqs()
         self.do_py_reqs()
-        self.do_make_dirs()
-        self.do_copy_files()
+        self.do_dirs()
+        self.do_files()
         self.do_postflight()
 
         # done installing
-        print(f'{self.prog_name} installed')
+        print(f'{self.disp_name} installed')
 
         # run the program now
         if self.run_after_install:
@@ -180,7 +154,8 @@ class Installer:
         cmd = 'sudo apt-get install python3-pip'
         cmd_array = shlex.split(cmd)
         try:
-            subprocess.run(cmd_array)
+            cp = subprocess.run(cmd_array)
+            cp.check_returncode()
         except Exception as error:
             print('Could not install pip:', error)
             exit()
@@ -195,7 +170,8 @@ class Installer:
             cmd = f'sudo apt-get install {item}'
             cmd_array = shlex.split(cmd)
             try:
-                subprocess.run(cmd_array)
+                cp = subprocess.run(cmd_array)
+                cp.check_returncode()
             except Exception as error:
                 print(f'Could not install {item}:', error)
                 exit()
@@ -215,7 +191,8 @@ class Installer:
             cmd = f'pip3 install {item}'
             cmd_array = shlex.split(cmd)
             try:
-                subprocess.run(cmd_array)
+                cp = subprocess.run(cmd_array)
+                cp.check_returncode()
             except Exception as error:
                 print(f'Could not install {item}:', error)
                 exit()
@@ -223,34 +200,36 @@ class Installer:
     # --------------------------------------------------------------------------
     # Make any necessary directories
     # --------------------------------------------------------------------------
-    def do_make_dirs(self):
+    def do_dirs(self):
 
         # show some text
         print('Creating directories')
 
         # for each folder we need to make
-        for item in self.make_dirs:
+        for item in self.dirs:
 
             # show that we are doing something
-            print(f'Making directory {item}')
+            print(f'Creating directory {item}')
 
             # make the folder(s)
             try:
                 os.makedirs(item, exist_ok=True)
             except Exception as error:
+
+                # fatal error
                 print(f'Could not create directory {item}:', error)
                 exit()
 
     # --------------------------------------------------------------------------
     # Copy all files to their dests
     # --------------------------------------------------------------------------
-    def do_copy_files(self):
+    def do_files(self):
 
         # show some text
         print('Copying files')
 
         # for each file we need to copy
-        for key, val in self.copy_files.items():
+        for key, val in self.files.items():
 
             # show that we are doing something
             print(f'Copying {key} to {val}')
@@ -320,6 +299,7 @@ class Installer:
 
         # the program name
         self.prog_name = 'spaceoddity'
+        self.disp_name = 'SpaceOddity'
 
         # preflight scripts
         # NB: these should be relative to src_dir
@@ -343,14 +323,14 @@ class Installer:
 
         # make dirs
         # NB: these should be absolute paths
-        self.make_dirs = [
+        self.dirs = [
             dst_dir,
             cfg_dir
         ]
 
         # copy files to dests
         # NB: key is relative to src_dir, value is absolute
-        self.copy_files = {
+        self.files = {
             f'{self.prog_name}.py': dst_dir,
             'uninstall.py': dst_dir,
             'LICENSE': dst_dir,
@@ -365,6 +345,7 @@ class Installer:
 
         # whether to run after install
         self.run_after_install = True
+
         # NB: this path should be absolute
         self.run_cmd = os.path.join(dst_dir, f'{self.prog_name}.py')
 
