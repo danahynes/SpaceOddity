@@ -21,7 +21,7 @@ from crontab import CronTab
 # ------------------------------------------------------------------------------
 
 
-class Uninstaller:
+class Cron_Uninstaller:
 
     # --------------------------------------------------------------------------
     # Methods
@@ -39,7 +39,7 @@ class Uninstaller:
     def run(self):
 
         # show some text
-        print('Removing cron job')
+        print('Deleting cron job')
 
         # get prog name
         prog_name = 'spaceoddity'
@@ -60,7 +60,7 @@ class Uninstaller:
 # Run the main class if we are not an import
 # ------------------------------------------------------------------------------
 if __name__ == '__main__':
-    uninstaller = Uninstaller()
+    uninstaller = Cron_Uninstaller()
     uninstaller.run()
 
 # -)
