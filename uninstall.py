@@ -45,10 +45,11 @@ class Uninstaller:
         # these are the values to set in preflight
         self.run_as_root = False
         self.prog_name = ''
+        self.disp_name = ''
 
         self.preflight = []
-        self.del_files = {}
-        self.del_dirs = []
+        self.dirs = []
+        self.files = {}
         self.postflight = []
 
     # --------------------------------------------------------------------------
@@ -64,26 +65,26 @@ class Uninstaller:
         run_root = (os.geteuid() == 0)
         if self.run_as_root and not run_root:
             msg = 'This script needs to be run as root. '\
-                  f'Try \'sudo ./{file_name}\''
+                f'Try \'sudo ./{file_name}\''
             print(msg)
             exit()
         elif not self.run_as_root and run_root:
             msg = 'This script should not be run as root. '\
-                  f'Try \'./{file_name}\''
+                f'Try \'./{file_name}\''
             print(msg)
             exit()
 
         # show some text
-        print(f'Uninstalling {self.prog_name}')
+        print(f'Uninstalling {self.disp_name}')
 
         # do the steps in order
         self.do_preflight()
-        self.do_del_dirs()
-        self.do_del_files()
+        self.do_dirs()
+        self.do_files()
         self.do_postflight()
 
         # done uninstalling
-        print(f'{self.prog_name} uninstalled')
+        print(f'{self.disp_name} uninstalled')
 
     # --------------------------------------------------------------------------
     # Steps
@@ -116,50 +117,50 @@ class Uninstaller:
                 exit()
 
     # --------------------------------------------------------------------------
-    # Remove any necessary directories
+    # Delete any necessary directories
     # --------------------------------------------------------------------------
-    def do_del_dirs(self):
+    def do_dirs(self):
 
         # show some text
-        print('Removing directories')
+        print('Deleting directories')
 
         # for each folder we need to delete
-        for item in self.del_dirs:
+        for item in self.dirs:
 
             # show that we are doing something
-            print(f'Removing directory {item}')
+            print(f'Deleting directory {item}')
 
-            # remove the folder
+            # delete the folder
             try:
                 shutil.rmtree(item)
             except Exception as error:
 
                 # not a fatal error
-                print(f'Could not remove directory {item}:', error)
+                print(f'Could not delete directory {item}:', error)
 
     # --------------------------------------------------------------------------
-    # Remove any necessary files (outside above directiories)
+    # Delete any necessary files (outside above directiories)
     # --------------------------------------------------------------------------
-    def do_del_files(self):
+    def do_files(self):
 
         # show some text
-        print('Removing files')
+        print('Deleting files')
 
-        # for each file we need to copy
-        for key, val in self.del_files.items():
+        # for each file we need to delete
+        for key, val in self.files.items():
 
             # convert relative path to absolute path
             abs_key = os.path.join(self.src_dir, key)
 
             # show that we are doing something
-            print(f'Removing file {abs_key}')
+            print(f'Deleting file {abs_key}')
 
-            # remove the file (if it'wasn't in a folder above)
+            # delete the file (if it'wasn't in a folder above)
             if os.path.exists(abs_key):
                 try:
                     os.remove(abs_key)
                 except Exception as error:
-                    print(f'Could not remove file {abs_key}:', error)
+                    print(f'Could not delete file {abs_key}:', error)
 
     # --------------------------------------------------------------------------
     # Run postflight scripts
@@ -200,6 +201,7 @@ class Uninstaller:
 
         # the program name
         self.prog_name = 'spaceoddity'
+        self.disp_name = 'SpaceOddity'
 
         # preflight scripts
         # NB: these should be relative to src_dir
@@ -213,14 +215,14 @@ class Uninstaller:
 
         # delete dirs
         # NB: these should be absolute paths
-        self.del_dirs = [
+        self.dirs = [
             dst_dir,
             cfg_dir
         ]
 
         # delete files
         # NB: key is relative to src_dir, value is absolute
-        self.del_files = {
+        self.files = {
             # default empty
         }
 
