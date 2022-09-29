@@ -3,6 +3,8 @@
 TODO: check installing new version over old
 TODO: finish json converter
 
+NEXT: use cp = subprocess.run() wherever possible
+        https://docs.python.org/3/library/subprocess.html
 NEXT: should all the other stuff (caption, gui) be seperate scripts or just 
         import as modules?
 NEXT: apod has not changed but user changed background manually
