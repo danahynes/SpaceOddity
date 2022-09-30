@@ -1,7 +1,6 @@
 
 
 TODO: check installing new version over old
-TODO: finish json converter
 
 NEXT: use cp = subprocess.run() wherever possible
         https://docs.python.org/3/library/subprocess.html
