@@ -27,12 +27,11 @@
 # NEXT: use rotating logger
 # NEXT: log same stuff to log file as console if DEBUG = 1
 # https://stackoverflow.com/questions/13733552/logger-configuration-to-log-to-file-and-print-to-stdout/46098711#46098711
-# NEXT: display prog name as capitalized for first line when run from terminal
-#   i.e. SpaceOddity (V/v)ersion 0.1.2
 # NEXT: white line on right of image sometimes (oversizing doesn't help)
 # NEXT: check date instead of url
 # NEXT: put everything in one folder ~/.spaceoddity
-
+# NEXT: should subprocess use run, call, check_call, or check_output?
+# https://docs.python.org/3/library/subprocess.html
 # NEXT: run at screen unlock
 # https://unix.stackexchange.com/questions/28181/how-to-run-a-script-on-screen-lock-unlock
 # cron job would only be every hour
@@ -75,6 +74,7 @@ class Main:
 
         # set the program name for use in file and folder names
         self.prog_name = 'spaceoddity'
+        self.disp_name = 'SpaceOddity'
 
         # get locations
         home_dir = os.path.expanduser('~')
@@ -509,7 +509,7 @@ class Main:
         with open(ver_path, 'r') as file:
             try:
                 ver_num = file.readline()
-                ver_str = f'{self.prog_name} version {ver_num}'
+                ver_str = f'{self.disp_name} version {ver_num}'
 
                 # log success
                 self.__logi(ver_str)
