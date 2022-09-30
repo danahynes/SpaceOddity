@@ -229,7 +229,7 @@ class Uninstaller:
         # postflight scripts
         # NB: these should be relative to src_dir
         self.postflight = [
-            'cron-uninstall.py'
+            'cron_uninstall.py'
         ]
 
 
