@@ -340,7 +340,8 @@ class Installer:
         # postflight scripts
         # NB: these should be relative to src_dir
         self.postflight = [
-            'cron-install.py'
+            'convert_json.py',
+            'cron_install.py'
         ]
 
         # whether to run after install
