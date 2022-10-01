@@ -7,12 +7,18 @@
 # License : WTFPLv2                                              \          /  #
 # -----------------------------------------------------------------------------#
 
+# NEXT: less output, only print step name and ... Done
+# NEXT: pre/postflight exit codes
+# NEXT: load_conf should load vars from json file
+
 # ------------------------------------------------------------------------------
 # Imports
 # ------------------------------------------------------------------------------
 
 import os
+import shlex
 import shutil
+import subprocess
 
 # ------------------------------------------------------------------------------
 # Define the main class
@@ -33,115 +39,198 @@ class Uninstaller:
         # get current user's home dir
         self.home_dir = os.path.expanduser('~')
 
-        # these are the values to set in preflight
-        self.prog_name = ''
-        self.run_as_root = False
+        # get current dir
+        self.src_dir = os.path.dirname(os.path.abspath(__file__))
 
-        self.del_dirs = []
+        # these are the values to set in preflight
+        self.run_as_root = False
+        self.prog_name = ''
+        self.disp_name = ''
+
+        self.preflight = []
+        self.dirs = []
+        self.files = {}
+        self.postflight = []
 
     # --------------------------------------------------------------------------
     # Run the script
     # --------------------------------------------------------------------------
     def run(self):
 
+        # set options
+        self.__load_conf()
+
         # check for run as root/need to run as root
         file_name = os.path.basename(__file__)
         run_root = (os.geteuid() == 0)
         if self.run_as_root and not run_root:
-            msg = 'This script needs to be run as root.'
-            msg += f'Try \'sudo ./{file_name}\''
+            msg = 'This script needs to be run as root. '\
+                f'Try \'sudo ./{file_name}\''
             print(msg)
             exit()
         elif not self.run_as_root and run_root:
-            msg = 'This script should not be run as root.'
-            msg += f'Try \'./{file_name}\''
+            msg = 'This script should not be run as root. '\
+                f'Try \'./{file_name}\''
             print(msg)
             exit()
 
-        # do the steps in order
-        self.__do_preflight()
-
         # show some text
-        # NB: must be done after preflight to get self.prog_name
-        print(f'Uninstalling {self.prog_name}')
+        print(f'Uninstalling {self.disp_name}')
 
-        # self.__do_reqs()
-        self.__del_dirs()
-        self.__do_postflight()
+        # do the steps in order
+        self.do_preflight()
+        self.do_dirs()
+        self.do_files()
+        self.do_postflight()
 
         # done uninstalling
-        print(f'{self.prog_name} uninstalled')
+        print(f'{self.disp_name} uninstalled')
 
     # --------------------------------------------------------------------------
     # Steps
     # --------------------------------------------------------------------------
 
     # --------------------------------------------------------------------------
-    # Preflight - setup all variables from init
+    # Run preflight scripts
     # --------------------------------------------------------------------------
 
-    def __do_preflight(self):
+    def do_preflight(self):
+
+        # show some text
+        print('Running preflight scripts')
+
+        for item in self.preflight:
+
+            # show that we are doing something
+            print(f'Running {item}')
+
+            # make relative file into absolute
+            abs_item = os.path.join(self.src_dir, item)
+
+            # run item
+            cmd = abs_item
+            cmd_array = shlex.split(cmd)
+            try:
+                subprocess.run(cmd_array)
+            except Exception as error:
+                print(f'Could not run {cmd}:', error)
+                exit()
+
+    # --------------------------------------------------------------------------
+    # Delete any necessary directories
+    # --------------------------------------------------------------------------
+    def do_dirs(self):
+
+        # show some text
+        print('Deleting directories')
+
+        # for each folder we need to delete
+        for item in self.dirs:
+
+            # show that we are doing something
+            print(f'Deleting directory {item}')
+
+            # delete the folder
+            try:
+                shutil.rmtree(item)
+            except Exception as error:
+
+                # not a fatal error
+                print(f'Could not delete directory {item}:', error)
+
+    # --------------------------------------------------------------------------
+    # Delete any necessary files (outside above directiories)
+    # --------------------------------------------------------------------------
+    def do_files(self):
+
+        # show some text
+        print('Deleting files')
+
+        # for each file we need to delete
+        for key, val in self.files.items():
+
+            # convert relative path to absolute path
+            abs_key = os.path.join(self.src_dir, key)
+
+            # show that we are doing something
+            print(f'Deleting file {abs_key}')
+
+            # delete the file (if it'wasn't in a folder above)
+            if os.path.exists(abs_key):
+                try:
+                    os.remove(abs_key)
+                except Exception as error:
+                    print(f'Could not delete file {abs_key}:', error)
+
+    # --------------------------------------------------------------------------
+    # Run postflight scripts
+    # --------------------------------------------------------------------------
+    def do_postflight(self):
+
+        # show some text
+        print('Running postflight scripts')
+
+        for item in self.postflight:
+
+            # show that we are doing something
+            print(f'Running {item}')
+
+            # make relative file into absolute
+            abs_item = os.path.join(self.src_dir, item)
+
+            # run item
+            cmd = abs_item
+            cmd_array = shlex.split(cmd)
+            try:
+                subprocess.run(cmd_array)
+            except Exception as error:
+                print(f'Could not run {cmd}:', error)
+                exit()
+
+# --------------------------------------------------------------------------
+# Helpers
+# --------------------------------------------------------------------------
+
+    # --------------------------------------------------------------------------
+    # Set options from __init__
+    # --------------------------------------------------------------------------
+    def __load_conf(self):
+
+        # set root required
+        self.run_as_root = False  # default
 
         # the program name
         self.prog_name = 'spaceoddity'
+        self.disp_name = 'SpaceOddity'
+
+        # preflight scripts
+        # NB: these should be relative to src_dir
+        self.preflight = [
+            # default empty
+        ]
 
         # get some dirs
         dst_dir = os.path.join(self.home_dir, f'.{self.prog_name}')
         cfg_dir = os.path.join(self.home_dir, '.config', f'{self.prog_name}')
 
-        # make dirs
+        # delete dirs
         # NB: these should be absolute paths
-        self.del_dirs = [
+        self.dirs = [
             dst_dir,
             cfg_dir
         ]
 
-    # --------------------------------------------------------------------------
-    # Remove any necessary directories
-    # --------------------------------------------------------------------------
-    def __del_dirs(self):
+        # delete files
+        # NB: key is relative to src_dir, value is absolute
+        self.files = {
+            # default empty
+        }
 
-        # show some text
-        print('Removing directories')
-
-        # for each folder we need to make
-        for item in self.del_dirs:
-
-            # show that we are doing something
-            print(f'Removing directory {item}')
-
-            # remove the folder(s)
-            try:
-                shutil.rmtree(item)
-            except Exception as error:
-                print(f'Could not remove directory {item}:', error)
-
-    # --------------------------------------------------------------------------
-    # Remove crontab for changing wallpaper
-    # --------------------------------------------------------------------------
-    def __do_postflight(self):
-
-        # import the crontab module
-        from crontab import CronTab
-
-        # show some text
-        print('Removing cron job')
-
-        # get current user's crontab
-        my_cron = CronTab(user=True)
-
-        # remove 'every' job
-        for job in my_cron:
-            if job.comment == f'{self.prog_name} every':
-                my_cron.remove(job)
-
-        # remove 'reboot' job
-        for job in my_cron:
-            if job.comment == f'{self.prog_name} reboot':
-                my_cron.remove(job)
-
-        # save job parameters
-        my_cron.write()
+        # postflight scripts
+        # NB: these should be relative to src_dir
+        self.postflight = [
+            'cron_uninstall.py'
+        ]
 
 
 # ------------------------------------------------------------------------------
