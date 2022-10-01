@@ -7,13 +7,13 @@
 # License : WTFPLv2                                              \          /  #
 # -----------------------------------------------------------------------------#
 
-# NEXT: test all conditions (no internet, bad url, etc)
+# TODO: test all conditions (no internet, bad url, etc)
 # no conf dir: OK
 # No log file: OK
 # NEXT: No cfg: doesn't delete old file if no cfg
-#   put image in folder, next download, delete all contents of folder
-#   then put new image in folder before setting picture-uri
-#   or delete everything in .config that isn't spaceoddit.cfg or spaceoddity.log
+#       put image in folder, next download, delete all contents of folder
+#       then put new image in folder before setting picture-uri
+#       or delete everything in .config that isn't spaceoddit.cfg or spaceoddity.log
 # bad cfg: OK
 # NEXT: old filepath key missing: meh, might not delete old file (see above)
 # not enabled: OK
@@ -26,22 +26,21 @@
 # NEXT: make a flowchart of code paths and what text/level to log at each step
 # NEXT: use rotating logger
 # NEXT: log same stuff to log file as console if DEBUG = 1
-# https://stackoverflow.com/questions/13733552/logger-configuration-to-log-to-file-and-print-to-stdout/46098711#46098711
+#       https://stackoverflow.com/questions/13733552/logger-configuration-to-log-to-file-and-print-to-stdout/46098711#46098711
 # NEXT: white line on right of image sometimes (oversizing doesn't help)
 # NEXT: check date instead of url
 # NEXT: put everything in one folder ~/.spaceoddity
 # NEXT: should subprocess use run, call, check_call, or check_output?
-# https://docs.python.org/3/library/subprocess.html
+#       https://docs.python.org/3/library/subprocess.html
 # NEXT: run at screen unlock
-# https://unix.stackexchange.com/questions/28181/how-to-run-a-script-on-screen-lock-unlock
-# cron job would only be every hour
+#       https://unix.stackexchange.com/questions/28181/how-to-run-a-script-on-screen-lock-unlock
+#       cron job would only be every hour
 # NEXT: run every hour
 
 # ------------------------------------------------------------------------------
 # Imports
 # ------------------------------------------------------------------------------
 
-# regular imports
 from datetime import datetime
 from gi.repository.Gio import Settings as gsettings
 from urllib import request
@@ -141,8 +140,8 @@ class Main:
         self.__load_conf()
 
         # check to see if we are enabled
-        options = self.conf_dict['general']
-        if options['enabled']:
+        general_dict = self.conf_dict['general']
+        if general_dict['enabled']:
 
             # call each step in the process
             self.download_apod_dict()
@@ -240,8 +239,6 @@ class Main:
 
         # save settings
         settings.apply()
-
-        # NB: running from installer doesn't work without this
         settings.sync()
 
         # log success
@@ -328,7 +325,7 @@ class Main:
                 self.__save_conf()
 
                 # log error
-                self.__loge(f'could not load config file: {error}')
+                self.__loge(f'could not load conf file: {error}')
 
     # --------------------------------------------------------------------------
     # Save dictionary data to a file
@@ -337,10 +334,16 @@ class Main:
 
         # open the file and write json
         with open(self.conf_path, 'w') as file:
-            json.dump(self.conf_dict, file, indent=4)
+            try:
+                json.dump(self.conf_dict, file, indent=4)
 
-        # log success
-        self.__logd(f'save conf file: {self.conf_dict}')
+                # log success
+                self.__logd(f'save conf file: {self.conf_dict}')
+
+            except Exception as error:
+
+                # log error
+                self.__loge(f'could not save conf file: {error}')
 
     # --------------------------------------------------------------------------
     # Get the image when it is an actual image
@@ -477,8 +480,7 @@ class Main:
     # --------------------------------------------------------------------------
     def __logd(self, msg):
         logging.debug(msg)
-        if DEBUG:
-            print('DEBUG:', msg)
+        print('DEBUG:', msg)
 
     # --------------------------------------------------------------------------
     # Print error message to log file and terminal
