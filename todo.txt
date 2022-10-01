@@ -1,7 +1,4 @@
 
-
-TODO: check installing new version over old
-
 NEXT: use cp = subprocess.run() wherever possible
         https://docs.python.org/3/library/subprocess.html
 NEXT: should all the other stuff (caption, gui) be seperate scripts or just 
@@ -15,16 +12,16 @@ NEXT: apod has not changed but user changed background manually
         if we put our image in ~/.local/share/backgrounds, it will 
         show up in settings and user can change back to it?
 NEXT: create an install-latest script that formats current VERSION number, downloads,
-    unzips, and runs installer
-    https://gitbub.com/danahynes/SpaceOddity/archive/refs/tags/v0.1.0.zip
+        unzips, and runs installer
+        https://gitbub.com/danahynes/SpaceOddity/archive/refs/tags/v0.1.0.zip
 NEXT: can we just put a file in  /etc/cron.d instead of all this python-crontab stuff?
-    TimeShift does it, why not us?
+        TimeShift does it, why not us?
 NEXT: fix all vars to have type first (i.e. user_dict to dict_user)
 
 files:
 install.py DONE
 uninstall.py DONE
-cron-install.py DONE
-cron-ininstall.py DONE
+cron_install.py DONE
+cron_ininstall.py DONE
 spaceoddity.py - 
-convert-cfg.py - 
+convert_json.py DONE
