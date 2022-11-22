@@ -2,7 +2,7 @@
 # Project : SpaceOddity                                            /          \
 # Filename: convert_json.py                                       |     ()     |
 # Date    : 09/28/2022                                            |            |
-# Author  : Dana Hynes                                            |   \____/   |
+# Author  : cyclopticnerve                                        |   \____/   |
 # License : WTFPLv2                                                \          /
 # ------------------------------------------------------------------------------
 

@@ -41,4 +41,3 @@ if __name__ == '__main__':
 
     # # run the instance
     inst.run(dict_user)
-    

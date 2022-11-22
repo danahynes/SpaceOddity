@@ -2,7 +2,7 @@
 # Project : SpaceOddity                                            /          \
 # Filename: cron_uninstall.py                                     |     ()     |
 # Date    : 09/24/2022                                            |            |
-# Author  : Dana Hynes                                            |   \____/   |
+# Author  : cyclopticnerve                                        |   \____/   |
 # License : WTFPLv2                                                \          /
 # ------------------------------------------------------------------------------
 

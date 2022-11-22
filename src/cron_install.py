@@ -2,7 +2,7 @@
 # Project : SpaceOddity                                            /          \
 # Filename: cron_install.py                                       |     ()     |
 # Date    : 09/23/2022                                            |            |
-# Author  : Dana Hynes                                            |   \____/   |
+# Author  : cyclopticnerve                                        |   \____/   |
 # License : WTFPLv2                                                \          /
 # ------------------------------------------------------------------------------
 
@@ -40,7 +40,7 @@ def run():
     run_cmd = os.path.join(dst_dir, f'{prog_name}.py')
 
     # set the job command
-    # NB: the env is required to futz w/ the screen from cron
+    # NB: the env stuff is required to futz w/ the screen from cron
     # (which technically runs headless)
     uid = os.getuid()
     cron_cmd = 'env '\
