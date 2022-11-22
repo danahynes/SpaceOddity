@@ -1,5 +1,19 @@
+# ------------------------------------------------------------------------------
+# Project : SpaceOddity                                            /          \
+# Filename: install.py                                            |     ()     |
+# Date    : 09/23/2022                                            |            |
+# Author  : cyclopticnerve                                        |   \____/   |
+# License : WTFPLv2                                                \          /
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+# Imports
+# ------------------------------------------------------------------------------
 
 import installerator
+
+# NB: requires:
+# installerator
 
 # the user dict
 dict_user = {
@@ -34,11 +48,10 @@ dict_user = {
 # ------------------------------------------------------------------------------
 if __name__ == '__main__':
 
-    # create an instance of the class
-    # 1
-    # inst = Installerator()
-    # 2
+    # instantiate installerator class
     inst = installerator.installerator.Installerator()
 
     # # run the instance
     inst.run(dict_user)
+
+# -)
