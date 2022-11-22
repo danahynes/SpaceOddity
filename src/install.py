@@ -49,6 +49,7 @@ dict_user = {
 if __name__ == '__main__':
 
     # instantiate installerator class
+    # <package>.<module>.<class>()
     inst = installerator.installerator.Installerator()
 
     # # run the instance
