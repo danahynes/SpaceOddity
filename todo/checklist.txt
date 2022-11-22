@@ -24,7 +24,7 @@ GitHub
 
 Work
     --- Do all work on dev
-    [] Headers/footers
+    [X] Headers/footers
     [] Docstrings
 
 --------------------------------------------------------------------------------
