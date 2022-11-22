@@ -35,8 +35,9 @@ dict_user = {
 # ------------------------------------------------------------------------------
 if __name__ == '__main__':
 
-    # instantiate installerator class
-    uninst = installerator.installerator.Uninstallerator()
+    # instantiate uninstallerator class
+    # <package>.<module>.<class>()
+    uninst = installerator.uninstallerator.Uninstallerator()
 
     # # run the instance
     uninst.run(dict_user)
