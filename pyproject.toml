@@ -1,0 +1,54 @@
+# ------------------------------------------------------------------------------
+# Project : SpaceOddity                                            /          \
+# Filename: pyproject.toml                                        |     ()     |
+# Date    : 10/28/2022                                            |            |
+# Author  : cyclopticnerve                                        |   \____/   |
+# License : WTFPLv2                                                \          /
+# ------------------------------------------------------------------------------
+
+[build-system]
+requires = [
+    "setuptools>=59.6.0",
+    "wheel"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spaceoddity" # package/module name, small letters
+version = "0.1.0"
+description = "A program that changes your wallpaper to NASA's Astronomy Picture of the Day"
+readme = "README.md"
+authors = [
+    {name = "cyclopticnerve", email = "cyclopticnerve@gmail.com"}
+]
+license = {file = "LICENSE"}
+classifiers = [
+    "License :: Other/Proprietary License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+keywords = [
+    "walpaper",
+    "ubuntu",
+    "astrononmy",
+    "nasa",
+    "picture",
+    "wallpapers",
+    "wallpaper-engine",
+    "wallpaper-changer",
+    "apod",
+    "nasa-apod",
+    "wallpaper-app",
+    "apod-image",
+]
+dependencies = [
+    "configurator", 
+"   installerator"
+]
+requires-python = ">=3.10"
+
+[project.urls]
+Homepage = "https://github.com/cyclopticnerve/SpaceOddity"
+
+# -)
