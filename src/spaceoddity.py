@@ -1,8 +1,8 @@
 # ------------------------------------------------------------------------------
 # Project : SpaceOddityF                                           /          \
-#  ilename: spaceoddity.py                                        |     ()     |
+# Filename: spaceoddity.py                                        |     ()     |
 # Date    : 09/13/2022                                            |            |
-# Author  : Dana Hynes                                            |   \____/   |
+# Author  : cyclopticnerve                                        |   \____/   |
 # License : WTFPLv2                                                \          /
 # ------------------------------------------------------------------------------
 
