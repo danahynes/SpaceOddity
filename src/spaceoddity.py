@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Project : SpaceOddityF                                           /          \
+# Project : SpaceOddity                                            /          \
 # Filename: spaceoddity.py                                        |     ()     |
 # Date    : 09/13/2022                                            |            |
 # Author  : cyclopticnerve                                        |   \____/   |
