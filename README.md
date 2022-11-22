@@ -1,8 +1,8 @@
 <!----------------------------------------------------------------------------->
-<!-- Filename: README.md                                       /          \  -->
-<!-- Project : SpaceOddity                                    |     ()     | -->
+<!-- Project : SpaceOddity                                     /          \  -->
+<!-- Filename: README.md                                      |     ()     | -->
 <!-- Date    : 09/13/2022                                     |            | -->
-<!-- Author  : Dana Hynes                                     |   \____/   | -->
+<!-- Author  : cyclopticnerve                                 |   \____/   | -->
 <!-- License : WTFPLv2                                         \          /  -->
 <!----------------------------------------------------------------------------->
 
@@ -25,8 +25,8 @@ foo@bar:~$ sudo apt update && sudo apt upgrade
 to make sure you have the lastest repos and software installed.
 
 You can download the (hopefully stable)
-[latest release](http://github.com/danahynes/SpaceOddity/releases/latest) from 
-the main branch, unzip it, and run the *install.py* file from there:
+[latest release](http://github.com/cyclopticnerve/SpaceOddity/releases/latest) 
+from the main branch, unzip it, and run the *install.py* file from there:
 
 ```bash
 foo@bar:~$ cd Downloads/SpaceOddity-X.X.X
@@ -38,7 +38,7 @@ from the dev branch:
 
 ```bash
 foo@bar:~$ cd Downloads
-foo@bar:~/Downloads$ git clone https://github.com/danahynes/SpaceOddity
+foo@bar:~/Downloads$ git clone https://github.com/cyclopticnerve/SpaceOddity
 foo@bar:~/Downloads$ cd SpaceOddity
 foo@bar:~/Downloads/SpaceOddity$ ./install.py
 ```
@@ -53,7 +53,7 @@ foo@bar:~/.spaeoddity$ ./uninstall.py
 ```
 
 Or you can download the (hopefully stable)
-[latest release](http://github.com/danahynes/SpaceOddity/releases/latest) from 
+[latest release](http://github.com/cyclopticnerve/SpaceOddity/releases/latest) from 
 the main branch, unzip it, and run the *uninstall.py* file from there:
 
 ```bash
@@ -66,7 +66,7 @@ from the dev branch:
 
 ```bash
 foo@bar:~$ cd Downloads
-foo@bar:~/Downloads$ git clone https://github.com/danahynes/SpaceOddity
+foo@bar:~/Downloads$ git clone https://github.com/cyclopticnerve/SpaceOddity
 foo@bar:~/Downloads$ cd SpaceOddity
 foo@bar:~/Downloads/SpaceOddity$ ./uninstall.py
 ```
