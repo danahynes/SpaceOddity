@@ -44,7 +44,7 @@ def run(self):
 
 
 # ------------------------------------------------------------------------------
-# Run the main class if we are not an import
+# Run this script as if we are not an import
 # This happens when we run script from install.py
 # ------------------------------------------------------------------------------
 if __name__ == '__main__':
