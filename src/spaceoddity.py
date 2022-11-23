@@ -73,6 +73,19 @@ class Main:
     # --------------------------------------------------------------------------
     def __init__(self):
 
+        """
+            Description
+
+            Paramaters:
+                dict_defs [dict]: desc
+
+            Returns:
+                dict_res [dict]: desc
+
+            Raises:
+                Exception(str) if
+        """
+
         # set the program name for use in file and folder names
         self.prog_name = 'spaceoddity'
         self.disp_name = 'SpaceOddity'
@@ -131,6 +144,19 @@ class Main:
     # --------------------------------------------------------------------------
     def run(self):
 
+        """
+            Description
+
+            Paramaters:
+                dict_defs [dict]: desc
+
+            Returns:
+                dict_res [dict]: desc
+
+            Raises:
+                Exception(str) if
+        """
+
         # print version number to terminal
         self.__print_version()
 
@@ -167,6 +193,19 @@ class Main:
     # Get json from api.nasa.gov
     # --------------------------------------------------------------------------
     def download_apod_dict(self):
+
+        """
+            Description
+
+            Paramaters:
+                dict_defs [dict]: desc
+
+            Returns:
+                dict_res [dict]: desc
+
+            Raises:
+                Exception(str) if
+        """
 
         # the url to load json from
         apod_url = 'https://api.nasa.gov/planetary/apod?api_key='\
@@ -209,6 +248,19 @@ class Main:
     # --------------------------------------------------------------------------
     def download_image(self):
 
+        """
+            Description
+
+            Paramaters:
+                dict_defs [dict]: desc
+
+            Returns:
+                dict_res [dict]: desc
+
+            Raises:
+                Exception(str) if
+        """
+
         # make sure it's an image (sometimes it's a video)
         apod_dict = self.conf_dict['apod']
         media_type = apod_dict['media_type']
@@ -227,6 +279,19 @@ class Main:
     # Set the wallpaper
     # --------------------------------------------------------------------------
     def set_image(self):
+
+        """
+            Description
+
+            Paramaters:
+                dict_defs [dict]: desc
+
+            Returns:
+                dict_res [dict]: desc
+
+            Raises:
+                Exception(str) if
+        """
 
         # get path to downloaded image
         files_dict = self.conf_dict['files']
@@ -250,6 +315,19 @@ class Main:
     # Delete old image
     # --------------------------------------------------------------------------
     def delete_old_image(self):
+
+        """
+            Description
+
+            Paramaters:
+                dict_defs [dict]: desc
+
+            Returns:
+                dict_res [dict]: desc
+
+            Raises:
+                Exception(str) if
+        """
 
         # get previous path name
         files_dict = self.conf_dict['files']
@@ -276,6 +354,19 @@ class Main:
     # Load dictionary data from a file
     # --------------------------------------------------------------------------
     def __load_conf(self):
+
+        """
+            Description
+
+            Paramaters:
+                dict_defs [dict]: desc
+
+            Returns:
+                dict_res [dict]: desc
+
+            Raises:
+                Exception(str) if
+        """
 
         # create default dict if file does not exist
         if not os.path.exists(self.conf_path):
@@ -334,6 +425,19 @@ class Main:
     # --------------------------------------------------------------------------
     def __save_conf(self):
 
+        """
+            Description
+
+            Paramaters:
+                dict_defs [dict]: desc
+
+            Returns:
+                dict_res [dict]: desc
+
+            Raises:
+                Exception(str) if
+        """
+
         # open the file and write json
         with open(self.conf_path, 'w') as file:
             try:
@@ -351,6 +455,19 @@ class Main:
     # Get the image when it is an actual image
     # --------------------------------------------------------------------------
     def __apod_is_image(self):
+
+        """
+            Description
+
+            Paramaters:
+                dict_defs [dict]: desc
+
+            Returns:
+                dict_res [dict]: desc
+
+            Raises:
+                Exception(str) if
+        """
 
         # get the url to the actual image
         pic_url = self.__get_pic_url()
@@ -388,6 +505,19 @@ class Main:
     # Set some fake data when debugging and APOD is not an image
     # --------------------------------------------------------------------------
     def __apod_is_not_image(self):
+
+        """
+            Description
+
+            Paramaters:
+                dict_defs [dict]: desc
+
+            Returns:
+                dict_res [dict]: desc
+
+            Raises:
+                Exception(str) if
+        """
 
         # log failure
         self.__logi('apod is not an image')
@@ -437,6 +567,19 @@ class Main:
     # --------------------------------------------------------------------------
     def __get_pic_url(self):
 
+        """
+            Description
+
+            Paramaters:
+                dict_defs [dict]: desc
+
+            Returns:
+                dict_res [dict]: desc
+
+            Raises:
+                Exception(str) if
+        """
+
         # default return result
         pic_url = ''
 
@@ -456,6 +599,19 @@ class Main:
     # Check if new URL is same as old URL
     # --------------------------------------------------------------------------
     def __check_same_url(self, old_dict):
+
+        """
+            Description
+
+            Paramaters:
+                dict_defs [dict]: desc
+
+            Returns:
+                dict_res [dict]: desc
+
+            Raises:
+                Exception(str) if
+        """
 
         # default return result
         same_url = False
@@ -481,6 +637,20 @@ class Main:
     # Print debug message to log file and terminal
     # --------------------------------------------------------------------------
     def __logd(self, msg):
+
+        """
+            Description
+
+            Paramaters:
+                dict_defs [dict]: desc
+
+            Returns:
+                dict_res [dict]: desc
+
+            Raises:
+                Exception(str) if
+        """
+
         logging.debug(msg)
         print('DEBUG:', msg)
 
@@ -488,6 +658,20 @@ class Main:
     # Print error message to log file and terminal
     # --------------------------------------------------------------------------
     def __loge(self, msg):
+
+        """
+            Description
+
+            Paramaters:
+                dict_defs [dict]: desc
+
+            Returns:
+                dict_res [dict]: desc
+
+            Raises:
+                Exception(str) if
+        """
+
         logging.error(msg)
         print('ERROR:', msg)
 
@@ -495,6 +679,20 @@ class Main:
     # Print info message to log file and terminal
     # --------------------------------------------------------------------------
     def __logi(self, msg):
+
+        """
+            Description
+
+            Paramaters:
+                dict_defs [dict]: desc
+
+            Returns:
+                dict_res [dict]: desc
+
+            Raises:
+                Exception(str) if
+        """
+
         logging.info(msg)
         print('INFO :', msg)
 
@@ -502,6 +700,19 @@ class Main:
     # Print version number to terminal
     # --------------------------------------------------------------------------
     def __print_version(self):
+
+        """
+            Description
+
+            Paramaters:
+                dict_defs [dict]: desc
+
+            Returns:
+                dict_res [dict]: desc
+
+            Raises:
+                Exception(str) if
+        """
 
         # get current dir
         src_dir = os.path.dirname(os.path.abspath(__file__))
@@ -527,6 +738,19 @@ class Main:
     # Gracefully exit the script when we are done or on failure
     # --------------------------------------------------------------------------
     def __exit(self):
+
+        """
+            Description
+
+            Paramaters:
+                dict_defs [dict]: desc
+
+            Returns:
+                dict_res [dict]: desc
+
+            Raises:
+                Exception(str) if
+        """
 
         # save config dict to file
         self.__save_conf()
