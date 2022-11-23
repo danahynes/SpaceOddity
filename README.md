@@ -7,7 +7,10 @@
 <!----------------------------------------------------------------------------->
 
 # SpaceOddity
+
 ## "It mostly works™"
+
+[![License: WTFPL](https://img.shields.io/badge/License-WTFPL-brightgreen.svg)](http://www.wtfpl.net/about/)
 
 A program that changes your wallpaper to NASA's Astronomy Picture of the 
 Day
@@ -29,7 +32,7 @@ You should first run:
 foo@bar:~$ sudo apt update && sudo apt upgrade
 ```
 
-to make sure you have the lastest repos and software installed.
+to make sure you have the lastest software installed.
 
 You can download the (hopefully stable)
 [latest release](http://github.com/cyclopticnerve/SpaceOddity/releases/latest) 
@@ -60,8 +63,8 @@ foo@bar:~/.spaeoddity$ ./uninstall.py
 ```
 
 Or you can download the (hopefully stable)
-[latest release](http://github.com/cyclopticnerve/SpaceOddity/releases/latest) from 
-the main branch, unzip it, and run the *uninstall.py* file from there:
+[latest release](http://github.com/cyclopticnerve/SpaceOddity/releases/latest) 
+from the main branch, unzip it, and run the *uninstall.py* file from there:
 
 ```bash
 foo@bar:~$ cd Downloads/SpaceOddity-X.X.X
@@ -86,4 +89,4 @@ foo@bar:~$ rm -rf "~/.spacoddity"
 foo@bar:~$ rm -rf "~/.config/spaceoddity"
 ```
 
-# -)
+## -)
