@@ -31,8 +31,11 @@ Work
 
 Test
     --- Unit tests
-    [] Internal test (sys.path)
-    [] Install/test in venv (this project)$ (venv) python -m pip install -e .
+    Packages/Modules
+        [] Internal test (sys.path)
+        [] Install/test in venv (this project)$ (venv) python -m pip install -e .
+    Applications
+        [] Test in VM
 
 --------------------------------------------------------------------------------
 
@@ -40,6 +43,8 @@ Release - VSCodium
     [] $ python -m pip freeze > requirements.txt
     [] remove '-e' from requirements
     [] Change version number in __init__.py and pyproject.toml
+    [] changelog - $ git log --pretty="- %s" > CHANGELOG.md
+    --- generate docs
     [] Build - $ python -m build
     [] Push "dev"
     [] Checkout new branch “release” from “dev”
