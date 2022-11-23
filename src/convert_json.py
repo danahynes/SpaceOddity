@@ -25,6 +25,13 @@ def run():
 
     """
         Converts 0.1.0 user defs to 0.1.1 format
+
+        Raises:
+            Exception(str): if the JSON conversion fails
+
+        This method converts the old-style (v0.1.0) settings to the new (v0.2.0)
+        settings format. This file is only used internally by the install.py
+        script.
     """
 
     # set the program name for use in file and folder names
@@ -41,6 +48,9 @@ def run():
         # set default dict and result
         conf_dict = {}
         res = False
+
+        # show that we are doing something
+        print('Converting settings... ', end='')
 
         # read config file
         with open(conf_path, 'r') as file:
@@ -64,7 +74,11 @@ def run():
                     res = True
 
             except Exception as error:
-                print(f'could not convert json: {error}')
+                print('Fail')
+                raise Exception(f'Could not convert JSON: {error}')
+
+        # show we are done
+        print('Done')
 
         # open the file and write json
         if res:
