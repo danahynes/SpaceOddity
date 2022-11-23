@@ -25,9 +25,9 @@ from crontab import CronTab
 # --------------------------------------------------------------------------
 def run(self):
 
-    '''
+    """
         removes program from crontab
-    '''
+    """
 
     # show some text
     print('Deleting cron job')

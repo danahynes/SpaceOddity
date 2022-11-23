@@ -26,9 +26,9 @@ import os
 # --------------------------------------------------------------------------
 def run():
 
-    '''
+    """
         installs program into crontab
-    '''
+    """
 
     # show some text
     print('Creating cron job')

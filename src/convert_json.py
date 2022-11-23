@@ -23,9 +23,9 @@ import os
 # --------------------------------------------------------------------------
 def run():
 
-    '''
+    """
         Converts 0.1.0 user defs to 0.1.1 format
-    '''
+    """
 
     # set the program name for use in file and folder names
     prog_name = 'spaceoddity'
