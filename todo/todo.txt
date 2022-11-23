@@ -13,15 +13,7 @@ NEXT: apod has not changed but user changed background manually
         show up in settings and user can change back to it?
 NEXT: create an install-latest script that formats current VERSION number, downloads,
         unzips, and runs installer
-        https://gitbub.com/cyclopticnerve/SpaceOddity/archive/refs/tags/v0.1.0.zip
+        https://gitbub.com/cyclopticnerve/SpaceOddity/archive/refs/tags/v0.1.0.zip/.tar.gz
 NEXT: can we just put a file in  /etc/cron.d instead of all this python-crontab stuff?
         TimeShift does it, why not us?
 NEXT: fix all vars to have type first (i.e. user_dict to dict_user)
-
-files:
-install.py DONE
-uninstall.py DONE
-cron_install.py DONE
-cron_ininstall.py DONE
-spaceoddity.py - 
-convert_json.py DONE
