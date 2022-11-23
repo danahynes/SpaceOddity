@@ -14,6 +14,13 @@ Day
 
 ![](readme/readme_ss.jpg)
 
+# Requirements
+
+This app also requires two additional libraries:<br>
+[Configurator](https://github.com/cyclopticnerve/Configurator/releases/latest)<br>
+[Installerator](https://github.com/cyclopticnerve/Installerator/releases/latest)<br>
+See their respective repos for installation instructions.
+
 # Installing
 
 You should first run:
