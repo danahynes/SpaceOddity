@@ -35,7 +35,7 @@ foo@bar:~$ sudo apt update && sudo apt upgrade
 to make sure you have the lastest software installed.
 
 You can download the (hopefully stable)
-[latest release](http://github.com/cyclopticnerve/SpaceOddity/releases/latest) 
+[latest release](https://github.com/cyclopticnerve/SpaceOddity/releases/latest) 
 from the main branch, unzip it, and run the *install.py* file from there:
 
 ```bash
@@ -43,10 +43,11 @@ foo@bar:~$ cd Downloads/SpaceOddity-X.X.X
 foo@bar:~/Downloads/SpaceOddity-X.X.X$ ./install.py
 ```
 
-Or you can clone the git repo to get the latest (and often broken) code
+Or you can clone the git repo to get the latest (and often broken) code 
 from the dev branch:
 
 ```bash
+foo@bar:~$ python -m pip install build
 foo@bar:~$ cd Downloads
 foo@bar:~/Downloads$ git clone https://github.com/cyclopticnerve/SpaceOddity
 foo@bar:~/Downloads$ cd SpaceOddity
@@ -55,38 +56,9 @@ foo@bar:~/Downloads/SpaceOddity$ ./install.py
 
 ## Uninstalling
 
-You can run the uninstaller locally:
-
 ```bash
 foo@bar:~$ cd .spaceoddity
 foo@bar:~/.spaeoddity$ ./uninstall.py
-```
-
-Or you can download the (hopefully stable)
-[latest release](http://github.com/cyclopticnerve/SpaceOddity/releases/latest) 
-from the main branch, unzip it, and run the *uninstall.py* file from there:
-
-```bash
-foo@bar:~$ cd Downloads/SpaceOddity-X.X.X
-foo@bar:~/Downloads/SpaceOddity-X.X.X$ ./uninstall.py
-```
-
-Or you can clone the git repo to get the latest (and often broken) code
-from the dev branch:
-
-```bash
-foo@bar:~$ cd Downloads
-foo@bar:~/Downloads$ git clone https://github.com/cyclopticnerve/SpaceOddity
-foo@bar:~/Downloads$ cd SpaceOddity
-foo@bar:~/Downloads/SpaceOddity$ ./uninstall.py
-```
-
-Or you can remove the files manually (note that this won't remove entries 
-from your crontab, but it shouldn't hurt your system):
-
-``` bash
-foo@bar:~$ rm -rf "~/.spacoddity"
-foo@bar:~$ rm -rf "~/.config/spaceoddity"
 ```
 
 ## -)
