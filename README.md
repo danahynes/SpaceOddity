@@ -17,14 +17,14 @@ Day
 
 ![](readme/readme_ss.jpg)
 
-# Requirements
+## Requirements
 
 This app also requires two additional libraries:<br>
 [Configurator](https://github.com/cyclopticnerve/Configurator/releases/latest)<br>
 [Installerator](https://github.com/cyclopticnerve/Installerator/releases/latest)<br>
 See their respective repos for installation instructions.
 
-# Installing
+## Installing
 
 You should first run:
 
@@ -53,7 +53,7 @@ foo@bar:~/Downloads$ cd SpaceOddity
 foo@bar:~/Downloads/SpaceOddity$ ./install.py
 ```
 
-# Uninstalling
+## Uninstalling
 
 You can run the uninstaller locally:
 
